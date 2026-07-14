@@ -1,0 +1,92 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AlgoVision AI API",
+    "version": "1.0.0",
+    "description": "REST API for the AlgoVision AI DSA tutor. All authenticated endpoints require either an httpOnly access token cookie or an `Authorization: Bearer <token>` header. State-changing requests also require the `X-XSRF-TOKEN` header echoing the `XSRF-TOKEN` cookie."
+  },
+  "servers": [
+    { "url": "http://localhost:5000/api", "description": "Local dev" },
+    { "url": "https://api.algovision.ai/api", "description": "Production" }
+  ],
+  "tags": [
+    { "name": "auth" },
+    { "name": "problems" },
+    { "name": "interview" },
+    { "name": "flashcards" },
+    { "name": "notes" },
+    { "name": "roadmap" },
+    { "name": "contest" },
+    { "name": "playground" },
+    { "name": "submissions" },
+    { "name": "progress" },
+    { "name": "gamification" },
+    { "name": "admin" },
+    { "name": "health" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code":    { "type": "string" },
+              "message": { "type": "string" },
+              "details": { "type": "array", "items": { "type": "object" } }
+            },
+            "required": ["code", "message"]
+          }
+        }
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/health/live": {
+      "get": { "tags": ["health"], "summary": "Liveness probe", "security": [], "responses": { "200": { "description": "Process is up" } } }
+    },
+    "/health/ready": {
+      "get": { "tags": ["health"], "summary": "Readiness probe (checks Mongo + Redis)", "security": [], "responses": { "200": { "description": "All deps up" }, "503": { "description": "A dep is down" } } }
+    },
+    "/metrics": {
+      "get": { "tags": ["health"], "summary": "Prometheus metrics", "security": [], "responses": { "200": { "description": "Text format" } } }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"], "summary": "Register a new user", "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "required": ["name", "email", "password"], "properties": { "name": { "type": "string" }, "email": { "type": "string", "format": "email" }, "password": { "type": "string", "minLength": 8 } } } } }
+        },
+        "responses": { "201": { "description": "Created" }, "409": { "description": "Email already in use" } }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"], "summary": "Log in", "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email", "password"], "properties": { "email": { "type": "string", "format": "email" }, "password": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "OK" }, "401": { "description": "Invalid credentials" }, "429": { "description": "Too many attempts" } }
+      }
+    },
+    "/auth/refresh": {
+      "post": { "tags": ["auth"], "summary": "Rotate refresh token", "responses": { "200": { "description": "New access token" }, "401": { "description": "Refresh missing or revoked" } } }
+    },
+    "/auth/logout": { "post": { "tags": ["auth"], "summary": "Revoke current refresh", "responses": { "200": { "description": "OK" } } } },
+    "/auth/logout-all": { "post": { "tags": ["auth"], "summary": "Revoke all refresh tokens", "responses": { "200": { "description": "OK" } } } },
+    "/auth/forgot-password": { "post": { "tags": ["auth"], "summary": "Send reset link", "security": [], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["email"], "properties": { "email": { "type": "string", "format": "email" } } } } } }, "responses": { "200": { "description": "Email sent (always 200 to avoid user-enum)" } } } },
+    "/auth/reset-password": { "post": { "tags": ["auth"], "summary": "Reset password with token", "security": [], "parameters": [{ "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["newPassword"], "properties": { "newPassword": { "type": "string", "minLength": 8 } } } } } }, "responses": { "200": { "description": "OK" }, "400": { "description": "Token invalid or expired" } } } },
+    "/auth/verify-email": { "get": { "tags": ["auth"], "summary": "Verify email with token", "security": [], "parameters": [{ "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Verified" }, "400": { "description": "Token invalid or expired" } } } },
+    "/auth/resend-verification": { "post": { "tags": ["auth"], "summary": "Re-send verification email", "responses": { "200": { "description": "OK" } } } },
+    "/auth/profile": {
+      "get": { "tags": ["auth"], "summary": "Get current user", "responses": { "200": { "description": "User object" } } },
+      "put": { "tags": ["auth"], "summary": "Update profile", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "email": { "type": "string" } } } } } }, "responses": { "200": { "description": "Updated user" } } }
+    },
+    "/auth/change-password": { "post": { "tags": ["auth"], "summary": "Change password", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["currentPassword", "newPassword"], "properties": { "currentPassword": { "type": "string" }, "newPassword": { "type": "string", "minLength": 8 } } } } } }, "responses": { "200": { "description": "OK" }, "401": { "description": "Current password is wrong" } } } },
+    "/auth/account": { "delete": { "tags": ["auth"], "summary": "Delete account (cascades)", "responses": { "200": { "description": "Deleted" } } } }
+  }
+}

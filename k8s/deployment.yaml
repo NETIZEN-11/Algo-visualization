@@ -1,0 +1,137 @@
+# Minimal production k8s manifests for AlgoVision AI.
+# Apply: kubectl apply -f k8s/ --namespace algovision
+#
+# These are intentionally simple. For real production use, pin the image
+# tag (instead of :latest), add PDBs, and externalise the database to
+# Atlas/Cloud SQL.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: algovision
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: algovision
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: backend }
+  template:
+    metadata:
+      labels: { app: backend }
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/algovision/backend:latest
+          ports: [{ containerPort: 5000 }]
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: PORT, value: "5000" }
+            - { name: MONGODB_URI, valueFrom: { secretKeyRef: { name: backend-secrets, key: mongodb-uri } } }
+            - { name: REDIS_URL,   valueFrom: { secretKeyRef: { name: backend-secrets, key: redis-url } } }
+            - { name: JWT_SECRET,  valueFrom: { secretKeyRef: { name: backend-secrets, key: jwt-secret } } }
+            - { name: COOKIE_SECRET, valueFrom: { secretKeyRef: { name: backend-secrets, key: cookie-secret } } }
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 5000 }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health/live, port: 5000 }
+            periodSeconds: 30
+          resources:
+            requests: { cpu: 250m, memory: 256Mi }
+            limits:   { cpu: 1000m, memory: 1Gi }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: algovision
+spec:
+  selector: { app: backend }
+  ports: [{ port: 80, targetPort: 5000 }]
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: algovision
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: worker }
+  template:
+    metadata:
+      labels: { app: worker }
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/algovision/backend:latest
+          args: ["node", "workers/dailyChallengeWorker.js"]
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: MONGODB_URI, valueFrom: { secretKeyRef: { name: backend-secrets, key: mongodb-uri } } }
+            - { name: REDIS_URL,   valueFrom: { secretKeyRef: { name: backend-secrets, key: redis-url } } }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { cpu: 500m,  memory: 512Mi }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: algovision
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: frontend }
+  template:
+    metadata:
+      labels: { app: frontend }
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/algovision/frontend:latest
+          ports: [{ containerPort: 80 }]
+          readinessProbe:
+            httpGet: { path: /healthz, port: 80 }
+          livenessProbe:
+            httpGet: { path: /healthz, port: 80 }
+          resources:
+            requests: { cpu: 50m,  memory: 64Mi }
+            limits:   { cpu: 200m, memory: 256Mi }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: algovision
+spec:
+  selector: { app: frontend }
+  ports: [{ port: 80, targetPort: 80 }]
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: algovision
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  minReplicas: 3
+  maxReplicas: 12
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }

@@ -1,0 +1,64 @@
+{
+  "name": "algovision-ai-backend",
+  "version": "1.0.0",
+  "description": "Backend API for AlgoVision AI - AI-powered DSA tutor",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "worker": "node workers/dailyChallengeWorker.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=__tests__/unit",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=__tests__/integration",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "lint": "eslint . --ext js",
+    "lint:fix": "eslint . --ext js --fix",
+    "seed:badges": "node scripts/seedBadges.js",
+    "seed:daily": "node scripts/seedDailyChallenges.js",
+    "migrate": "node scripts/migrate.js"
+  },
+  "keywords": [
+    "dsa",
+    "leetcode",
+    "ai",
+    "visualization"
+  ],
+  "author": "AlgoVision AI Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0-rc.12",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^6.9.13",
+    "openai": "^4.24.1",
+    "pino": "^9.4.0",
+    "pino-http": "^10.3.0",
+    "pino-pretty": "^11.2.2",
+    "rate-limit-redis": "^4.2.0",
+    "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "ioredis-mock": "^8.13.1",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.4.3",
+    "nodemon": "^3.0.2",
+    "supertest": "^7.2.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
