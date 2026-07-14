@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 
-function ArrayVisualizer({ data, currentStep, highlights = {} }) {
+function ArrayVisualizer({ data, highlights = {} }) {
   const [animatedValues, setAnimatedValues] = useState(data || [])
 
   useEffect(() => {

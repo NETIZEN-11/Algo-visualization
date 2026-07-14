@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { FaPlay, FaRandom, FaRedo } from 'react-icons/fa'
+import { FaPlay, FaRandom } from 'react-icons/fa'
 
 /**
  * Algomaster-style input panel:
@@ -15,7 +14,6 @@ import { FaPlay, FaRandom, FaRedo } from 'react-icons/fa'
 function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, targetKey = 'arr' }) {
   const presetNames = Object.keys(presets || {})
   const [activePreset, setActivePreset] = useState(defaultPreset || presetNames[0])
-  const [customText, setCustomText] = useState('')
   const [error, setError] = useState('')
 
   const currentPreset = presets?.[activePreset]
@@ -115,7 +113,7 @@ function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, t
 }
 
 /** Turn the structured input into a key=value string for the textbox. */
-function stringifyInput(input, target, k, value) {
+function stringifyInput(input, _target, _k, _value) {
   if (Array.isArray(input)) return `arr=[${input.join(', ')}]`
   if (typeof input === 'string') return `s="${input}"`
   if (typeof input === 'number') return `n=${input}`

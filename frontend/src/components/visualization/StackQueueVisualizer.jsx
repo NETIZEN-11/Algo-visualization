@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 
-function StackQueueVisualizer({ data, currentStep, highlights = {}, type = 'stack' }) {
+function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400">

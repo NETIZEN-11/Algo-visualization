@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { FaBrain, FaBell, FaUser, FaSignOutAlt } from 'react-icons/fa'
+import { FaBrain, FaBell, FaSignOutAlt } from 'react-icons/fa'
 import useAuthStore from '../../store/useAuthStore'
 
 function Navbar() {

@@ -181,7 +181,7 @@ function TestsTab({ problemData }) {
   )
 }
 
-function TestCaseCard({ testCase, index, type, result, onRun }) {
+function TestCaseCard({ testCase, type, result, onRun }) {
   const typeColors = {
     normal: 'border-green-500/30 bg-green-500/5',
     edge: 'border-yellow-500/30 bg-yellow-500/5',

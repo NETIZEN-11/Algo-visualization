@@ -1,13 +1,9 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FaCode, FaPlay, FaCopy, FaTrash, FaDownload, FaServer } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 import { playgroundService } from '../services/playgroundService'
 import { useReducedMotion } from '../hooks/useReducedMotion'
-
-// Lazy-load syntax highlighter so the playground chunk doesn't block
-// the initial route.
-const SyntaxHighlighter = lazy(() => import('react-syntax-highlighter').then((m) => ({ default: m.Prism })))
 
 const STARTER_SNIPPETS = {
   python: `# Two Sum — find two numbers that add to target

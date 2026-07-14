@@ -64,7 +64,7 @@ const Tabs = ({ children, defaultTab = 0, variant = 'default', className }) => {
 }
 
 const TabsList = ({ children }) => <>{children}</>
-const Tab = ({ children, icon }) => <>{children}</>
+const Tab = ({ children }) => <>{children}</>
 const TabsPanels = ({ children }) => <>{children}</>
 const TabPanel = ({ children }) => <div>{children}</div>
 

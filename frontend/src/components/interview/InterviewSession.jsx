@@ -9,7 +9,6 @@ function InterviewSession({
   currentQuestion,
   questionNumber,
   onNextQuestion,
-  onEndInterview,
 }) {
   const [answer, setAnswer] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)

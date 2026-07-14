@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-function LinkedListVisualizer({ data, currentStep, highlights = {} }) {
+function LinkedListVisualizer({ data, highlights = {} }) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400">

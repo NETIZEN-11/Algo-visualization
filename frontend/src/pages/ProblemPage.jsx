@@ -1,8 +1,7 @@
 import { useParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { FaBookmark, FaPlay, FaPause, FaStepForward, FaStepBackward, FaCheckCircle } from 'react-icons/fa'
-import { Card, Badge, Button, Tabs } from '../components/ui'
+import { FaBookmark, FaCheckCircle } from 'react-icons/fa'
+import { Card, Badge, Button } from '../components/ui'
 import ProblemPanel from '../components/problem/ProblemPanel'
 import VisualizationPanel from '../components/problem/VisualizationPanel'
 import AITutorPanel from '../components/problem/AITutorPanel'
@@ -14,10 +13,10 @@ function ProblemPage() {
   const [problem, setProblem] = useState(null)
   const [loading, setLoading] = useState(true)
   const [visualizationStep, setVisualizationStep] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
     loadProblem()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const loadProblem = async () => {

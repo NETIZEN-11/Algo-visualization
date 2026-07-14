@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  FaChartLine,
   FaTrophy,
   FaFire,
   FaBolt,
@@ -17,10 +16,10 @@ function ProgressPage() {
   const { user } = useAuthStore()
   const { analytics, readinessScore, topicAnalysis, getAnalytics, getReadinessScore, getTopicAnalysis } = useProgressStore()
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedTimeframe, setSelectedTimeframe] = useState('all') // all, week, month
 
   useEffect(() => {
     loadAllData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadAllData = async () => {
@@ -38,7 +37,6 @@ function ProgressPage() {
       // Logged but not surfaced — the page already shows the empty
       // state below when `analytics` is null. A toast on every load
       // was creating noise in the console.
-      // eslint-disable-next-line no-console
       console.warn('Progress data unavailable:', error?.message)
     } finally {
       setIsLoading(false)

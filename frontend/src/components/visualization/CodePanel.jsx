@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { motion } from 'framer-motion'
 import { FaCode, FaCopy, FaCheck } from 'react-icons/fa'
 
 /**
@@ -47,8 +46,6 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
       /* ignore */
     }
   }
-
-  const lines = source.split('\n')
 
   // Map pseudocode to a generic language for the highlighter
   const highlighterLang = effectiveLang === 'pseudocode' ? 'plaintext' : effectiveLang

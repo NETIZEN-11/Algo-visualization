@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import ArrayVisualizer from './ArrayVisualizer'
 import TreeVisualizer from './TreeVisualizer'
 import GraphVisualizer from './GraphVisualizer'
@@ -32,7 +32,7 @@ function VisualizationEngine({ visualizationData, type, onStepChange }) {
   const [speed, setSpeed] = useState(1)
 
   const normalizedType = normalizeType(type)
-  const steps = visualizationData?.steps || []
+  const steps = useMemo(() => visualizationData?.steps || [], [visualizationData])
   const totalSteps = steps.length
 
   // Reset when new visualization data arrives

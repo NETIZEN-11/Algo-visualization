@@ -99,6 +99,11 @@ function TreeNode({ node, x, y, level, highlights = {}, onNodeClick }) {
   )
 }
 
+const getTreeDepth = (node) => {
+  if (!node) return 0
+  return 1 + Math.max(getTreeDepth(node.left), getTreeDepth(node.right))
+}
+
 function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
   const [viewBox, setViewBox] = useState('0 0 800 600')
 
@@ -111,11 +116,6 @@ function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
       setViewBox(`0 0 ${width} ${height}`)
     }
   }, [treeData])
-
-  const getTreeDepth = (node) => {
-    if (!node) return 0
-    return 1 + Math.max(getTreeDepth(node.left), getTreeDepth(node.right))
-  }
 
   if (!treeData) {
     return (

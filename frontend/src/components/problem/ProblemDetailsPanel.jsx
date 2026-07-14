@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { FaArrowLeft, FaTag, FaBuilding, FaThumbsUp, FaThumbsDown } from 'react-icons/fa'
 
 function ProblemDetailsPanel({ problemData, onReset }) {

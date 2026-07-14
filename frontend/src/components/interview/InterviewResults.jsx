@@ -5,7 +5,6 @@ import {
   FaRedo,
   FaChartLine,
   FaCheckCircle,
-  FaTimesCircle,
 } from 'react-icons/fa'
 
 function InterviewResults({ sessionData, onRestart }) {

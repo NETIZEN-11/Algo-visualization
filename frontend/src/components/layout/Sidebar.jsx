@@ -19,7 +19,6 @@ import {
   FaBell,
   FaUserShield,
 } from 'react-icons/fa'
-import { useState, useEffect } from 'react'
 import useAuthStore from '../../store/useAuthStore'
 
 const menuItems = [

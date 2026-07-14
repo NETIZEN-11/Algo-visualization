@@ -12,15 +12,13 @@ import {
   FaChartLine,
 } from 'react-icons/fa'
 import toast from 'react-hot-toast'
-import useAuthStore from '../store/useAuthStore'
 
 function ContestPage() {
-  const { user } = useAuthStore()
   const [activeTab, setActiveTab] = useState('upcoming') // upcoming, ongoing, past
   const [selectedContest, setSelectedContest] = useState(null)
   const [isContestActive, setIsContestActive] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState(0)
-  const [currentProblemIndex, setCurrentProblemIndex] = useState(0)
+  const [, setCurrentProblemIndex] = useState(0)
   const [userSubmissions, setUserSubmissions] = useState({})
 
   // Mock contest data

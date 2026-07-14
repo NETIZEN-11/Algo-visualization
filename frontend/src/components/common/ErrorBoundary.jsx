@@ -18,7 +18,6 @@ export default class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // Log to the console so dev tools pick it up; in production this
     // would be wired to Sentry / pino-http via a small post endpoint.
-    // eslint-disable-next-line no-console
     console.error('[ErrorBoundary]', error, info)
   }
 

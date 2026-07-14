@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FaChartPie, FaTrophy, FaCode, FaBrain } from 'react-icons/fa'
+import { FaChartPie, FaCode, FaBrain } from 'react-icons/fa'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 

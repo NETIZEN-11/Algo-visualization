@@ -14,10 +14,7 @@ import {
 } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 import { dailyChallengeService } from '../services/dailyChallengeService'
-import useAuthStore from '../store/useAuthStore'
-
 function DailyChallengePage() {
-  const { user } = useAuthStore()
   const [challenge, setChallenge] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasCompleted, setHasCompleted] = useState(false)
@@ -123,7 +120,7 @@ function DailyChallengePage() {
 
     try {
       // Submit to backend
-      const r = await dailyChallengeService.complete({
+      await dailyChallengeService.complete({
         challengeId: challenge._id,
         timeTaken: finalTimeTaken,
       })

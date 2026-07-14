@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  FaArrowLeft, FaBookmark, FaCode, FaList, FaShare, FaCheck,
+  FaArrowLeft, FaBookmark, FaShare, FaCheck,
 } from 'react-icons/fa'
-import { ALGORITHMS, generateSteps, CATEGORIES } from '../data/algorithmCatalog'
+import { ALGORITHMS, generateSteps } from '../data/algorithmCatalog'
 import VisualizationEngine from '../components/visualization/VisualizationEngine'
 import VariablesPanel from '../components/visualization/VariablesPanel'
 import CodePanel from '../components/visualization/CodePanel'
@@ -27,11 +27,10 @@ import api from '../services/api'
  */
 function AlgorithmDetailPage() {
   const { slug } = useParams()
-  const navigate = useNavigate()
   const algo = ALGORITHMS[slug]
   const presetNames = useMemo(() => Object.keys(algo?.presets || {}), [algo])
 
-  const [activePreset, setActivePreset] = useState(presetNames[0])
+  const activePreset = presetNames[0]
   const [currentInput, setCurrentInput] = useState(null)
   const [language, setLanguage] = useState('javascript')
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -283,7 +282,6 @@ function safeGenerate(id, input, target, k, value) {
     }
     return generateSteps(id, input)
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.warn('step generation failed:', e)
     return []
   }

@@ -20,7 +20,7 @@ import api from '../services/api'
 function HomePage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
-  const { analytics, getAnalytics } = useProgressStore()
+  const { getAnalytics } = useProgressStore()
   
   const [dailyChallenge, setDailyChallenge] = useState(null)
   const [recentActivity, setRecentActivity] = useState([])
@@ -29,6 +29,7 @@ function HomePage() {
 
   useEffect(() => {
     loadDashboardData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadDashboardData = async () => {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaMicrophone, FaPlay, FaStop, FaClock, FaStar } from 'react-icons/fa'
+import { FaMicrophone, FaStop, FaStar } from 'react-icons/fa'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 import InterviewSetup from '../components/interview/InterviewSetup'
