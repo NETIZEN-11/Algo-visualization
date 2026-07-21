@@ -1,9 +1,3 @@
-/**
- * Playground routes — `/api/playground`
- *
- * Untrusted code execution is heavily rate-limited (aiRateLimiter) and
- * requires authentication so we can correlate abuse to a user.
- */
 import { Router } from 'express'
 import { protect } from '../middleware/auth.js'
 import { globalRateLimiter, aiRateLimiter } from '../middleware/rateLimiter.js'

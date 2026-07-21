@@ -1,21 +1,3 @@
-/**
- * Authentication controllers.
- *
- * - `register` / `login`  → issue access token in JSON + refresh in httpOnly cookie
- * - `refresh`             → rotate refresh token; reuse triggers family-wide revoke
- * - `logout`              → revoke the current refresh token
- * - `logoutAll`           → revoke every refresh token for the user
- * - `forgotPassword`      → email a one-time reset link
- * - `resetPassword`       → consume the reset token, set a new password
- * - `verifyEmail`         → consume the email-verification token
- * - `resendVerification`  → reissue the email-verification token
- * - `changePassword`      → requires current password
- * - `deleteAccount`       → cascades through every owned record
- *
- * Tokens are set with `SameSite=Strict`, `Secure` (in prod), `HttpOnly`,
- * `Path=/` — and a `Path=/api/auth` for the access token so it is not
- * sent on every request.
- */
 import crypto from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import User from '../models/User.js'
@@ -45,9 +27,7 @@ import { msFromDuration } from '../utils/duration.js'
 const ACCESS_TTL_MS = msFromDuration(process.env.JWT_EXPIRE || '15m')
 const REFRESH_TTL_MS = msFromDuration(process.env.JWT_REFRESH_EXPIRE || '30d')
 const isProd = process.env.NODE_ENV === 'production'
-// When SMTP isn't configured, surface the verify/reset link in the JSON
-// response so dev environments (and reviewers) can still exercise the flow
-// end-to-end without an inbox. The flag is forced to "false" in production.
+
 const DEV_AUTH_MODE = !isProd && process.env.SMTP_HOST === '' || process.env.DEV_AUTH_MODE === 'true'
 
 const cookieOpts = (maxAge) => ({
@@ -86,14 +66,10 @@ const publicUser = (u) => ({
   badges: u.badges || [],
 })
 
-/* --------------------------------------------------------------------- */
-/* Register                                                              */
-/* --------------------------------------------------------------------- */
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body
 
-    // Password strength — fails closed.
     const pw = validatePasswordStrength(password)
     if (!pw.ok) throw new ValidationError(pw.feedback || 'Password is too weak')
 
@@ -111,7 +87,6 @@ export const register = async (req, res, next) => {
       emailVerificationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     })
 
-    // Issue tokens
     const access = generateAccessToken(user._id)
     const refresh = generateRefreshToken(user._id)
     await RefreshTokenModel.issueRefreshToken({
@@ -122,8 +97,6 @@ export const register = async (req, res, next) => {
     })
     setAuthCookies(res, { access, refresh: refresh.token })
 
-    // Send verification email (best-effort). In dev with no SMTP, surface
-    // the link in the response so the flow is testable.
     const responseBody = {
       success: true,
       message: 'Account created. Check your email to verify your address.',
@@ -134,7 +107,7 @@ export const register = async (req, res, next) => {
       const url = `${process.env.MAIL_VERIFY_URL}?token=${verificationToken}&uid=${user._id}`
       const tpl = buildVerificationEmail({ name, verifyUrl: url })
       sendEmail({ to: user.email, ...tpl }).catch((err) => {
-        // eslint-disable-next-line no-console
+
         console.warn('verification email failed:', err.message)
       })
       if (DEV_AUTH_MODE) responseBody.devVerifyUrl = url
@@ -146,16 +119,12 @@ export const register = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Login                                                                 */
-/* --------------------------------------------------------------------- */
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password')
     if (!user) throw new UnauthorizedError('Invalid credentials')
 
-    // Brute-force lockout
     if (user.lockoutUntil && user.lockoutUntil > new Date()) {
       const minutes = Math.ceil((user.lockoutUntil - Date.now()) / 60_000)
       throw new TooManyRequestsError(`Account locked. Try again in ${minutes} min.`, 'ACCOUNT_LOCKED')
@@ -198,9 +167,6 @@ export const login = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Refresh                                                               */
-/* --------------------------------------------------------------------- */
 export const refresh = async (req, res, next) => {
   try {
     const token = req.cookies?.refresh
@@ -214,7 +180,6 @@ export const refresh = async (req, res, next) => {
 
     const newRefresh = generateRefreshToken(decoded.id)
 
-    // Rotate — reuse detection happens inside
     try {
       await RefreshTokenModel.rotateRefreshToken({
         oldJti: decoded.jti,
@@ -224,7 +189,7 @@ export const refresh = async (req, res, next) => {
         ip: req.ip,
       })
     } catch (e) {
-      // Reuse detected — wipe session
+
       clearAuthCookies(res)
       throw new UnauthorizedError(e.message)
     }
@@ -237,9 +202,6 @@ export const refresh = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Logout / logout-all                                                   */
-/* --------------------------------------------------------------------- */
 export const logout = async (req, res, next) => {
   try {
     const token = req.cookies?.refresh
@@ -248,7 +210,7 @@ export const logout = async (req, res, next) => {
         const decoded = verifyRefreshToken(token)
         await RefreshTokenModel.revokeRefreshToken(decoded.jti)
       } catch {
-        /* ignore — token already invalid */
+
       }
     }
     clearAuthCookies(res)
@@ -268,9 +230,6 @@ export const logoutAll = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Profile                                                               */
-/* --------------------------------------------------------------------- */
 export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id)
@@ -296,9 +255,6 @@ export const updateProfile = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Password change / reset                                               */
-/* --------------------------------------------------------------------- */
 export const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body
@@ -313,7 +269,7 @@ export const changePassword = async (req, res, next) => {
 
     user.password = await bcrypt.hash(newPassword, 12)
     await user.save()
-    // Rotate every session — password changed
+
     await RefreshTokenModel.revokeAllForUser(user._id, 'password_changed')
 
     res.json({ success: true, message: 'Password updated. Please sign in again.' })
@@ -326,8 +282,7 @@ export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body
     const user = await User.findOne({ email: email.toLowerCase() })
-    // Always 200 — never leak which emails exist. In dev-mode (no SMTP),
-    // we surface the link so the flow remains testable.
+
     const body = {
       success: true,
       message:
@@ -342,7 +297,7 @@ export const forgotPassword = async (req, res, next) => {
         const url = `${process.env.MAIL_RESET_URL}?token=${token}&uid=${user._id}`
         const tpl = buildPasswordResetEmail({ name: user.name, resetUrl: url })
         sendEmail({ to: user.email, ...tpl }).catch((err) => {
-          // eslint-disable-next-line no-console
+
           console.warn('reset email failed:', err.message)
         })
         if (DEV_AUTH_MODE) body.devResetUrl = url
@@ -356,8 +311,7 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    // Token arrives in the query string (clicked from an email link) or
-    // in the body (programmatic). Accept both.
+
     const token = req.query?.token || req.body?.token
     const { newPassword } = req.body
     const pw = validatePasswordStrength(newPassword)
@@ -381,13 +335,9 @@ export const resetPassword = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Email verification                                                    */
-/* --------------------------------------------------------------------- */
 export const verifyEmail = async (req, res, next) => {
   try {
-    // Token may arrive in the body (programmatic) or the query string
-    // (clicked from an email link → GET /api/auth/verify-email?token=…).
+
     const token = (req.body && req.body.token) || req.query?.token
     const user = await User.findOne({
       emailVerificationToken: token,
@@ -419,7 +369,7 @@ export const resendVerification = async (req, res, next) => {
       const url = `${process.env.MAIL_VERIFY_URL}?token=${token}&uid=${user._id}`
       const tpl = buildVerificationEmail({ name: user.name, verifyUrl: url })
       sendEmail({ to: user.email, ...tpl }).catch((err) => {
-        // eslint-disable-next-line no-console
+
         console.warn('verification email failed:', err.message)
       })
       if (DEV_AUTH_MODE) {
@@ -432,13 +382,10 @@ export const resendVerification = async (req, res, next) => {
   }
 }
 
-/* --------------------------------------------------------------------- */
-/* Account deletion (cascade)                                            */
-/* --------------------------------------------------------------------- */
 export const deleteAccount = async (req, res, next) => {
   try {
     const userId = req.user._id
-    // Import cascade service lazily to avoid circular deps at boot
+
     const { cascadeDeleteUser } = await import('../services/cascadeDeleteService.js')
     await cascadeDeleteUser(userId)
     clearAuthCookies(res)

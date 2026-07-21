@@ -1,7 +1,3 @@
-/**
- * Parse a duration string like "15m", "30d", "1h" into milliseconds.
- * Falls back to 30 days if the string is malformed.
- */
 const UNITS = {
   s: 1000,
   m: 60_000,
@@ -14,7 +10,7 @@ export function msFromDuration(s) {
   const str = String(s ?? '').trim()
   const m = /^(\d+)([smhd])$/.exec(str)
   if (!m) {
-    // Plain number → ms
+
     const n = Number(str)
     if (Number.isFinite(n) && n > 0) return n
     return 30 * 24 * 60 * 60 * 1000

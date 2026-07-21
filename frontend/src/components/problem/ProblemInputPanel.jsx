@@ -5,7 +5,7 @@ import api from '../../services/api'
 import toast from 'react-hot-toast'
 
 function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
-  const [inputMode, setInputMode] = useState('url') // 'url' or 'manual'
+  const [inputMode, setInputMode] = useState('url')
   const [problemUrl, setProblemUrl] = useState('')
   const [manualProblem, setManualProblem] = useState({
     title: '',
@@ -26,7 +26,6 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
           return
         }
 
-        // Scrape LeetCode problem
         const scrapeResponse = await api.post('/problems/scrape', {
           url: problemUrl,
         })
@@ -53,7 +52,6 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
         }
       }
 
-      // Analyze with AI
       const analysisResponse = await api.post('/problems/analyze', {
         problemData,
       })
@@ -72,7 +70,7 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
 
   return (
     <div className="bg-[#111827] border border-gray-800 rounded-2xl shadow-lg overflow-hidden">
-      {/* Header */}
+      {}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <FaMagic />
@@ -80,7 +78,7 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
         </h2>
       </div>
 
-      {/* Input Mode Toggle */}
+      {}
       <div className="p-4 border-b border-gray-800">
         <div className="flex gap-2">
           <button
@@ -108,7 +106,7 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
         </div>
       </div>
 
-      {/* Input Fields */}
+      {}
       <div className="p-4 space-y-4">
         {inputMode === 'url' ? (
           <div>
@@ -195,7 +193,7 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
           </div>
         )}
 
-        {/* Analyze Button */}
+        {}
         <motion.button
           whileHover={{ scale: isAnalyzing ? 1 : 1.02 }}
           whileTap={{ scale: isAnalyzing ? 1 : 0.98 }}
@@ -226,7 +224,7 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
         <p className="text-xs font-semibold text-gray-400 mb-2">Try these examples:</p>
         <div className="space-y-1">
           {[
-            'https://leetcode.com/problems/two-sum/',
+            'https:
             'https://leetcode.com/problems/longest-substring-without-repeating-characters/',
             'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/',
           ].map((url, index) => (

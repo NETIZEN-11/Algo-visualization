@@ -1,14 +1,5 @@
 import { motion } from 'framer-motion'
 
-/**
- * Renders the live variables of the current step.
- *
- * Each step from a step-generator may include a `variables` map. We
- * pretty-print it as a key/value list with sensible number/array/string
- * formatting. This is the equivalent of Algomaster's "current step
- * info" panel, but pulled out as a dedicated widget so it sits
- * next to the visualization and updates on every step change.
- */
 function VariablesPanel({ variables, explanation, codeLine, complexity }) {
   if (!variables && !explanation && !codeLine) {
     return null
@@ -24,14 +15,14 @@ function VariablesPanel({ variables, explanation, codeLine, complexity }) {
       transition={{ duration: 0.18 }}
       className="bg-gray-900/80 border border-gray-800 rounded-xl p-4 font-mono text-sm space-y-3"
     >
-      {/* Explanation (plain language summary) */}
+      {}
       {explanation && (
         <p className="text-gray-200 leading-relaxed font-sans text-[15px]">
           {explanation}
         </p>
       )}
 
-      {/* Variables */}
+      {}
       {entries.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 pt-2 border-t border-gray-800">
           {entries.map(([k, v]) => (
@@ -46,7 +37,7 @@ function VariablesPanel({ variables, explanation, codeLine, complexity }) {
         </div>
       )}
 
-      {/* Current code line + complexity badge */}
+      {}
       <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-800 text-xs">
         {codeLine && (
           <code className="text-purple-300 bg-purple-500/10 px-2 py-1 rounded truncate">

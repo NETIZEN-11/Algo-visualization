@@ -1,20 +1,5 @@
 import api from './api'
 
-/**
- * Client for the dynamic visualisation engine.
- *
- * Three flavours:
- *   - fromText(rawProblemText) — paste a problem, get steps.
- *   - fromProblem(id) — render steps for a curated DB problem.
- *   - classify(spec) — just detect the pattern; no animation.
- *
- * fromText/fromProblem go through a tiny in-memory cache (10 min TTL).
- * The backend engine is deterministic per-input so re-asking the same
- * paste or the same problem id is safe to memoise — and the user will
- * routinely paste, then tweak, then re-paste the same text, so the
- * cache really earns its keep on the second click.
- */
-
 const TEN_MINUTES = 10 * 60 * 1000
 const textCache = new Map()
 const problemCache = new Map()

@@ -1,6 +1,3 @@
-/**
- * Submission controller — record and list.
- */
 import { Submission, User, Problem } from '../models/index.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
 import { awardXP } from '../utils/leveling.js'
@@ -8,13 +5,10 @@ import { calculateLevel } from '../utils/leveling.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/* ------------------------------------------------------------------ */
 export const createSubmission = wrap(async (req, res) => {
   const { problemId, code, language, status, runtime, memory, testCasesPassed, testCasesTotal, difficulty } = req.body
   if (!problemId || !code || !language) throw new ValidationError('problemId, code, language are required')
 
-  // Resolve the public problemId to an ObjectId before we do anything else.
-  // The client may send either a public id ("prob_…") or an ObjectId hex.
   let problemDoc = null
   if (typeof problemId === 'string' && /^[a-f\d]{24}$/i.test(problemId)) {
     problemDoc = await Problem.findById(problemId)

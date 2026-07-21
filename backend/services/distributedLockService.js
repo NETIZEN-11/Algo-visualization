@@ -1,14 +1,3 @@
-/**
- * Distributed lease (Mongo-based) for the daily-challenge worker.
- *
- * Multiple backend replicas can run `dailyChallengeWorker`; only one
- * will hold the lease and actually write the challenge. Others will
- * see the lease is held and exit (or wait for the TTL).
- *
- * The lease is a single document in a `leases` collection. We use
- * `findOneAndUpdate` with conditional `expiresAt` to atomically grab
- * or extend the lease.
- */
 import mongoose from 'mongoose'
 import { logger } from '../utils/logger.js'
 
@@ -23,12 +12,10 @@ const LeaseSchema = new mongoose.Schema(
 )
 const Lease = mongoose.models.Lease || mongoose.model('Lease', LeaseSchema)
 
-const DEFAULT_TTL_MS = 60 * 1000 // 1 minute
+const DEFAULT_TTL_MS = 60 * 1000
 
 export const distributedLockService = {
-  /**
-   * Try to acquire `name` for `owner` for `ttlMs`. Returns true if held.
-   */
+
   async acquire(name, owner, ttlMs = DEFAULT_TTL_MS) {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + ttlMs)
@@ -43,7 +30,6 @@ export const distributedLockService = {
     return !!res && res.owner === owner && res.expiresAt > now
   },
 
-  /** Extend the lease if we still own it. */
   async renew(name, owner, ttlMs = DEFAULT_TTL_MS) {
     const now = new Date()
     const res = await Lease.updateOne(
@@ -53,7 +39,6 @@ export const distributedLockService = {
     return res.modifiedCount === 1
   },
 
-  /** Release the lease. */
   async release(name, owner) {
     await Lease.deleteOne({ name, owner })
   },

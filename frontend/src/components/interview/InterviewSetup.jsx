@@ -45,7 +45,7 @@ function InterviewSetup({ onStart }) {
           </p>
         </div>
 
-        {/* Difficulty Selection */}
+        {}
         <div className="mb-8">
           <label className="block text-lg font-semibold mb-4">
             Select Difficulty
@@ -87,7 +87,7 @@ function InterviewSetup({ onStart }) {
           </div>
         </div>
 
-        {/* Interview Type Selection */}
+        {}
         <div className="mb-8">
           <label className="block text-lg font-semibold mb-4">
             Interview Type
@@ -122,7 +122,7 @@ function InterviewSetup({ onStart }) {
           </div>
         </div>
 
-        {/* Expected Duration */}
+        {}
         <div className="bg-gray-800 rounded-lg p-4 mb-8">
           <div className="flex items-center gap-3">
             <FaClock className="text-orange-500 text-xl" />
@@ -133,7 +133,7 @@ function InterviewSetup({ onStart }) {
           </div>
         </div>
 
-        {/* Start Button */}
+        {}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -145,7 +145,7 @@ function InterviewSetup({ onStart }) {
         </motion.button>
       </motion.div>
 
-      {/* Tips Section */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

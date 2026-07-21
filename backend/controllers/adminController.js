@@ -1,12 +1,8 @@
-/**
- * Admin controller — RBAC gated by `protect` + `authorize('admin')`.
- */
 import { User, Badge, Contest, Submission, AiUsage } from '../models/index.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/* ------------------------------------------------------------------ */
 export const listUsers = wrap(async (req, res) => {
   const limit = Math.min(500, Math.max(1, parseInt(req.query.limit, 10) || 100))
   const page = Math.max(1, parseInt(req.query.page, 10) || 1)

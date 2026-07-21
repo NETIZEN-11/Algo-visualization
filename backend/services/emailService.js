@@ -1,14 +1,3 @@
-/**
- * Pluggable email service.
- *
- * - In development, prints to stdout so devs can copy verification/reset
- *   links from the log stream.
- * - In production, uses SMTP via nodemailer. Credentials come from
- *   `SMTP_*` env vars. The transporter is created lazily.
- *
- * Templates are plain HTML strings; nothing fancy. We use a tiny helper
- * to keep them readable and to escape any user-controlled content.
- */
 import nodemailer from 'nodemailer'
 import { logger } from '../utils/logger.js'
 
@@ -50,7 +39,7 @@ export const sendEmail = async ({ to, subject, html, text }) => {
   const transporter = getTransporter()
   const from = process.env.MAIL_FROM || 'no-reply@algovision.ai'
   if (!transporter) {
-    // Dev fallback — log to stdout
+
     logger.info(
       { to, subject, text: text || html, dev: true },
       '📧 [DEV] Email not sent (no SMTP configured); would have sent above'

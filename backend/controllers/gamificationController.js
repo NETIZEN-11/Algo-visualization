@@ -1,19 +1,3 @@
-/**
- * Gamification controller — XP, level, badges, leaderboard, daily challenge.
- *
- * Bug fixes vs the prior version:
- *  - Every handler uses `next(error)` / `throw` so errors flow into the
- *    global error handler with a stable shape.
- *  - `getLeaderboard` no longer crashes when `rankings` is missing on a
- *    weekly/monthly doc.
- *  - `checkAndAwardBadges` accesses `patternStats` as a plain object
- *    (the schema was migrated away from Mongoose Map) and lower-cases
- *    the pattern name for a robust compare.
- *  - `addXP` uses the single `leveling.js` helper.
- *  - `getDailyChallenge` / `completeDailyChallenge` use the
- *    `ChallengeParticipation` collection (which replaced the unbounded
- *    `participants` array on the doc).
- */
 import { User, Badge, Leaderboard, DailyChallenge, Problem, ChallengeParticipation } from '../models/index.js'
 import { addXP as addXPService, calculateLevel, calculateStreak, xpToNextLevel } from '../utils/leveling.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
@@ -22,9 +6,6 @@ import { cacheService } from '../services/cacheService.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/* ------------------------------------------------------------------ */
-/* Daily challenge pool (10 hand-picked classics)                       */
-/* ------------------------------------------------------------------ */
 const DAILY_CHALLENGE_POOL = [
   { title: 'Two Sum', difficulty: 'Easy', pattern: 'Hashing',
     description: 'Given an array of integers nums and an integer target, return indices of the two numbers that add up to target.',
@@ -74,9 +55,6 @@ function pickForDate(date) {
   return DAILY_CHALLENGE_POOL[day % DAILY_CHALLENGE_POOL.length]
 }
 
-/* ------------------------------------------------------------------ */
-/* Daily challenge seeding                                              */
-/* ------------------------------------------------------------------ */
 export const ensureTodaysChallenge = async () => {
   try {
     const today = new Date()
@@ -119,9 +97,6 @@ export const ensureTodaysChallenge = async () => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Badges                                                               */
-/* ------------------------------------------------------------------ */
 export const getUserBadges = wrap(async (req, res) => {
   const user = await User.findById(req.user._id).select('badges')
   res.json({ success: true, data: user.badges || [] })
@@ -132,10 +107,6 @@ export const getAllBadges = wrap(async (req, res) => {
   res.json({ success: true, data: badges })
 })
 
-/**
- * Check and award badges. Pure function — does NOT save. Caller decides.
- * Returns the array of newly-awarded badge docs.
- */
 export const checkAndAwardBadges = async (userId, stats) => {
   try {
     const user = await User.findById(userId)
@@ -143,8 +114,7 @@ export const checkAndAwardBadges = async (userId, stats) => {
     const allBadges = await Badge.find({ isActive: true })
     const earned = new Set((user.badges || []).map((b) => b.id))
     const newBadges = []
-    // `stats` is the merged source of truth (user + freshly-computed). For
-    // pattern lookups, use the lower-cased map.
+
     const ps = user.patternStats instanceof Map
       ? Object.fromEntries(user.patternStats)
       : user.patternStats || {}
@@ -189,9 +159,6 @@ export const checkAndAwardBadges = async (userId, stats) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Leaderboard                                                          */
-/* ------------------------------------------------------------------ */
 export const getLeaderboard = wrap(async (req, res) => {
   const type = String(req.query.type || 'global')
   const limit = Math.min(200, Math.max(1, parseInt(req.query.limit, 10) || 100))
@@ -199,9 +166,7 @@ export const getLeaderboard = wrap(async (req, res) => {
   const skip = (page - 1) * limit
 
   if (type === 'global') {
-    // Cache key intentionally omits the user — the rankings payload is
-    // identical for every viewer; only `currentUserRank` differs and is
-    // computed per request from the cached list.
+
     const cacheKey = `lb:global:${page}:${limit}`
     const { value, fromCache } = await cacheService.getOrSet(cacheKey, 60, async () => {
       const [topUsers, total] = await Promise.all([
@@ -232,7 +197,6 @@ export const getLeaderboard = wrap(async (req, res) => {
     return res.json({ success: true, data: value })
   }
 
-  // weekly / monthly / contest — comes from Leaderboard collection
   const board = await Leaderboard.findOne({ type, isActive: true })
     .populate('rankings.userId', 'name email avatar')
     .sort({ 'period.endDate': -1 })
@@ -253,15 +217,11 @@ export const getLeaderboard = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* Daily challenge (uses ChallengeParticipation for unbounded growth)   */
-/* ------------------------------------------------------------------ */
 export const getDailyChallenge = wrap(async (req, res) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const todayKey = today.toISOString().split('T')[0]
 
-  // Cache the challenge lookup itself for 1h — it changes once per day.
   const challenge = await cacheService.getOrSet(`daily:${todayKey}`, 3600, async () => {
     let c = await DailyChallenge.findOne({ date: today, isActive: true }).populate('problemId').lean()
     if (!c) {
@@ -316,7 +276,6 @@ export const completeDailyChallenge = wrap(async (req, res) => {
   const challenge = await DailyChallenge.findById(challengeId)
   if (!challenge) throw new NotFoundError('Challenge not found')
 
-  // Idempotent: upsert the participation row.
   const earnedBonus = typeof timeTaken === 'number' && timeTaken > 0 && timeTaken < 1800
   const xpAwarded = challenge.xpReward + (earnedBonus ? challenge.bonusXp : 0)
 
@@ -335,7 +294,6 @@ export const completeDailyChallenge = wrap(async (req, res) => {
     { upsert: true, new: true }
   )
 
-  // First time only — award XP and bump counters
   if (part.isNew) {
     const user = await User.findById(req.user._id)
     user.xp = (user.xp || 0) + xpAwarded
@@ -348,9 +306,6 @@ export const completeDailyChallenge = wrap(async (req, res) => {
   res.json({ success: true, message: 'Challenge completed!', data: { xpAwarded, earnedBonus, alreadyCompleted: !part.isNew } })
 })
 
-/* ------------------------------------------------------------------ */
-/* XP / level — single source of truth                                  */
-/* ------------------------------------------------------------------ */
 export const addXP = addXPService
 
 export const getLevelInfo = wrap(async (req, res) => {

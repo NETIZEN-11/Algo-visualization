@@ -48,7 +48,7 @@ function ArrayVisualizer({ data, highlights = {} }) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Array Visualization */}
+      {}
       <div className="flex-1 flex items-end justify-center gap-2 px-4 pb-8">
         {animatedValues.map((value, index) => {
           const height = maxValue > 0 ? (Math.abs(value) / maxValue) * 100 : 20
@@ -62,7 +62,7 @@ function ArrayVisualizer({ data, highlights = {} }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              {/* Label */}
+              {}
               {label && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -73,7 +73,7 @@ function ArrayVisualizer({ data, highlights = {} }) {
                 </motion.div>
               )}
 
-              {/* Bar */}
+              {}
               <motion.div
                 className={`relative flex flex-col items-center justify-end min-w-[40px] rounded-t-lg ${getBarColor(
                   index
@@ -83,20 +83,20 @@ function ArrayVisualizer({ data, highlights = {} }) {
                 transition={{ duration: 0.5, ease: 'easeOut' }}
                 style={{ minHeight: '40px' }}
               >
-                {/* Value inside bar */}
+                {}
                 <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-sm">
                   {value}
                 </div>
               </motion.div>
 
-              {/* Index */}
+              {}
               <div className="text-xs text-gray-400 font-mono">[{index}]</div>
             </motion.div>
           )
         })}
       </div>
 
-      {/* Legend */}
+      {}
       <div className="flex items-center justify-center gap-4 py-4 border-t border-gray-800">
         {Object.entries({
           Current: 'bg-blue-500',
@@ -112,7 +112,7 @@ function ArrayVisualizer({ data, highlights = {} }) {
         ))}
       </div>
 
-      {/* Pointers */}
+      {}
       {highlights.pointers && (
         <div className="flex gap-4 justify-center py-2 text-sm">
           {Object.entries(highlights.pointers).map(([name, index]) => (

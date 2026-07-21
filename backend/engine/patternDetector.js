@@ -1,19 +1,3 @@
-/**
- * Pattern detector — classifies a problem into one of the supported
- * visualization patterns.
- *
- * Input: a "ProblemSpec" — title, description, tags, examples. The spec
- * is the same shape regardless of whether it came from a LeetCode URL,
- * the user pasting problem text, or the curated company DB.
- *
- * Output: a single `Pattern` enum + confidence.
- *
- * Strategy: keyword scan on title + description, biased by tags. The
- * detector is conservative — when uncertain, it returns the most generic
- * pattern (`array`) and the visualizer still works, just with less
- * specialised animation.
- */
-
 export const PATTERNS = Object.freeze({
   ARRAY: 'array',
   TWO_POINTER: 'two_pointer',
@@ -96,11 +80,6 @@ const TAG_MAP = {
 
 const norm = (s) => String(s || '').toLowerCase()
 
-/**
- * Detect a problem's pattern.
- * @param {{title?: string, description?: string, tags?: string[]}} spec
- * @returns {{ pattern: string, confidence: number, signals: string[] }}
- */
 export function detectPattern(spec = {}) {
   if (!spec || typeof spec !== 'object') spec = {}
   const title = norm(spec.title)
@@ -109,7 +88,6 @@ export function detectPattern(spec = {}) {
   const signals = []
   const scores = new Map()
 
-  // Tag-based first — they're explicit.
   for (const tag of tags) {
     const pat = TAG_MAP[tag]
     if (pat) {
@@ -118,25 +96,20 @@ export function detectPattern(spec = {}) {
     }
   }
 
-  // Title keyword scan
   for (const { pattern, words } of KEYWORD_MAP) {
     for (const w of words) {
       if (title.includes(w) || (desc && desc.includes(w))) {
         scores.set(pattern, (scores.get(pattern) || 0) + 1)
         signals.push(`kw:${w}=${pattern}`)
-        break // one hit per pattern from title scan
+        break
       }
     }
   }
 
-  // Description-only patterns get a half-point so they don't override
-  // an explicit title hit.
   if (scores.size === 0) {
     return { pattern: PATTERNS.ARRAY, confidence: 0.2, signals: [] }
   }
 
-  // Pick the highest score; break ties by preferring the more specific
-  // (shorter) keyword list.
   const sorted = [...scores.entries()].sort((a, b) => b[1] - a[1])
   const [best, score] = sorted[0]
   const totalSignal = sorted.reduce((s, [, v]) => s + v, 0)
@@ -147,5 +120,4 @@ export function detectPattern(spec = {}) {
   }
 }
 
-/** Convenience: the visualizers the engine knows how to render. */
 export const SUPPORTED_PATTERNS = Object.values(PATTERNS)

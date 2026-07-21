@@ -41,7 +41,7 @@ function HintsTab({ problemData }) {
 
   return (
     <div className="space-y-4">
-      {/* Info */}
+      {}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
         <h4 className="text-sm font-bold text-blue-400 mb-2 flex items-center gap-2">
           <FaLightbulb />
@@ -53,7 +53,7 @@ function HintsTab({ problemData }) {
         </p>
       </div>
 
-      {/* Hint Levels */}
+      {}
       <div className="space-y-3">
         {hintLevels.map((hintLevel) => {
           const isUnlocked = unlockedLevels.includes(hintLevel.level)
@@ -71,7 +71,7 @@ function HintsTab({ problemData }) {
                   : 'bg-gray-900 border-gray-800'
               }`}
             >
-              {/* Header */}
+              {}
               <div
                 className={`px-4 py-3 flex items-center justify-between ${
                   isUnlocked ? 'bg-green-500/20' : 'bg-gray-800/50'
@@ -110,7 +110,7 @@ function HintsTab({ problemData }) {
                 )}
               </div>
 
-              {/* Content */}
+              {}
               <AnimatePresence>
                 {isUnlocked && (
                   <motion.div
@@ -130,7 +130,7 @@ function HintsTab({ problemData }) {
         })}
       </div>
 
-      {/* Strategy Tips */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

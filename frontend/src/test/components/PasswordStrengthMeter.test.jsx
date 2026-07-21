@@ -13,7 +13,7 @@ describe('PasswordStrengthMeter', () => {
 
   it('displays a label for any password', () => {
     renderWithProviders(<PasswordStrengthMeter password="abc" />)
-    // label is one of the STRENGTH_LABELS
+
     const labels = ['Very weak', 'Weak', 'Fair', 'Strong', 'Excellent']
     const all = screen.getAllByText((_, el) => labels.includes(el.textContent || ''))
     expect(all.length).toBeGreaterThan(0)
@@ -21,7 +21,7 @@ describe('PasswordStrengthMeter', () => {
 
   it('shows suggestions for weak passwords', () => {
     renderWithProviders(<PasswordStrengthMeter password="abc" />)
-    // there should be a <ul> with suggestions
+
     expect(screen.getAllByRole('list').length).toBeGreaterThanOrEqual(0)
   })
 

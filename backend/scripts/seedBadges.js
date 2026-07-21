@@ -5,7 +5,7 @@ import Badge from '../models/Badge.js'
 dotenv.config()
 
 const badges = [
-  // Problem Solving Badges
+
   {
     id: 'first_problem',
     name: 'First Steps',
@@ -62,7 +62,6 @@ const badges = [
     rarity: 'legendary',
   },
 
-  // Pattern Mastery Badges
   {
     id: 'array_master',
     name: 'Array Master',
@@ -119,7 +118,6 @@ const badges = [
     rarity: 'rare',
   },
 
-  // Difficulty Badges
   {
     id: 'easy_champion',
     name: 'Easy Champion',
@@ -154,7 +152,6 @@ const badges = [
     rarity: 'epic',
   },
 
-  // Streak Badges
   {
     id: 'streak_7',
     name: 'Week Warrior',
@@ -189,7 +186,6 @@ const badges = [
     rarity: 'legendary',
   },
 
-  // XP Badges
   {
     id: 'xp_1000',
     name: 'Rising Star',
@@ -224,7 +220,6 @@ const badges = [
     rarity: 'legendary',
   },
 
-  // Interview Badges
   {
     id: 'first_interview',
     name: 'Interview Ready',
@@ -254,11 +249,9 @@ async function seedBadges() {
     await mongoose.connect(process.env.MONGODB_URI)
     console.log('Connected to MongoDB')
 
-    // Clear existing badges
     await Badge.deleteMany({})
     console.log('Cleared existing badges')
 
-    // Insert new badges
     await Badge.insertMany(badges)
     console.log(`✅ Seeded ${badges.length} badges successfully!`)
 

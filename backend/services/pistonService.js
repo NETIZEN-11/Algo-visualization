@@ -1,15 +1,3 @@
-/**
- * Piston (emkc.org) execution client.
- *
- * Caches the runtime list for 10 minutes; executes one job at a time
- * with a 30-second upstream timeout. The base URL is configurable
- * via `PISTON_URL` for self-hosted deployments.
- *
- * Supported languages (10): C++, Java, Python, JS, TS, Go, Rust,
- * Kotlin, Swift, C#. Each has a canonical name, version, file
- * extension, and a list of accepted aliases (the frontend may pass any
- * of them).
- */
 import axios from 'axios'
 import { logger } from '../utils/logger.js'
 
@@ -31,12 +19,6 @@ const _PistonError = (message, status) => {
   return e
 }
 
-// Currently unused — kept for future typed-error export.
-
-/* ------------------------------------------------------------------ */
-/* Language registry                                                    */
-/* ------------------------------------------------------------------ */
-
 export const LANGUAGES = Object.freeze([
   { id: 'cpp',       name: 'C++',          version: '10.2.0',     file: 'main.cpp', aliases: ['c++', 'cpp', 'cxx', 'g++'] },
   { id: 'java',      name: 'Java',         version: '15.0.2',     file: 'Main.java', aliases: ['java'] },
@@ -56,14 +38,12 @@ for (const l of LANGUAGES) {
   for (const a of l.aliases) LANGUAGE_BY_ALIAS.set(a.toLowerCase(), l)
 }
 
-/** Normalise any of the supported aliases to the canonical id. */
 export function resolveLanguage(lang) {
   if (!lang) return null
   const key = String(lang).toLowerCase().trim()
   return LANGUAGE_BY_ALIAS.get(key)?.id || null
 }
 
-/** Look up the language record by canonical id or alias. */
 export function getLanguage(lang) {
   if (!lang) return null
   return LANGUAGE_BY_ALIAS.get(String(lang).toLowerCase().trim()) || null
@@ -72,10 +52,6 @@ export function getLanguage(lang) {
 function _filenameFor(lang) {
   return getLanguage(lang)?.file || 'main.txt'
 }
-
-/* ------------------------------------------------------------------ */
-/* Public API                                                           */
-/* ------------------------------------------------------------------ */
 
 export const pistonService = {
   listLanguages() {

@@ -12,7 +12,6 @@ import { protect } from '../middleware/auth.js'
 
 const router = express.Router()
 
-// All routes require authentication
 router.use(protect)
 
 router.post('/hints', getHints)

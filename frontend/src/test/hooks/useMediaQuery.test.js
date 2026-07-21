@@ -9,7 +9,7 @@ describe('useMediaQuery', () => {
   })
 
   it('returns the current matchMedia value', () => {
-    // matchMedia is stubbed in setup.js to return matches: false.
+
     const { result } = renderHook(() => useMediaQuery('(prefers-reduced-motion: reduce)'))
     expect(result.current).toBe(false)
   })

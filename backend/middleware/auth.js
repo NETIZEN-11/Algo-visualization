@@ -1,14 +1,3 @@
-/**
- * Auth middleware.
- *
- * `protect` accepts the access token from EITHER:
- *   - `Authorization: Bearer <token>` (used by services / Postman)
- *   - the `access` httpOnly cookie (used by the SPA after login)
- *
- * On a valid token, the user document is loaded and attached to `req.user`.
- * If a refresh cookie is present and the access token is missing or
- * expired, the SPA can call `/api/auth/refresh` to mint a new pair.
- */
 import { verifyAccessToken } from '../utils/jwt.js'
 import { UnauthorizedError, ForbiddenError } from '../utils/errors.js'
 import User from '../models/User.js'
@@ -55,13 +44,6 @@ export const authorize = (...roles) =>
     next()
   })
 
-/**
- * `optionalAuth` — like `protect`, but does NOT 401 when no token is
- * present. Used by endpoints that work for both guests and signed-in
- * users (e.g. the dynamic visualisation engine, which is free for
- * everyone but personalises results for signed-in users). A bad or
- * expired token is treated the same as no token.
- */
 export const optionalAuth = asyncHandler(async (req, _res, next) => {
   const token = readTokenFromRequest(req)
   if (!token) return next()

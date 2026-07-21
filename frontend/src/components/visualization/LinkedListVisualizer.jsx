@@ -29,7 +29,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
 
   return (
     <div className="w-full h-full flex flex-col p-8">
-      {/* Linked List Visualization */}
+      {}
       <div className="flex-1 flex items-center justify-start gap-4 overflow-x-auto">
         {data.map((value, index) => (
           <motion.div
@@ -39,9 +39,9 @@ function LinkedListVisualizer({ data, highlights = {} }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
           >
-            {/* Node */}
+            {}
             <div className="flex flex-col items-center gap-2">
-              {/* Label */}
+              {}
               {getNodeLabel(index) && (
                 <motion.div
                   initial={{ y: -10, opacity: 0 }}
@@ -52,7 +52,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
                 </motion.div>
               )}
 
-              {/* Node Container */}
+              {}
               <div className="relative">
                 <motion.div
                   className={`w-20 h-20 rounded-lg bg-gradient-to-br ${getNodeColor(
@@ -78,7 +78,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
                   </div>
                 </motion.div>
 
-                {/* Next pointer label */}
+                {}
                 {index < data.length - 1 && (
                   <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400">
                     next
@@ -87,7 +87,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
               </div>
             </div>
 
-            {/* Arrow to next node */}
+            {}
             {index < data.length - 1 && (
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -115,7 +115,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
               </motion.div>
             )}
 
-            {/* NULL at the end */}
+            {}
             {index === data.length - 1 && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -149,7 +149,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
         ))}
       </div>
 
-      {/* Legend */}
+      {}
       <div className="flex items-center justify-center gap-6 py-6 border-t border-gray-800 mt-4">
         {[
           { label: 'HEAD', color: 'from-green-500 to-green-600' },
@@ -164,7 +164,7 @@ function LinkedListVisualizer({ data, highlights = {} }) {
         ))}
       </div>
 
-      {/* Pointers display */}
+      {}
       {highlights.pointers && (
         <div className="flex gap-4 justify-center py-4 text-sm bg-gray-800/50 rounded-lg">
           {Object.entries(highlights.pointers).map(([name, index]) => (

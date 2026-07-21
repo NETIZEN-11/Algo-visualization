@@ -1,10 +1,5 @@
 import { Component } from 'react'
 
-/**
- * Top-level error boundary. Catches render-time errors and shows a
- * recovery UI instead of a blank page. Clicking "Reload" clears the
- * page state and starts fresh.
- */
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
@@ -16,15 +11,13 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    // Log to the console so dev tools pick it up; in production this
-    // would be wired to Sentry / pino-http via a small post endpoint.
+
     console.error('[ErrorBoundary]', error, info)
   }
 
   handleReset = () => {
     this.setState({ hasError: false, error: null })
-    // Full reload is the safest reset — wipes any stale Redux/Zustand
-    // state and re-installs a fresh service-worker-free bundle.
+
     if (typeof window !== 'undefined') window.location.reload()
   }
 

@@ -5,12 +5,11 @@ import { extractLeetCodeSlug } from '../utils/helpers.js'
 export const scrapeLeetCodeProblem = async (url) => {
   try {
     const slug = extractLeetCodeSlug(url)
-    
+
     if (!slug) {
       throw new Error('Invalid LeetCode URL')
     }
 
-    // LeetCode GraphQL API endpoint
     const graphqlEndpoint = 'https://leetcode.com/graphql'
 
     const query = `
@@ -63,17 +62,14 @@ export const scrapeLeetCodeProblem = async (url) => {
       throw new Error('Problem not found')
     }
 
-    // Parse HTML content to extract description and examples
     const $ = cheerio.load(questionData.content)
-    
-    // Extract clean description
+
     const description = $('body').text().trim()
-    
-    // Extract examples with better parsing
+
     const examples = []
     $('pre').each((i, elem) => {
       const text = $(elem).text().trim()
-      if (text && i < 5) { // Limit to first 5 examples
+      if (text && i < 5) {
         examples.push({
           input: text,
           output: '',
@@ -82,7 +78,6 @@ export const scrapeLeetCodeProblem = async (url) => {
       }
     })
 
-    // Extract constraints
     const constraints = []
     $('ul li, p').each((i, elem) => {
       const text = $(elem).text().trim()
@@ -91,7 +86,6 @@ export const scrapeLeetCodeProblem = async (url) => {
       }
     })
 
-    // Parse company tags
     let companies = []
     try {
       if (questionData.companyTagStats) {
@@ -102,7 +96,6 @@ export const scrapeLeetCodeProblem = async (url) => {
       console.log('Could not parse company tags')
     }
 
-    // Parse similar questions
     let similarProblems = []
     try {
       if (questionData.similarQuestions) {
@@ -134,8 +127,7 @@ export const scrapeLeetCodeProblem = async (url) => {
     }
   } catch (error) {
     console.error('Error scraping LeetCode problem:', error.message)
-    
-    // Fallback: return basic structure
+
     return {
       title: 'Problem from ' + url,
       description: 'Unable to scrape problem. Please provide problem statement manually.',

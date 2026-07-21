@@ -1,18 +1,3 @@
-/**
- * Visualisation engine controller.
- *
- * Three responsibilities:
- *   1. POST /api/visualize/from-text — paste problem text, return a
- *      `Step[]` (problem spec parsed locally, no LLM).
- *   2. POST /api/visualize/from-problem — pull an existing problem
- *      (by ObjectId or slug) and build steps for it.
- *   3. POST /api/visualize/pattern — just classify the problem; no
- *      animation. Cheap, used by the AI mock generators.
- *
- * No LLM, no network, no state. Same input always produces the same
- * output.
- */
-
 import { parseProblemText } from '../engine/problemParser.js'
 import { detectPattern, SUPPORTED_PATTERNS } from '../engine/patternDetector.js'
 import { buildSteps, patternLabel } from '../engine/stepGenerator.js'
@@ -27,9 +12,6 @@ const wrap = (handler) => async (req, res) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* POST /visualize/from-text                                            */
-/* ------------------------------------------------------------------ */
 export const fromText = wrap(async (req, res) => {
   const text = req.body?.text
   if (!text || typeof text !== 'string') {
@@ -52,9 +34,6 @@ export const fromText = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* POST /visualize/from-problem                                         */
-/* ------------------------------------------------------------------ */
 export const fromProblem = wrap(async (req, res) => {
   const { id } = req.params
   const problem = await Problem.findOne({
@@ -77,9 +56,6 @@ export const fromProblem = wrap(async (req, res) => {
   res.json({ success: true, data: { spec, ...result } })
 })
 
-/* ------------------------------------------------------------------ */
-/* POST /visualize/pattern                                              */
-/* ------------------------------------------------------------------ */
 export const classify = wrap(async (req, res) => {
   const spec = req.body?.spec || {}
   const detection = detectPattern(spec)

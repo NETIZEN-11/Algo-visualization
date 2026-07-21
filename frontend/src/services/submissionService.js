@@ -1,8 +1,5 @@
 import api from './api'
 
-/**
- * Submission service.
- */
 export const submissionService = {
   list: async (params = {}) => {
     const { data } = await api.get('/submissions', { params })

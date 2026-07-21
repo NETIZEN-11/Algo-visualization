@@ -1,6 +1,3 @@
-/**
- * Integration tests for `/api/roadmap`.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 

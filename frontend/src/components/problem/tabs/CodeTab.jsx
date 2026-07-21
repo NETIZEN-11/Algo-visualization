@@ -26,7 +26,7 @@ function CodeTab({ analysis }) {
 
   return (
     <div className="space-y-4">
-      {/* Language Selector */}
+      {}
       <div className="flex gap-2 flex-wrap">
         {languages.map((lang) => (
           <motion.button
@@ -46,9 +46,9 @@ function CodeTab({ analysis }) {
         ))}
       </div>
 
-      {/* Code Block */}
+      {}
       <div className="relative bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
           <div className="flex items-center gap-2">
             <FaCode className="text-blue-400" />
@@ -74,7 +74,7 @@ function CodeTab({ analysis }) {
           </button>
         </div>
 
-        {/* Code */}
+        {}
         <div className="overflow-x-auto">
           <SyntaxHighlighter
             language={selectedLanguage === 'cpp' ? 'cpp' : selectedLanguage}
@@ -92,7 +92,7 @@ function CodeTab({ analysis }) {
         </div>
       </div>
 
-      {/* Code Explanation */}
+      {}
       {analysis?.optimal_approach && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -117,7 +117,7 @@ function CodeTab({ analysis }) {
         </motion.div>
       )}
 
-      {/* Interview Insights */}
+      {}
       {analysis?.interview_insights && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -126,7 +126,7 @@ function CodeTab({ analysis }) {
           className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4"
         >
           <h4 className="text-sm font-bold text-yellow-400 mb-3">🎯 Interview Tips</h4>
-          
+
           {analysis.interview_insights.common_mistakes?.length > 0 && (
             <div className="mb-3">
               <p className="text-xs font-semibold text-gray-400 mb-1">Common Mistakes:</p>

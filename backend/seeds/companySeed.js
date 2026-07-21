@@ -1,25 +1,8 @@
-/**
- * Company + frequency seed.
- *
- * Seeds the Company model with 20 well-known companies and a small
- * but meaningful set of "(company, problem, frequency)" links. The
- * dataset is meant to be extended — admin users can add more rows
- * via the API.
- *
- * Idempotent: running this twice doesn't duplicate rows. The script
- * matches by `slug`.
- *
- * Run: `node -e "import('./seeds/companySeed.js').then(m => m.run())"`
- */
 import mongoose from 'mongoose'
 import Company, { CompanyProblem } from '../models/Company.js'
 import Problem from '../models/Problem.js'
 import { logger } from '../utils/logger.js'
 import connectDB from '../config/database.js'
-
-/* ------------------------------------------------------------------ */
-/* Canonical company list                                               */
-/* ------------------------------------------------------------------ */
 
 const COMPANIES = [
   { name: 'Google',     slug: 'google',     tier: 'FAANG', focusTags: ['graph', 'string', 'recursion', 'dp'] },
@@ -43,13 +26,6 @@ const COMPANIES = [
   { name: 'Dropbox',    slug: 'dropbox',    tier: 'Tier-2', focusTags: ['design', 'hash table', 'string'] },
   { name: 'Pinterest',  slug: 'pinterest',  tier: 'Tier-2', focusTags: ['graph', 'array'] },
 ]
-
-/* ------------------------------------------------------------------ */
-/* Per-company problem frequency map                                    */
-/*                                                                     */
-/* Each row: { slug: 'problem-slug', freq: 1-5, round, lists, note }    */
-/* Slugs match the curated Problem.slug in the DB.                     */
-/* ------------------------------------------------------------------ */
 
 const COMPANY_PROBLEMS = {
   google: [
@@ -156,10 +132,6 @@ const COMPANY_PROBLEMS = {
   ],
 }
 
-/* ------------------------------------------------------------------ */
-/* Run                                                                  */
-/* ------------------------------------------------------------------ */
-
 export async function run({ silent = false } = {}) {
   const log = silent ? () => {} : (...a) => logger.info(a.map((x) => (typeof x === 'object' ? JSON.stringify(x) : x)).join(' '))
   log('Company seed: start')
@@ -174,7 +146,6 @@ export async function run({ silent = false } = {}) {
   }
   log(`Upserted ${companyCount} companies`)
 
-  // Link problems — only if a problem with that slug exists
   let linkCount = 0
   let skipped = 0
   for (const [companySlug, problems] of Object.entries(COMPANY_PROBLEMS)) {
@@ -204,7 +175,6 @@ export async function run({ silent = false } = {}) {
   }
   log(`Linked ${linkCount} (company, problem) pairs; ${skipped} skipped (no problem with that slug)`)
 
-  // Recompute counts on the company docs
   for (const c of COMPANIES) {
     const company = await Company.findOne({ slug: c.slug }).lean()
     if (!company) continue

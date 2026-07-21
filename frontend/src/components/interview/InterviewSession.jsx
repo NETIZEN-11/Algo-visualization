@@ -37,7 +37,7 @@ function InterviewSession({
 
     setIsSubmitting(true)
     try {
-      // Backend reads { answer, timeTaken } from req.body — do NOT send `question`
+
       const response = await api.post(`/interview/${sessionId}/answer`, {
         answer,
         timeTaken: timer,
@@ -62,20 +62,20 @@ function InterviewSession({
   return (
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Question Panel */}
+        {}
         <div className="lg:col-span-2">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-gray-900 rounded-xl p-6 border border-gray-800 mb-6"
           >
-            {/* Timer */}
+            {}
             <div className="flex items-center gap-2 mb-4 text-gray-400">
               <FaClock />
               <span className="font-mono">{formatTime(timer)}</span>
             </div>
 
-            {/* Question */}
+            {}
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-4">Question {questionNumber}</h3>
               <div className="bg-gray-800 rounded-lg p-4">
@@ -85,7 +85,7 @@ function InterviewSession({
               </div>
             </div>
 
-            {/* Answer Input */}
+            {}
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2">
                 Your Answer
@@ -99,7 +99,7 @@ function InterviewSession({
               />
             </div>
 
-            {/* Action Buttons */}
+            {}
             <div className="flex gap-3">
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -126,7 +126,7 @@ function InterviewSession({
             </div>
           </motion.div>
 
-          {/* Feedback Panel */}
+          {}
           {feedback && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -143,7 +143,7 @@ function InterviewSession({
                   <span className="text-sm font-semibold text-gray-400">
                     Score
                   </span>
-                  {/* Backend stores rating 0-10; display as x/10 and scale bar to 100% */}
+                  {}
                   <span
                     className={`text-2xl font-bold ${
                       (feedback.rating ?? 0) >= 8
@@ -179,7 +179,7 @@ function InterviewSession({
           )}
         </div>
 
-        {/* Side Panel - Tips & Stats */}
+        {}
         <div className="lg:col-span-1">
           <motion.div
             initial={{ opacity: 0, x: 20 }}

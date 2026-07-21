@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 function LoginPage() {
   const navigate = useNavigate()
   const { login, isLoading } = useAuthStore()
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,32 +19,32 @@ function LoginPage() {
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required'
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid'
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required'
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
 
     const result = await login(formData.email, formData.password)
-    
+
     if (result.success) {
       toast.success('Welcome back!')
       navigate('/')
@@ -58,7 +58,7 @@ function LoginPage() {
       ...formData,
       [e.target.name]: e.target.value,
     })
-    // Clear error for this field
+
     if (errors[e.target.name]) {
       setErrors({
         ...errors,
@@ -67,14 +67,10 @@ function LoginPage() {
     }
   }
 
-  // OAuth buttons are full-page redirects, so we briefly disable them
-  // to give visual feedback and prevent double-clicks.
   const [oauthPending, setOauthPending] = useState(null)
   const handleOAuth = (provider) => {
     if (oauthPending) return
     setOauthPending(provider)
-    // The redirect is synchronous from the user's perspective — give
-    // the spinner one frame to render before we navigate away.
     setTimeout(() => {
       window.location.href = authService.oauthStart(provider)
     }, 50)
@@ -82,9 +78,9 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#0B1120] to-gray-900 flex">
-      {/* Left Side - Branding */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-600 to-red-600 p-12 flex-col justify-between relative overflow-hidden">
-        {/* Animated Background Pattern */}
+        {}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
@@ -154,7 +150,7 @@ function LoginPage() {
         </motion.div>
       </div>
 
-      {/* Right Side - Login Form */}
+      {}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -176,7 +172,7 @@ function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
+            {}
             <div>
               <label htmlFor="login-email" className="block text-sm font-semibold text-gray-300 mb-2">
                 Email Address
@@ -207,7 +203,7 @@ function LoginPage() {
               )}
             </div>
 
-            {/* Password Field */}
+            {}
             <div>
               <label htmlFor="login-password" className="block text-sm font-semibold text-gray-300 mb-2">
                 Password
@@ -238,7 +234,7 @@ function LoginPage() {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
+            {}
             <div className="flex items-center justify-between text-sm">
               <label htmlFor="login-remember" className="flex items-center text-gray-400 cursor-pointer">
                 <input
@@ -256,7 +252,7 @@ function LoginPage() {
               </Link>
             </div>
 
-            {/* Submit Button */}
+            {}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -279,7 +275,7 @@ function LoginPage() {
             </motion.button>
           </form>
 
-          {/* Divider */}
+          {}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-800"></div>
@@ -289,7 +285,7 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Social Login */}
+          {}
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
@@ -332,7 +328,7 @@ function LoginPage() {
             </button>
           </div>
 
-          {/* Sign Up Link */}
+          {}
           <p className="mt-8 text-center text-gray-400">
             Don't have an account?{' '}
             <Link

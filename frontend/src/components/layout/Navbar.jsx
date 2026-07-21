@@ -6,15 +6,6 @@ import useAuthStore from '../../store/useAuthStore'
 import { useUnreadCount } from '../../services/notificationService'
 import { useTheme } from '../../hooks/useTheme'
 
-/**
- * Top navigation. Sticky, z-50, blur background. Two interactive bits:
- *
- *   - Notifications bell — badge is bound to the live unread count, so
- *     marking items read on the notifications page clears the chip
- *     immediately.
- *   - Profile menu — opens a popover with Settings + Logout. Closed by
- *     outside-click, Escape, or selecting an item. Keyboard friendly.
- */
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore()
   const navigate = useNavigate()
@@ -23,7 +14,6 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
-  // Close on outside-click or Escape
   useEffect(() => {
     if (!menuOpen) return
     const onDown = (e) => {
@@ -64,7 +54,7 @@ function Navbar() {
 
           {isAuthenticated && (
             <div className="flex items-center space-x-3">
-              {/* Theme toggle */}
+              {}
               <button
                 onClick={toggleTheme}
                 className="text-gray-400 hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-orange-500"
@@ -74,7 +64,7 @@ function Navbar() {
                 {theme === 'dark' ? <FaSun aria-hidden="true" /> : <FaMoon aria-hidden="true" />}
               </button>
 
-              {/* Notifications — badge is live */}
+              {}
               <Link
                 to="/notifications"
                 className="relative text-gray-400 hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-orange-500"
@@ -91,7 +81,7 @@ function Navbar() {
                 ) : null}
               </Link>
 
-              {/* Profile menu */}
+              {}
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen((o) => !o)}

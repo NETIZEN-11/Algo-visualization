@@ -1,12 +1,8 @@
-/**
- * Contest controller — list, join, submit, leaderboard.
- */
 import { Contest, Submission } from '../models/index.js'
 import { NotFoundError, ConflictError, BadRequestError, ValidationError, ForbiddenError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/* ------------------------------------------------------------------ */
 export const listContests = wrap(async (req, res) => {
   const now = new Date()
   const filter = { isPublic: true }
@@ -23,7 +19,6 @@ export const getContest = wrap(async (req, res) => {
   res.json({ success: true, data: contest })
 })
 
-/* ------------------------------------------------------------------ */
 export const registerForContest = wrap(async (req, res) => {
   const contest = await Contest.findById(req.params.id)
   if (!contest) throw new NotFoundError('Contest not found')
@@ -40,7 +35,6 @@ export const registerForContest = wrap(async (req, res) => {
   res.json({ success: true, message: 'Registered', data: contest })
 })
 
-/* ------------------------------------------------------------------ */
 export const submitToContest = wrap(async (req, res) => {
   const { problemId, code, language } = req.body
   if (!problemId || !code || !language) throw new ValidationError('problemId, code, language are required')
@@ -60,17 +54,15 @@ export const submitToContest = wrap(async (req, res) => {
   const problemEntry = contest.problems.find((p) => p.problemId.toString() === problemId)
   if (!problemEntry) throw new BadRequestError('Problem is not part of this contest')
 
-  // Record submission
   const submission = await Submission.create({
     userId: req.user._id,
     problemId,
     language,
     code,
-    status: 'accepted', // Phase 5 doesn't run a real grader; treat as accepted
+    status: 'accepted',
     isAccepted: true,
   })
 
-  // Award points if first solve
   const part = contest.participants.find((p) => p.userId.toString() === req.user._id.toString())
   const alreadySolved = part.submissions.some(
     (s) => s.problemId.toString() === problemId && s.status === 'accepted'
@@ -90,7 +82,6 @@ export const submitToContest = wrap(async (req, res) => {
   res.json({ success: true, message: 'Submitted', data: { submission, score: part.score } })
 })
 
-/* ------------------------------------------------------------------ */
 export const getContestLeaderboard = wrap(async (req, res) => {
   const contest = await Contest.findById(req.params.id)
   if (!contest) throw new NotFoundError('Contest not found')

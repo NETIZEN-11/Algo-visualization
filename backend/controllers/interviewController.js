@@ -1,17 +1,3 @@
-/**
- * Interview controller.
- *
- * Bug fixes over the previous version:
- *  - All handlers use `next(error)` / `throw` consistently.
- *  - `getStats` no longer crashes for users with zero completed interviews.
- *  - `endInterview` no longer calls `interview.save()` twice.
- *  - `submitAnswer` writes the canonical feedback shape (no spread of
- *    untrusted AI fields into the schema) and persists the raw score.
- *  - `getNextQuestion` / `getFollowUpQuestion` accept a timeSpent header.
- *  - `recentImprovement` is sorted by `startedAt` so the most recent
- *    interview is correctly compared with the earliest.
- *  - `abandonInterview` is added for cleanly leaving a session.
- */
 import Interview from '../models/Interview.js'
 import { NotFoundError, ValidationError, BadRequestError } from '../utils/errors.js'
 import { assertOwner } from '../utils/ownership.js'
@@ -20,7 +6,6 @@ import { addXP } from './gamificationController.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/** Load an interview and assert the requester owns it. Throws 404 otherwise. */
 const loadOwnedInterview = async (sessionId, userId) => {
   const interview = await Interview.findById(sessionId)
   if (!interview) throw new NotFoundError('Interview session not found')
@@ -28,9 +13,6 @@ const loadOwnedInterview = async (sessionId, userId) => {
   return interview
 }
 
-/* ------------------------------------------------------------------ */
-/* Start                                                                */
-/* ------------------------------------------------------------------ */
 export const startInterview = wrap(async (req, res) => {
   let { difficulty } = req.body
   const { type, interviewType, targetCompany } = req.body
@@ -74,9 +56,6 @@ export const startInterview = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* Submit answer                                                        */
-/* ------------------------------------------------------------------ */
 export const submitAnswer = wrap(async (req, res) => {
   const { sessionId } = req.params
   const { answer, timeSpentSec, questionIndex } = req.body
@@ -87,7 +66,6 @@ export const submitAnswer = wrap(async (req, res) => {
     throw new BadRequestError('Interview session is not active')
   }
 
-  // Either answer the last open question, or the one at `questionIndex`.
   const idx =
     typeof questionIndex === 'number' && questionIndex >= 0 && questionIndex < interview.questions.length
       ? questionIndex
@@ -108,7 +86,7 @@ export const submitAnswer = wrap(async (req, res) => {
   })
 
   const rawScore = Number(feedback.score) || 0
-  // AI returns 0-100; persist both the raw score and a 0-10 rating.
+
   const clampedRating = Math.max(0, Math.min(10, Math.round(rawScore / 10)))
 
   currentQuestion.score = rawScore
@@ -136,9 +114,6 @@ export const submitAnswer = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* Next / follow-up                                                     */
-/* ------------------------------------------------------------------ */
 export const getNextQuestion = wrap(async (req, res) => {
   const { sessionId } = req.params
   const interview = await loadOwnedInterview(sessionId, req.user._id)
@@ -200,27 +175,22 @@ export const getFollowUpQuestion = wrap(async (req, res) => {
   res.json({ success: true, followUpQuestion: followUp.question })
 })
 
-/* ------------------------------------------------------------------ */
-/* End / abandon                                                        */
-/* ------------------------------------------------------------------ */
 export const endInterview = wrap(async (req, res) => {
   const { sessionId } = req.params
   const interview = await loadOwnedInterview(sessionId, req.user._id)
 
   if (interview.status === 'completed') {
-    // Idempotent — return the summary without re-awarding XP.
+
     return res.json({ success: true, message: 'Interview already ended', summary: summarise(interview) })
   }
 
   interview.status = 'completed'
   interview.endedAt = new Date()
 
-  // Overall score across answered questions
   const answered = interview.questions.filter((q) => q.answer)
   const totalScore = answered.reduce((sum, q) => sum + (q.score || 0), 0)
   interview.score = answered.length > 0 ? totalScore / answered.length : 0
 
-  // System design sub-score, if any
   const sdScores = interview.questions
     .map((q) => q.systemDesignScore)
     .filter((s) => typeof s === 'number')
@@ -230,7 +200,7 @@ export const endInterview = wrap(async (req, res) => {
 
   const xpEarned = Math.floor(interview.score * 2) + answered.length * 10
   interview.xpEarned = xpEarned
-  await interview.save() // single save
+  await interview.save()
 
   if (xpEarned > 0) {
     await addXP(req.user._id, xpEarned, 'Completed Mock Interview').catch(() => {})
@@ -251,9 +221,6 @@ export const abandonInterview = wrap(async (req, res) => {
   res.json({ success: true, message: 'Interview abandoned' })
 })
 
-/* ------------------------------------------------------------------ */
-/* Reads                                                                */
-/* ------------------------------------------------------------------ */
 export const getInterview = wrap(async (req, res) => {
   const interview = await loadOwnedInterview(req.params.sessionId, req.user._id)
   res.json({ success: true, data: interview })
@@ -295,12 +262,9 @@ export const getHistory = wrap(async (req, res) => {
   res.json({ success: true, count: interviews.length, data: interviews })
 })
 
-/* ------------------------------------------------------------------ */
-/* Stats — fixed to not crash on empty list                            */
-/* ------------------------------------------------------------------ */
 export const getStats = wrap(async (req, res) => {
   const interviews = await Interview.find({ userId: req.user._id, status: 'completed' })
-    .sort({ startedAt: 1 }) // oldest first → newest last
+    .sort({ startedAt: 1 })
 
   const totalInterviews = interviews.length
   const averageScore =
@@ -333,9 +297,6 @@ export const getStats = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* helpers                                                              */
-/* ------------------------------------------------------------------ */
 function summarise(interview, xpEarned) {
   return {
     totalQuestions: interview.questions.length,

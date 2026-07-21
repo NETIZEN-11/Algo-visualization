@@ -53,7 +53,7 @@ function DifficultyChart({ difficultyData }) {
     <div className="bg-[#111827] border border-gray-800 rounded-2xl p-6">
       <h3 className="text-lg font-bold text-white mb-4">Difficulty Breakdown</h3>
 
-      {/* Stats Grid */}
+      {}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {data.map((item, index) => (
           <motion.div
@@ -78,7 +78,7 @@ function DifficultyChart({ difficultyData }) {
         ))}
       </div>
 
-      {/* Chart */}
+      {}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>

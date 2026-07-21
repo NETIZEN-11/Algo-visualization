@@ -1,8 +1,5 @@
 import api from './api'
 
-/**
- * Contest service.
- */
 export const contestService = {
   list: async (params = {}) => {
     const { data } = await api.get('/contest', { params })

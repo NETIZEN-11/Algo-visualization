@@ -53,7 +53,7 @@ function ExplanationTab({ analysis }) {
           transition={{ delay: index * 0.1 }}
           className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden"
         >
-          {/* Section Header */}
+          {}
           <div className={`p-4 border-b border-gray-800 ${getColorClasses(section.color)}`}>
             <h3 className="font-bold flex items-center gap-2">
               <section.icon />
@@ -61,7 +61,7 @@ function ExplanationTab({ analysis }) {
             </h3>
           </div>
 
-          {/* Section Content */}
+          {}
           <div className="p-4 space-y-3">
             {section.data ? (
               <>
@@ -216,7 +216,7 @@ function ExplanationTab({ analysis }) {
         </motion.div>
       ))}
 
-      {/* Complexity Analysis */}
+      {}
       {analysis?.complexity_analysis && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

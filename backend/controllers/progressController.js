@@ -1,14 +1,3 @@
-/**
- * Progress controller.
- *
- * Bug fixes vs the prior version:
- *  - `getStreak` no longer breaks on empty activity log.
- *  - `patternStats` is read as a plain object.
- *  - `getLeaderboard` adds pagination.
- *  - `getActivityHeatmap` aggregates by day in O(n).
- *  - `updateXP` delegates to the shared `addXP` service (no more
- *    duplicated level logic).
- */
 import User from '../models/User.js'
 import Problem from '../models/Problem.js'
 import { ValidationError, AppError } from '../utils/errors.js'
@@ -19,7 +8,6 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 const patternStatsAsObject = (u) =>
   u.patternStats instanceof Map ? Object.fromEntries(u.patternStats) : u.patternStats || {}
 
-/* ------------------------------------------------------------------ */
 export const getDashboard = wrap(async (req, res) => {
   const user = await User.findById(req.user._id).select('name level xp streak problemStats activityLog lastActive')
   res.json({
@@ -62,14 +50,10 @@ export const getBadges = wrap(async (req, res) => {
   res.json({ success: true, badges: user.badges || [] })
 })
 
-/* ------------------------------------------------------------------ */
-/* Streak — derived from consecutive calendar days in activityLog      */
-/* ------------------------------------------------------------------ */
 export const getStreak = wrap(async (req, res) => {
   const user = await User.findById(req.user._id).select('activityLog streak lastActive')
   const dates = (user.activityLog || []).map((log) => new Date(log.date))
-  // Use the same algorithm as `leveling.calculateStreak` but over an
-  // array of arbitrary dates: walk from today backwards.
+
   const set = new Set(dates.map((d) => d.toISOString().split('T')[0]))
   let streak = 0
   const cursor = new Date()
@@ -81,7 +65,6 @@ export const getStreak = wrap(async (req, res) => {
   res.json({ success: true, streak, lastActivity: user.lastActive })
 })
 
-/* ------------------------------------------------------------------ */
 export const getLeaderboard = wrap(async (req, res) => {
   const limit = Math.min(200, Math.max(1, parseInt(req.query.limit, 10) || 100))
   const page = Math.max(1, parseInt(req.query.page, 10) || 1)
@@ -111,7 +94,6 @@ export const getUserRank = wrap(async (req, res) => {
   res.json({ success: true, rank, totalUsers })
 })
 
-/* ------------------------------------------------------------------ */
 export const getActivityHeatmap = wrap(async (req, res) => {
   const year = parseInt(req.query.year, 10) || new Date().getFullYear()
   const user = await User.findById(req.user._id).select('activityLog')
@@ -125,7 +107,6 @@ export const getActivityHeatmap = wrap(async (req, res) => {
   res.json({ success: true, year, heatmap })
 })
 
-/* ------------------------------------------------------------------ */
 export const getReadinessScore = wrap(async (req, res) => {
   const user = await User.findById(req.user._id).select('solvedProblems patternStats streak')
   const totalProblems = user.solvedProblems?.length || 0
@@ -144,7 +125,6 @@ export const getReadinessScore = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
 export const updateXP = wrap(async (req, res) => {
   const { points, activity } = req.body
   if (typeof points !== 'number' || points < 0) throw new ValidationError('points must be a non-negative number')
@@ -155,17 +135,16 @@ export const updateXP = wrap(async (req, res) => {
   res.json({ success: true, message: 'XP updated', xp: user.xp, level: user.level })
 })
 
-/* ------------------------------------------------------------------ */
 export const getRecommendations = wrap(async (req, res) => {
   const user = await User.findById(req.user._id).select('solvedProblems patternStats problemStats preferences')
   const solved = new Set((user.solvedProblems || []).map((id) => id.toString()))
   const patterns = patternStatsAsObject(user)
-  // Weakest pattern (lowest solved count above 0)
+
   let weakest = null
   for (const [p, n] of Object.entries(patterns)) {
     if (!weakest || n < weakest.count) weakest = { pattern: p, count: n }
   }
-  // Recommend 5 unsolved problems
+
   const recs = await Problem.find({ _id: { $nin: Array.from(solved) } })
     .sort({ difficulty: 1, createdAt: -1 })
     .limit(5)

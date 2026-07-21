@@ -1,9 +1,3 @@
-/**
- * Tests for the AI service. Forces MOCK_AI=true so no real OpenAI calls
- * are made. Exercises every exported function and the `isMocked` /
- * `aiServiceInfo` helpers, which in turn drive the mock-generator code
- * path on `aiMockGenerators.js`.
- */
 process.env.MOCK_AI = 'true'
 process.env.OPENAI_API_KEY = ''
 process.env.JWT_SECRET = 'test_jwt_secret_for_unit_tests_only_xxxxxxxxxx'
@@ -51,15 +45,10 @@ describe('aiService (mock mode)', () => {
     expect(r).toBeTruthy()
     expect(r.mocked).toBe(true)
     expect(r.problem_summary.title).toBe('Two Sum')
-    // Pattern detection currently maps "Two Sum" to the "array" family
-    // (the canonical solution uses a hash map, but the visualizer uses
-    // the array tracer). The contract here is: a non-empty pattern
-    // string and problem-specific content (not the "Two Sum"-everywhere
-    // bug we used to ship).
+
     expect(typeof r.pattern_identification.pattern).toBe('string')
     expect(r.pattern_identification.pattern.length).toBeGreaterThan(0)
-    // The mock must actually reference the problem — guarantees it isn't
-    // a hardcoded Two-Sum-everywhere stub.
+
     const flat = JSON.stringify(r)
     expect(flat).toMatch(/Two Sum/i)
     expect(Array.isArray(r.optimal_approach.edge_cases)).toBe(true)

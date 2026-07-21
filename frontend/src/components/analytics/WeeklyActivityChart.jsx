@@ -13,11 +13,10 @@ function WeeklyActivityChart({ weeklyData }) {
     )
   }
 
-  // Get last 4 weeks of data
   const recentWeeks = weeklyData.slice(-4).map((week, index) => ({
     week: `Week ${index + 1}`,
     problems: week.problemsSolved || 0,
-    timeSpent: Math.round((week.timeSpent || 0) / 60), // Convert to hours
+    timeSpent: Math.round((week.timeSpent || 0) / 60),
     xp: week.xpEarned || 0,
   }))
 
@@ -61,7 +60,7 @@ function WeeklyActivityChart({ weeklyData }) {
         </div>
       </div>
 
-      {/* Chart */}
+      {}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={recentWeeks}>
@@ -86,7 +85,7 @@ function WeeklyActivityChart({ weeklyData }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Daily Activity Heatmap */}
+      {}
       <div className="mt-6">
         <p className="text-sm font-semibold text-gray-400 mb-3">Daily Consistency</p>
         <div className="grid grid-cols-7 gap-2">

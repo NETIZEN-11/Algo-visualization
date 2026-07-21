@@ -1,16 +1,3 @@
-/**
- * Cache service — Redis when available, in-memory fallback otherwise.
- *
- * Use cases:
- *   - Rate-limit counters (Phase 1 already uses Redis)
- *   - Leaderboard (60s TTL)
- *   - Daily-challenge (1h)
- *   - getStreak (1m)
- *   - getAnalytics (5m)
- *
- * Two-tier: an L1 in-process LRU + optional L2 Redis. For a single
- * backend instance the L1 is enough; for multi-replica we want L2.
- */
 import NodeCache from 'node-cache'
 import Redis from 'ioredis'
 import { logger } from '../utils/logger.js'
@@ -57,32 +44,29 @@ const l2Get = async (key) => {
 }
 const l2Set = async (key, val, ttlSec) => {
   if (!l2Ready) return
-  try { await l2.set(key, val, 'EX', ttlSec) } catch { /* no-op */ }
+  try { await l2.set(key, val, 'EX', ttlSec) } catch {  }
 }
 const l2Del = async (key) => {
   if (!l2Ready) return
-  try { await l2.del(key) } catch { /* no-op */ }
+  try { await l2.del(key) } catch {  }
 }
 
 export const cacheService = {
-  /**
-   * Get a value, or run the producer and cache its result.
-   * Returns the cached/fresh value and a `fromCache` flag.
-   */
+
   async getOrSet(key, ttlSec, producer) {
-    // L1
+
     const l1Hit = l1.get(key)
     if (l1Hit !== undefined) {
       return { value: l1Hit, fromCache: true, tier: 'L1' }
     }
-    // L2
+
     const l2Raw = await l2Get(key)
     if (l2Raw) {
       const parsed = safeParse(l2Raw)
       l1.set(key, parsed, Math.min(ttlSec, L1_TTL_SECONDS))
       return { value: parsed, fromCache: true, tier: 'L2' }
     }
-    // Produce
+
     const value = await producer()
     const ttl = Math.max(1, Math.floor(ttlSec))
     l1.set(key, value, Math.min(ttlSec, L1_TTL_SECONDS))
@@ -113,11 +97,10 @@ export const cacheService = {
   async flush() {
     l1.flushAll()
     if (l2Ready) {
-      try { await l2.flushdb() } catch { /* no-op */ }
+      try { await l2.flushdb() } catch {  }
     }
   },
 
-  // Test / health
   isL2Ready: () => l2Ready,
   close: async () => { if (l2) await l2.quit().catch(() => {}) },
 }

@@ -1,9 +1,5 @@
 import api from './api'
 
-/**
- * Notes service. Backend has `GET/POST/PUT/DELETE /api/notes` and
- * `POST /api/notes/:id/pin`.
- */
 export const noteService = {
   list: async (params = {}) => {
     const { data } = await api.get('/notes', { params })

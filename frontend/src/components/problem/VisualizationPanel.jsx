@@ -3,13 +3,13 @@ import { FaEye, FaSpinner } from 'react-icons/fa'
 import VisualizationEngine from '../visualization/VisualizationEngine'
 
 function VisualizationPanel({ analysis, isAnalyzing }) {
-  // Normalize: AI sometimes returns type with slashes, spaces, or wrong casing
+
   const vizData = analysis?.visualization
   const hasSteps = vizData?.steps?.length > 0
 
   return (
     <div className="bg-[#111827] border border-gray-800 rounded-2xl shadow-lg overflow-hidden h-[calc(100vh-140px)]">
-      {/* Header */}
+      {}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <FaEye />
@@ -20,7 +20,7 @@ function VisualizationPanel({ analysis, isAnalyzing }) {
         </p>
       </div>
 
-      {/* Visualization Content */}
+      {}
       <div className="p-4 h-[calc(100%-80px)]">
         {isAnalyzing ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">

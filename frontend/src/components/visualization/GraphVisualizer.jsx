@@ -6,7 +6,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
 
   useEffect(() => {
     if (graphData?.nodes) {
-      // Calculate node positions in a circle layout
+
       const nodePositions = {}
       const centerX = 400
       const centerY = 300
@@ -52,10 +52,10 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
 
   return (
     <div className="w-full h-full flex flex-col bg-gray-900 rounded-lg overflow-hidden">
-      {/* Graph SVG */}
+      {}
       <div className="flex-1 overflow-auto">
         <svg width="100%" height="100%" viewBox="0 0 800 600" className="min-h-[500px]">
-          {/* Edges */}
+          {}
           {graphData.edges?.map((edge, index) => {
             const from = positions[edge.from]
             const to = positions[edge.to]
@@ -76,7 +76,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                   markerEnd={graphData.directed ? 'url(#arrowhead)' : undefined}
                 />
-                {/* Edge weight */}
+                {}
                 {edge.weight !== undefined && (
                   <text
                     x={(from.x + to.x) / 2}
@@ -95,7 +95,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
             )
           })}
 
-          {/* Arrow marker for directed graphs */}
+          {}
           {graphData.directed && (
             <defs>
               <marker
@@ -111,7 +111,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
             </defs>
           )}
 
-          {/* Nodes */}
+          {}
           {graphData.nodes?.map((node, index) => {
             const pos = positions[node.id]
             if (!pos) return null
@@ -141,7 +141,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
                 >
                   {node.label || node.id}
                 </text>
-                {/* Node value if different from label */}
+                {}
                 {node.value !== undefined && (
                   <text
                     x={pos.x}
@@ -158,7 +158,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
         </svg>
       </div>
 
-      {/* Legend */}
+      {}
       <div className="flex items-center justify-center gap-4 py-4 border-t border-gray-800 bg-gray-800/50">
         {Object.entries({
           Current: '#3b82f6',
@@ -174,7 +174,7 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
         ))}
       </div>
 
-      {/* Current step info */}
+      {}
       {currentStep && (
         <div className="px-4 py-3 bg-gray-800/50 border-t border-gray-700">
           <p className="text-sm text-gray-300 font-semibold">{currentStep.explanation}</p>

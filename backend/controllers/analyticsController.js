@@ -1,14 +1,3 @@
-/**
- * Analytics controller.
- *
- * Bug fixes vs the prior version:
- *  - All handlers use `next(error)` / `throw`.
- *  - `getInterviewReadiness` computes `systemDesign` from interview
- *    history (was a hard-coded 0 placeholder).
- *  - `getUserAnalytics` initialises `currentStreak` / `longestStreak`
- *    from the User doc so a freshly-created progress doesn't read as 0.
- *  - `updateProgress` is now a no-throw — callers don't need to wrap.
- */
 import { UserProgress, User, Problem, Interview } from '../models/index.js'
 import { calculateInterviewReadinessWithAI } from '../services/aiService.js'
 import { NotFoundError } from '../utils/errors.js'
@@ -16,9 +5,6 @@ import { logger } from '../utils/logger.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/* ------------------------------------------------------------------ */
-/* Dashboard                                                            */
-/* ------------------------------------------------------------------ */
 export const getUserAnalytics = wrap(async (req, res) => {
   const userId = req.user._id
   let progress = await UserProgress.findOne({ userId })
@@ -40,9 +26,6 @@ export const getUserAnalytics = wrap(async (req, res) => {
   res.json({ success: true, data: { progress, user } })
 })
 
-/* ------------------------------------------------------------------ */
-/* updateProgress — called by markSolved and submitAnswer              */
-/* ------------------------------------------------------------------ */
 export const updateProgress = async (user, problemData, timeTaken = 0, isCorrect = true) => {
   try {
     if (!user) return null
@@ -90,7 +73,6 @@ export const updateProgress = async (user, problemData, timeTaken = 0, isCorrect
     else if (entry.problemsSolved >= 5) entry.masteryLevel = 'intermediate'
     entry.lastPracticedAt = new Date()
 
-    // Weekly activity (last 12 weeks retained)
     const currentWeek = getStartOfWeek(new Date())
     let week = progress.weeklyActivity.find((w) => new Date(w.week).toDateString() === currentWeek.toDateString())
     if (!week) {
@@ -125,15 +107,11 @@ export const updateProgress = async (user, problemData, timeTaken = 0, isCorrect
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Interview readiness                                                  */
-/* ------------------------------------------------------------------ */
 export const getInterviewReadiness = wrap(async (req, res) => {
   const user = await User.findById(req.user._id)
   const solvedProblems = await Problem.find({ _id: { $in: user.solvedProblems } })
     .select('difficulty tags analysis.pattern_identification.pattern')
 
-  // Compute systemDesign from interview history (replaces the 0 placeholder)
   const interviews = await Interview.find({ userId: req.user._id, status: 'completed' })
     .select('systemDesignScore score interviewType')
   let systemDesignScore = 0
@@ -143,7 +121,7 @@ export const getInterviewReadiness = wrap(async (req, res) => {
   if (sdScores.length) {
     systemDesignScore = sdScores.reduce((a, b) => a + b, 0) / sdScores.length
   } else {
-    // Fallback: weight by interview type — system-design sessions count fully
+
     const sd = interviews.filter((i) => i.interviewType === 'system-design')
     if (sd.length) {
       systemDesignScore = sd.reduce((s, i) => s + (i.score || 0), 0) / sd.length
@@ -165,10 +143,8 @@ export const getInterviewReadiness = wrap(async (req, res) => {
 
   const readiness = await calculateInterviewReadinessWithAI(userStats, solvedProblems)
 
-  // Merge real systemDesign into the response
   const finalScore = { ...readiness, system_design_score: Math.round(systemDesignScore) }
 
-  // Update progress
   const progress = await UserProgress.findOne({ userId: req.user._id })
   if (progress) {
     progress.interviewReadinessScore = {
@@ -193,9 +169,6 @@ export const getInterviewReadiness = wrap(async (req, res) => {
   res.json({ success: true, data: finalScore })
 })
 
-/* ------------------------------------------------------------------ */
-/* Topic analysis                                                       */
-/* ------------------------------------------------------------------ */
 export const getTopicAnalysis = wrap(async (req, res) => {
   const progress = await UserProgress.findOne({ userId: req.user._id })
   if (!progress) throw new NotFoundError('Progress data not found')
@@ -220,11 +193,10 @@ export const getTopicAnalysis = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
 function getStartOfWeek(date) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
-  d.setDate(d.getDate() - d.getDay()) // Sunday-based
+  d.setDate(d.getDate() - d.getDay())
   return d
 }
 

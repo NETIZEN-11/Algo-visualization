@@ -18,9 +18,6 @@ const userSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
     },
     password: {
-      // Optional — OAuth-only users have no password. We never compare
-      // against it for those users, but the field still has to exist on
-      // the document for historical password-based users.
       type: String,
       required: false,
       default: null,
@@ -31,9 +28,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    // OAuth providers linked to this account. The compound unique index
-    // at the bottom of the file prevents two accounts from claiming the
-    // same `(provider, providerId)` pair.
     oauthProviders: [
       {
         provider: { type: String, enum: ['google', 'github'], required: true },
@@ -115,10 +109,7 @@ const userSchema = new mongoose.Schema(
       total: { type: Number, default: 0 },
     },
     patternStats: {
-      // Plain object — NOT a Mongoose Map. Map serialises as an object
-      // but Mongoose Map accesses through .get/.set only, which has bitten
-      // us in the gamification code. Object access (`user.patternStats[key]`)
-      // is intuitive and JSON-serialises naturally.
+
       type: Object,
       default: () => ({}),
     },
@@ -154,9 +145,7 @@ const userSchema = new mongoose.Schema(
       notifications: { type: Boolean, default: true },
       preferredLanguage: { type: String, default: 'python' },
     },
-    // Visualization-lab bookmarks. Each entry is `{ algorithmId, bookmarkedAt }`.
-    // The frontend defines the catalog of valid algorithmIds — we don't
-    // enforce a list here so new algorithms work without a migration.
+
     bookmarks: [
       {
         algorithmId: { type: String, required: true },
@@ -176,8 +165,7 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
     toJSON: {
-      // Strip internal fields from JSON output. The password is also
-      // stripped via `select:false` on the field.
+
       transform(_doc, ret) {
         delete ret.password
         delete ret.passwordResetToken
@@ -192,23 +180,17 @@ const userSchema = new mongoose.Schema(
   }
 )
 
-// Indexes (Mongoose auto-creates an index for `unique:true` on email;
-// do not redeclare it).
 userSchema.index({ xp: -1 })
 userSchema.index({ level: -1 })
-// One (provider, providerId) pair can only exist on a single account.
-// Sparse because not every user has any oauthProviders entries.
 userSchema.index(
   { 'oauthProviders.provider': 1, 'oauthProviders.providerId': 1 },
   { unique: true, sparse: true }
 )
 
-// Virtual for total problems solved
 userSchema.virtual('totalProblemsSolved').get(function () {
   return this.solvedProblems.length
 })
 
-// Update lastActive before save
 userSchema.pre('save', function (next) {
   this.lastActive = Date.now()
   next()

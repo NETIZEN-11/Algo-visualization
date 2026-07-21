@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-// Mock the api module so the store import doesn't try to talk to a real server.
 vi.mock('../../services/api', () => ({
   default: { post: vi.fn(), get: vi.fn(), put: vi.fn(), delete: vi.fn() },
   setAccessToken: vi.fn(),
@@ -25,7 +24,7 @@ import { authService } from '../../services/authService'
 describe('useAuthStore', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset the store and localStorage between tests.
+
     useAuthStore.setState({
       user: null,
       isAuthenticated: false,
@@ -63,7 +62,7 @@ describe('useAuthStore', () => {
   it('rehydrate() is idempotent', async () => {
     authService.getProfile.mockResolvedValue({ user: { id: 'u1' } })
     await useAuthStore.getState().rehydrate()
-    // Calling again with rehydrated=true should NOT re-fetch.
+
     await useAuthStore.getState().rehydrate()
     expect(authService.getProfile).toHaveBeenCalledTimes(1)
   })

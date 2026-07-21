@@ -1,12 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
 
-/**
- * Playwright config — runs the dev server, then drives a browser
- * through the critical paths. Designed to be run with `npm run test:e2e`.
- *
- * CI: When `CI` is set, we run headless without retries and with a single
- * worker so the run is deterministic.
- */
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,

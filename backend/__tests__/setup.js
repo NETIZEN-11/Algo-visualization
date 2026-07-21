@@ -1,7 +1,3 @@
-/**
- * Test setup — boots an isolated MongoDB-memory-server and points the
- * app at it. Each test file gets a fresh database.
- */
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 
@@ -19,7 +15,7 @@ export const setupTestDB = async () => {
   process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_for_unit_tests_only_xxxxxxxx'
   process.env.COOKIE_SECRET = 'test_cookie_secret_for_unit_tests_xxxxx'
   process.env.NODE_ENV = 'test'
-  // Disable CSRF in test (it requires a cookie roundtrip)
+
   process.env.DISABLE_CSRF = 'true'
   await mongoose.connect(uri)
 }

@@ -59,7 +59,7 @@ function VisualizationPage() {
         setVizType(data.type || 'array')
         toast.success('Visualization loaded')
       } else {
-        // Fall back to a default
+
         setVisualization(DEFAULT_VISUALIZATIONS.array)
         setVizType('array')
         toast('No saved visualization — using a demo walkthrough', { icon: 'ℹ️' })
@@ -108,9 +108,9 @@ function VisualizationPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column: problem list + demo picker */}
+        {}
         <div className="space-y-6">
-          {/* Demos */}
+          {}
           <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <FaCubes className="text-yellow-400" />
@@ -133,7 +133,7 @@ function VisualizationPage() {
             </div>
           </div>
 
-          {/* Problem list */}
+          {}
           <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <FaListAlt className="text-blue-400" />
@@ -174,7 +174,7 @@ function VisualizationPage() {
           </div>
         </div>
 
-        {/* Right column: visualizer */}
+        {}
         <div className="lg:col-span-2">
           <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 min-h-[500px]">
             {loadingViz ? (

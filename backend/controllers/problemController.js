@@ -1,15 +1,3 @@
-/**
- * Problem controller.
- *
- * The source of truth for "solved" lives in `User.solvedProblems` and the
- * `Submission` collection — not on the Problem document. `markSolved`
- * updates the user, awards XP, and (best-effort) keeps `UserProgress`
- * in sync.
- *
- * Ownership: any time a single problem is addressed by `:id`, the requester
- * must either own it or it must be a system-owned (curated) one. The
- * `loadOwnedProblem` helper enforces this in one place.
- */
 import Problem from '../models/Problem.js'
 import User from '../models/User.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
@@ -30,18 +18,14 @@ import { calculateLevel, calculateStreak } from '../utils/leveling.js'
 
 const DIFFICULTY_KEY = { Easy: 'easy', Medium: 'medium', Hard: 'hard' }
 
-/** Pagination parser. Returns { page, limit, skip }. */
 const pagination = (q, { defaultLimit = 20, maxLimit = 100 } = {}) => {
   const page = Math.max(1, parseInt(q.page, 10) || 1)
   const limit = Math.min(maxLimit, Math.max(1, parseInt(q.limit, 10) || defaultLimit))
   return { page, limit, skip: (page - 1) * limit }
 }
 
-/** Wrap an async route handler so thrown errors hit the global handler. */
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/** Load a Problem by its public id and assert the requester owns it.
- *  System-owned problems (userId === null) are accessible to all. */
 const loadOwnedProblem = async (problemId, userId) => {
   const problem = await Problem.findOne({ problemId })
   if (!problem) throw new NotFoundError('Problem not found')
@@ -49,9 +33,6 @@ const loadOwnedProblem = async (problemId, userId) => {
   return problem
 }
 
-/* ------------------------------------------------------------------ */
-/* Scrape                                                              */
-/* ------------------------------------------------------------------ */
 export const scrapeProblem = wrap(async (req, res) => {
   const { url } = req.body
   if (!url) throw new ValidationError('URL is required')
@@ -59,9 +40,6 @@ export const scrapeProblem = wrap(async (req, res) => {
   res.json({ success: true, data: problemData })
 })
 
-/* ------------------------------------------------------------------ */
-/* Analyse + persist                                                   */
-/* ------------------------------------------------------------------ */
 export const analyzeProblem = wrap(async (req, res) => {
   const { problemData } = req.body
   if (!problemData?.title || !problemData?.description) {
@@ -96,19 +74,12 @@ export const analyzeProblem = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* Reads                                                                */
-/* ------------------------------------------------------------------ */
 export const getProblem = wrap(async (req, res) => {
   const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
-  // Bump views (fire and forget — don't slow the response, but DO log on
-  // failure so the dev knows the counter stopped incrementing).
   Problem.updateOne({ _id: problem._id }, { $inc: { views: 1 }, $set: { lastViewedAt: new Date() } })
     .catch((err) => logger.warn({ err: err.message, problemId: problem.problemId }, 'view bump failed'))
 
-  // Whether the current user has solved it. We look it up here instead of
-  // returning a stale `isSolved` boolean on the Problem doc.
   const solved = await User.exists({ _id: req.user._id, solvedProblems: problem._id })
 
   res.json({
@@ -140,9 +111,7 @@ export const saveProblem = wrap(async (req, res) => {
 })
 
 export const unsaveProblem = wrap(async (req, res) => {
-  // We don't need the problem doc to remove it from the user's list; we
-  // only need the user's id. But we DO want to make sure the problem
-  // exists, to avoid silent typos in the URL.
+
   await loadOwnedProblem(req.params.id, req.user._id)
 
   await User.findByIdAndUpdate(req.user._id, {
@@ -228,9 +197,6 @@ export const executeDryRun = wrap(async (req, res) => {
   res.json({ success: true, data: result })
 })
 
-/* ------------------------------------------------------------------ */
-/* Related / search                                                    */
-/* ------------------------------------------------------------------ */
 export const getRelatedProblems = wrap(async (req, res) => {
   const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
@@ -270,9 +236,6 @@ export const getByPattern = wrap(async (req, res) => {
   res.json({ success: true, count: problems.length, total, page, pages: Math.ceil(total / limit), problems })
 })
 
-/* ------------------------------------------------------------------ */
-/* Mark solved                                                          */
-/* ------------------------------------------------------------------ */
 export const markSolved = wrap(async (req, res) => {
   const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
@@ -290,7 +253,6 @@ export const markSolved = wrap(async (req, res) => {
     user.problemStats[diffKey] = (user.problemStats[diffKey] || 0) + 1
     user.problemStats.total = (user.problemStats.total || 0) + 1
 
-    // patternStats is a plain object — set via direct key access.
     const pattern = problem.analysis?.pattern_identification?.pattern
     if (pattern) {
       const key = pattern.toLowerCase()
@@ -310,7 +272,6 @@ export const markSolved = wrap(async (req, res) => {
 
     await user.save()
 
-    // Best-effort progress sync — don't fail the request if it errors.
     updateProgress(user, problem).catch(() => {})
   }
 
@@ -322,9 +283,6 @@ export const markSolved = wrap(async (req, res) => {
   })
 })
 
-/* ------------------------------------------------------------------ */
-/* helpers                                                              */
-/* ------------------------------------------------------------------ */
 function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

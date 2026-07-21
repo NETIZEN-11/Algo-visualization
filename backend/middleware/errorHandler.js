@@ -1,12 +1,3 @@
-/**
- * Structured error handler.
- *
- * - Maps known `AppError` subclasses to their declared statusCode.
- * - Treats anything else as a 500.
- * - Sanitises the response in production (no stack, generic message).
- * - Logs every error with the request id so it can be correlated with
- *   downstream logs (Loki, Datadog, ELK, etc.).
- */
 import { AppError } from '../utils/errors.js'
 import { logger } from '../utils/logger.js'
 
@@ -18,7 +9,6 @@ export const errorHandler = (err, req, res, _next) => {
   const requestId = req.id || 'no-request-id'
   const isProd = process.env.NODE_ENV === 'production'
 
-  // Normalize to AppError
   const error =
     err instanceof AppError
       ? err
@@ -28,7 +18,6 @@ export const errorHandler = (err, req, res, _next) => {
           err.code || 'INTERNAL_ERROR'
         )
 
-  // Log with structured fields; never log secrets or passwords.
   const logPayload = {
     requestId,
     method: req.method,
@@ -61,11 +50,6 @@ export const errorHandler = (err, req, res, _next) => {
   res.status(error.statusCode).json(body)
 }
 
-/**
- * Wraps an async route handler so thrown promises hit the error handler
- * instead of crashing the process. Use as:
- *   router.get('/foo', asyncHandler(async (req, res) => { ... }))
- */
 export const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next)
 }

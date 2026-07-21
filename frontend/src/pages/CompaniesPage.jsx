@@ -23,7 +23,7 @@ function CompaniesPage() {
   const [search, setSearch] = useState('')
   const [tier, setTier] = useState('')
   const [companies, setCompanies] = useState([])
-  const [selected, setSelected] = useState(null) // {slug, name}
+  const [selected, setSelected] = useState(null)
   const [problems, setProblems] = useState([])
   const [loading, setLoading] = useState(false)
   const [companiesLoading, setCompaniesLoading] = useState(true)
@@ -95,7 +95,7 @@ function CompaniesPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Company list */}
+        {}
         <div className="lg:col-span-1 space-y-2">
           {companiesLoading ? (
             <div className="text-center py-8 text-gray-500">Loading…</div>
@@ -136,7 +136,7 @@ function CompaniesPage() {
           )}
         </div>
 
-        {/* Problems list */}
+        {}
         <div className="lg:col-span-2">
           {!selected ? (
             <div className="bg-gray-900 rounded-2xl border border-gray-800 p-10 text-center text-gray-500">

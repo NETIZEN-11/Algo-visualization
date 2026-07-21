@@ -1,16 +1,3 @@
-/**
- * Unit tests for the dynamic-visualization engine.
- *
- *   engine/patternDetector.js  — pattern classification
- *   engine/stepGenerator.js    — deterministic animation tracers
- *   engine/problemParser.js    — text → spec extraction
- *
- * These are pure functions so we test them in isolation. The engine
- * is the most critical code in the product — if `buildSteps` ever
- * returns a malformed step object, the visualizer crashes; if
- * `parseProblemText` ever throws on a real LeetCode paste, the
- * whole Dynamic Viz page is bricked.
- */
 import {
   detectPattern, PATTERNS, SUPPORTED_PATTERNS,
 } from '../../engine/patternDetector.js'
@@ -51,11 +38,6 @@ describe('engine/patternDetector', () => {
 })
 
 describe('engine/stepGenerator', () => {
-  // Each test asserts the contract of `buildSteps`:
-  //   - always returns { pattern, confidence, steps, meta }
-  //   - steps is a non-empty array
-  //   - each step has the required keys
-  //   - meta.source is 'tracer' or 'derived'
 
   function assertStepShape(step) {
     expect(typeof step.id).toBe('number')
@@ -115,7 +97,7 @@ describe('engine/stepGenerator', () => {
   })
 
   test('buildSteps catches tracer errors and returns a single safe step', () => {
-    // Force a tracer to throw by giving the two-pointer tracer a non-array input
+
     const out = buildSteps({
       title: 'Container With Most Water',
       examples: [{ input: 'not-an-array', output: 0 }],
@@ -129,7 +111,7 @@ describe('engine/stepGenerator', () => {
       title: 'Container With Most Water',
       examples: [{ input: [1, 8, 6, 2, 5, 4, 8, 3, 7], output: 49 }],
     })
-    // At least one step should mark both pointers (left + right)
+
     const hasBoth = out.steps.some((s) => {
       const idx = s.highlights.indices || []
       return idx.length >= 2
@@ -175,7 +157,7 @@ Output: [1,2]`
   })
 
   test('returns a buildable spec even on hostile input', () => {
-    // The parser must never throw — the visualizer page depends on it.
+
     const r = parseProblemText('   \n  random text   \n  ')
     const out = buildSteps(r.spec)
     expect(out.steps.length).toBeGreaterThan(0)

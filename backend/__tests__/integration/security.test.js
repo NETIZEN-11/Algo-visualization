@@ -1,6 +1,3 @@
-/**
- * Integration tests for security middleware.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
@@ -39,9 +36,7 @@ describe('CORS', () => {
     const res = await request(app)
       .get('/health/live')
       .set('Origin', 'http://evil.example.com')
-    // Express CORS will still return 200 but omit CORS headers (no ACAO)
-    // for unknown origins. The 200 here is correct — CORS is enforced
-    // by the browser, not the server's status code.
+
     expect(res.status).toBe(200)
     expect(res.headers['access-control-allow-origin']).toBeUndefined()
   })

@@ -17,7 +17,7 @@ function ProblemSolverPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,9 +35,9 @@ function ProblemSolverPage() {
         </div>
       </motion.div>
 
-      {/* Main 4-Column Layout */}
+      {}
       <div className="grid grid-cols-12 gap-6 p-6">
-        {/* Column 1: Problem Input & Details (27% ~ 3.24 cols) */}
+        {}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -61,7 +61,7 @@ function ProblemSolverPage() {
           )}
         </motion.div>
 
-        {/* Column 2: Visualization (30% ~ 3.6 cols) */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -71,7 +71,7 @@ function ProblemSolverPage() {
           <VisualizationPanel analysis={analysis} isAnalyzing={isAnalyzing} />
         </motion.div>
 
-        {/* Column 3: AI Tutor (25% ~ 3 cols) */}
+        {}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}

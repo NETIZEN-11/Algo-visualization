@@ -1,8 +1,5 @@
 import api from './api'
 
-/**
- * Daily-challenge service.
- */
 export const dailyChallengeService = {
   today: async () => {
     const { data } = await api.get('/gamification/daily-challenge')

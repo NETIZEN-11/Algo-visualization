@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react'
 
-/**
- * Tiny media-query hook.
- *   const isMd = useMediaQuery('(min-width: 768px)')
- */
 export function useMediaQuery(query) {
   const get = () => {
     if (typeof window === 'undefined' || !window.matchMedia) return false

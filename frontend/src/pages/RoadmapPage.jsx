@@ -5,10 +5,6 @@ import toast from 'react-hot-toast'
 import { roadmapService } from '../services/roadmapService'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 
-/**
- * Roadmap data — kept here (and seeded server-side too) so the page is
- * useful even before the user has any progress.
- */
 const ROADMAP = [
   {
     phase: 'Foundations',
@@ -72,13 +68,13 @@ function RoadmapPage() {
     try {
       const r = await roadmapService.get()
       const data = r.data || r
-      // Build a topicId → completed map from server-side topics
+
       const map = {}
       const topics = data?.topics || []
       topics.forEach((t) => { map[t.topicId] = t })
       setProgress(map)
     } catch (err) {
-      // 404 / 500 etc. — treat as empty roadmap and continue
+
       setProgress({})
     } finally {
       setLoading(false)
@@ -101,12 +97,12 @@ function RoadmapPage() {
       return
     }
     const newDone = !isComplete(topic.id)
-    // Optimistic update
+
     setProgress((p) => ({ ...p, [topic.id]: { ...(p[topic.id] || {}), topicId: topic.id, completed: newDone } }))
     try {
       await roadmapService.updateProgress({ topicId: topic.id, completed: newDone })
     } catch (err) {
-      // Revert
+
       setProgress((p) => ({ ...p, [topic.id]: { ...(p[topic.id] || {}), completed: !newDone } }))
       toast.error(err.response?.data?.message || 'Could not update progress')
     }

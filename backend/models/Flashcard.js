@@ -6,7 +6,7 @@ const flashcardSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      // Indexed via the compound indexes below; do NOT add `index: true`.
+
     },
     problemId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -64,7 +64,6 @@ const flashcardSchema = new mongoose.Schema(
   }
 )
 
-// Indexes for spaced repetition
 flashcardSchema.index({ userId: 1, nextReviewAt: 1 })
 flashcardSchema.index({ userId: 1, category: 1 })
 

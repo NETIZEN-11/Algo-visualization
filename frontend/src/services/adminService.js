@@ -1,8 +1,5 @@
 import api from './api'
 
-/**
- * Admin service — gated by role === 'admin' on the backend.
- */
 export const adminService = {
   listUsers: async (params = {}) => {
     const { data } = await api.get('/admin/users', { params })

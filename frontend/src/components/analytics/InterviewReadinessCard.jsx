@@ -34,7 +34,7 @@ function InterviewReadinessCard({ readiness }) {
     <div className="bg-[#111827] border border-gray-800 rounded-2xl p-6">
       <h3 className="text-lg font-bold text-white mb-6">Interview Readiness</h3>
 
-      {/* Overall Score */}
+      {}
       <div className={`${readinessInfo.bg} border ${readinessInfo.border} rounded-xl p-6 mb-6`}>
         <div className="flex items-center justify-between">
           <div>
@@ -64,7 +64,7 @@ function InterviewReadinessCard({ readiness }) {
         </div>
       </div>
 
-      {/* Category Breakdown */}
+      {}
       <div className="space-y-3 mb-6">
         {categories.map((category, index) => (
           <motion.div
@@ -97,7 +97,7 @@ function InterviewReadinessCard({ readiness }) {
         ))}
       </div>
 
-      {/* Strengths & Weaknesses */}
+      {}
       {readiness.strengths && readiness.strengths.length > 0 && (
         <div className="mb-4">
           <p className="text-sm font-semibold text-green-400 mb-2">✓ Strengths</p>

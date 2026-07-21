@@ -1,12 +1,5 @@
 import { test, expect } from '@playwright/test'
 
-/**
- * Auth smoke test — exercises the public auth pages and a protected
- * redirect. Runs without a backend; we only verify UI flows and routes.
- *
- * The login form is rendered in isolation; the actual auth submission
- * is not part of this smoke test (it would need the API).
- */
 test.describe('Auth pages', () => {
   test('login page renders and has accessible form controls', async ({ page }) => {
     await page.goto('/login')
@@ -36,7 +29,7 @@ test.describe('Auth pages', () => {
   test('skip-to-content link is keyboard-accessible', async ({ page }) => {
     await page.goto('/login')
     await page.keyboard.press('Tab')
-    // First focusable element should be the skip link.
+
     const focused = await page.evaluate(() => document.activeElement?.textContent)
     expect(focused).toMatch(/skip to main content/i)
   })

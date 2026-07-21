@@ -56,7 +56,6 @@ const testCaseSchema = new mongoose.Schema(
   }
 )
 
-// Indexes
 testCaseSchema.index({ problemId: 1 })
 testCaseSchema.index({ userId: 1 })
 testCaseSchema.index({ type: 1 })

@@ -14,19 +14,12 @@ const ICON_MAP = {
   FaLink, FaLayerGroup, FaTree, FaProjectDiagram, FaCalculator,
 }
 
-/**
- * Algomaster-style catalog index.
- *
- * Layout: title, search bar, category filter, and a grid of
- * algorithm cards. Clicking a card goes to /visualization/:slug.
- */
 function CatalogPage() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const [activeDifficulty, setActiveDifficulty] = useState('all')
   const [bookmarks, setBookmarks] = useState(new Set())
 
-  // Pull bookmarks (best-effort — guests get empty set)
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -35,7 +28,7 @@ function CatalogPage() {
         const ids = (res.data?.bookmarks || []).map((b) => b.algorithmId)
         if (!cancelled) setBookmarks(new Set(ids))
       } catch {
-        /* guest or no backend */
+
       }
     })()
     return () => {
@@ -65,7 +58,7 @@ function CatalogPage() {
   return (
     <div className="min-h-screen bg-[#0B1120] text-white">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-6">
-        {/* Header */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -80,7 +73,7 @@ function CatalogPage() {
           </p>
         </motion.div>
 
-        {/* Search + filters */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-1 relative">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
@@ -139,7 +132,7 @@ function CatalogPage() {
           </div>
         </div>
 
-        {/* Empty state */}
+        {}
         {filtered.length === 0 && (
           <div className="text-center py-20 text-gray-500">
             <FaSearch className="text-5xl mx-auto mb-3" />
@@ -147,7 +140,7 @@ function CatalogPage() {
           </div>
         )}
 
-        {/* Grouped sections */}
+        {}
         {[...grouped.entries()].map(([cat, algos]) => {
           const catMeta = CATEGORIES.find((c) => c.id === cat) || { label: cat, icon: 'FaCode' }
           const Icon = ICON_MAP[catMeta.icon] || FaCode

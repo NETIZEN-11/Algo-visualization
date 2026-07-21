@@ -1,8 +1,3 @@
-/**
- * Tests for the email service. Verifies the dev-mode no-SMTP fallback
- * path (no real network calls) and the template builders escape user
- * content. We avoid instantiating nodemailer by leaving SMTP_HOST unset.
- */
 process.env.NODE_ENV = 'test'
 process.env.SMTP_HOST = ''
 process.env.JWT_SECRET = 'test_jwt_secret_for_unit_tests_only_xxxxxxxxxx'

@@ -1,9 +1,3 @@
-/**
- * Integration tests for `/api/problems`. Mostly covers the read-side
- * (`getUserProblems`, `getRelatedProblems`, `searchByCompany`,
- * `getByPattern`) and the markSolved path, which have low unit coverage
- * but are core flows.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
@@ -35,7 +29,7 @@ beforeEach(async () => {
   const u = newUser()
   const reg = await request(app).post('/api/auth/register').send(u)
   token = reg.body.token || extractAccessToken(reg.headers['set-cookie'])
-  // Create a problem with a real analysis
+
   problemDoc = await Problem.create({
     problemId: `prob_test_${++counter}_${Date.now()}`,
     userId: null,

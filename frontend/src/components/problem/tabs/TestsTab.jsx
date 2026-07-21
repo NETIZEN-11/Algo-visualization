@@ -34,9 +34,9 @@ function TestsTab({ problemData }) {
   }
 
   const handleRunTest = (testCase, index) => {
-    // Simulate test execution
-    const passed = Math.random() > 0.3 // 70% pass rate for demo
-    
+
+    const passed = Math.random() > 0.3
+
     setTestResults((prev) => [
       ...prev.filter((r) => r.index !== index),
       {
@@ -55,7 +55,7 @@ function TestsTab({ problemData }) {
 
   return (
     <div className="space-y-4">
-      {/* Info */}
+      {}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
         <h4 className="text-sm font-bold text-blue-400 mb-2 flex items-center gap-2">
           <FaFlask />
@@ -66,7 +66,7 @@ function TestsTab({ problemData }) {
         </p>
       </div>
 
-      {/* Generate Button */}
+      {}
       {!testCases && (
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -89,10 +89,10 @@ function TestsTab({ problemData }) {
         </motion.button>
       )}
 
-      {/* Test Cases Display */}
+      {}
       {testCases && (
         <>
-          {/* Normal Cases */}
+          {}
           {testCases.normalCases && testCases.normalCases.length > 0 && (
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-green-400">✓ Normal Test Cases</h4>
@@ -109,7 +109,7 @@ function TestsTab({ problemData }) {
             </div>
           )}
 
-          {/* Edge Cases */}
+          {}
           {testCases.edgeCases && testCases.edgeCases.length > 0 && (
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-yellow-400">⚠ Edge Cases</h4>
@@ -126,7 +126,7 @@ function TestsTab({ problemData }) {
             </div>
           )}
 
-          {/* Hidden Cases */}
+          {}
           {testCases.hiddenCases && testCases.hiddenCases.length > 0 && (
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-purple-400">🔒 Hidden Cases</h4>
@@ -143,7 +143,7 @@ function TestsTab({ problemData }) {
             </div>
           )}
 
-          {/* Worst Case */}
+          {}
           {testCases.worstCase && (
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-red-400">🔥 Worst Case</h4>
@@ -157,7 +157,7 @@ function TestsTab({ problemData }) {
             </div>
           )}
 
-          {/* Custom Input */}
+          {}
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <h4 className="text-sm font-bold text-blue-400 mb-3">🎯 Custom Test Input</h4>
             <textarea
@@ -215,7 +215,7 @@ function TestCaseCard({ testCase, type, result, onRun }) {
           </div>
         )}
 
-        {/* Result */}
+        {}
         {result && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -247,7 +247,7 @@ function TestCaseCard({ testCase, type, result, onRun }) {
           </motion.div>
         )}
 
-        {/* Run Button */}
+        {}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

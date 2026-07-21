@@ -16,7 +16,7 @@ function ProblemDetailsPanel({ problemData, onReset }) {
 
   return (
     <div className="bg-[#111827] border border-gray-800 rounded-2xl shadow-lg overflow-hidden h-full">
-      {/* Header */}
+      {}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
         <button
           onClick={onReset}
@@ -28,9 +28,9 @@ function ProblemDetailsPanel({ problemData, onReset }) {
         <h2 className="text-lg font-bold text-white">{problemData.title}</h2>
       </div>
 
-      {/* Content */}
+      {}
       <div className="p-4 space-y-4 max-h-[calc(100vh-250px)] overflow-y-auto">
-        {/* Difficulty & Stats */}
+        {}
         <div className="flex items-center gap-3 flex-wrap">
           <span
             className={`px-3 py-1 rounded-full text-xs font-bold border ${getDifficultyColor(
@@ -55,7 +55,7 @@ function ProblemDetailsPanel({ problemData, onReset }) {
           )}
         </div>
 
-        {/* Tags */}
+        {}
         {problemData.tags && problemData.tags.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-gray-400 mb-2 flex items-center gap-2">
@@ -75,7 +75,7 @@ function ProblemDetailsPanel({ problemData, onReset }) {
           </div>
         )}
 
-        {/* Companies */}
+        {}
         {problemData.companies && problemData.companies.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-gray-400 mb-2 flex items-center gap-2">
@@ -95,7 +95,7 @@ function ProblemDetailsPanel({ problemData, onReset }) {
           </div>
         )}
 
-        {/* Description */}
+        {}
         <div>
           <h3 className="text-sm font-semibold text-gray-400 mb-2">Description</h3>
           <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
@@ -103,7 +103,7 @@ function ProblemDetailsPanel({ problemData, onReset }) {
           </div>
         </div>
 
-        {/* Examples */}
+        {}
         {problemData.examples && problemData.examples.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-gray-400 mb-2">Examples</h3>
@@ -141,7 +141,7 @@ function ProblemDetailsPanel({ problemData, onReset }) {
           </div>
         )}
 
-        {/* Constraints */}
+        {}
         {problemData.constraints && problemData.constraints.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-gray-400 mb-2">Constraints</h3>

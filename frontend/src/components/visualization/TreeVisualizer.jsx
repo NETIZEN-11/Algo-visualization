@@ -18,7 +18,7 @@ function TreeNode({ node, x, y, level, highlights = {}, onNodeClick }) {
 
   return (
     <g>
-      {/* Node circle */}
+      {}
       <motion.g
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -44,7 +44,7 @@ function TreeNode({ node, x, y, level, highlights = {}, onNodeClick }) {
         </text>
       </motion.g>
 
-      {/* Left child connection */}
+      {}
       {node.left && (
         <motion.line
           x1={x}
@@ -59,7 +59,7 @@ function TreeNode({ node, x, y, level, highlights = {}, onNodeClick }) {
         />
       )}
 
-      {/* Right child connection */}
+      {}
       {node.right && (
         <motion.line
           x1={x}
@@ -74,7 +74,7 @@ function TreeNode({ node, x, y, level, highlights = {}, onNodeClick }) {
         />
       )}
 
-      {/* Recursively render children */}
+      {}
       {node.left && (
         <TreeNode
           node={node.left}
@@ -108,7 +108,7 @@ function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
   const [viewBox, setViewBox] = useState('0 0 800 600')
 
   useEffect(() => {
-    // Auto-adjust viewBox based on tree size
+
     if (treeData) {
       const depth = getTreeDepth(treeData)
       const width = Math.max(800, depth * 100)
@@ -127,7 +127,7 @@ function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
 
   return (
     <div className="w-full h-full flex flex-col bg-gray-900 rounded-lg overflow-hidden">
-      {/* Tree SVG */}
+      {}
       <div className="flex-1 overflow-auto">
         <svg
           width="100%"
@@ -140,7 +140,7 @@ function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
         </svg>
       </div>
 
-      {/* Legend */}
+      {}
       <div className="flex items-center justify-center gap-4 py-4 border-t border-gray-800 bg-gray-800/50">
         {Object.entries({
           Current: 'bg-blue-500',
@@ -155,7 +155,7 @@ function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
         ))}
       </div>
 
-      {/* Tree info */}
+      {}
       {currentStep && (
         <div className="px-4 py-2 bg-gray-800/50 text-sm text-gray-300">
           <p className="font-semibold">{currentStep.explanation}</p>

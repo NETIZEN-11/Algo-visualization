@@ -1,10 +1,3 @@
-/**
- * Unit tests for `utils/aiMockGenerators.js` — parameterized mock AI
- * responses. The hardcoded "Two Sum" string was the bug we were
- * guarding against; the rewrites moved `detectPattern` into the
- * `engine/` package so this file now tests the public surface of the
- * mock generator.
- */
 import {
   detectPattern, PATTERNS,
 } from '../../engine/patternDetector.js'
@@ -50,7 +43,7 @@ describe('engine/patternDetector', () => {
         description: 'do something',
         tags: ['heap', 'priority queue'],
       })
-      // heap tag should win
+
       expect(r.pattern).toBe(PATTERNS.HEAP)
     })
     test('confidence is between 0 and 1', () => {
@@ -70,7 +63,7 @@ describe('utils/aiMockGenerators', () => {
   describe('patternLabel', () => {
     test('returns a non-empty string for every known pattern', () => {
       const labels = Object.values(PATTERNS).map(patternLabel)
-      // Allow at most one empty label (should be none in practice)
+
       const empties = labels.filter((l) => !l)
       expect(empties).toEqual([])
     })

@@ -5,19 +5,6 @@ import {
   FaUndo, FaRedoAlt, FaSync,
 } from 'react-icons/fa'
 
-/**
- * Visualization controls — full bar.
- *
- * Adds on top of the previous minimal controls:
- *   - Undo / Redo (history stack — only meaningful when the page wires
- *     the history callbacks)
- *   - Loop toggle (auto-restart at the end)
- *   - Jump-to-step via the progress bar (click anywhere)
- *   - Minimap (timeline strip) — visible above the controls
- *   - Fit / expand toggles the inline minimap visibility
- *
- * The component is fully controlled — every button is a callback.
- */
 function VisualizationControls({
   isPlaying,
   onPlay,
@@ -37,8 +24,8 @@ function VisualizationControls({
   canUndo = false,
   canRedo = false,
   disabled = false,
-  steps = [],          // for the minimap
-  stepTitles = [],     // for the minimap tooltip
+  steps = [],
+  stepTitles = [],
 }) {
   const barRef = useRef(null)
 
@@ -53,7 +40,7 @@ function VisualizationControls({
 
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 space-y-4">
-      {/* Minimap / progress bar — clickable */}
+      {}
       <div className="space-y-2">
         <div className="flex justify-between items-center text-xs text-gray-400">
           <span>Step {currentStep + 1} of {totalSteps}</span>
@@ -70,14 +57,14 @@ function VisualizationControls({
           aria-valuemax={totalSteps}
           tabIndex={0}
         >
-          {/* Filled */}
+          {}
           <motion.div
             className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-purple-500"
             initial={{ width: 0 }}
             animate={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
             transition={{ duration: 0.2 }}
           />
-          {/* Step ticks (minimap) */}
+          {}
           {steps.length > 0 && steps.length <= 60 && (
             <div className="absolute inset-0 flex pointer-events-none">
               {steps.map((_, i) => (
@@ -89,7 +76,7 @@ function VisualizationControls({
               ))}
             </div>
           )}
-          {/* Hover preview */}
+          {}
           <div
             className="absolute inset-y-0 right-0 w-1 bg-white/0 group-hover:bg-white/20 transition-colors"
             aria-hidden
@@ -97,7 +84,7 @@ function VisualizationControls({
         </div>
       </div>
 
-      {/* Control buttons */}
+      {}
       <div className="flex flex-wrap items-center justify-center gap-2">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -191,7 +178,7 @@ function VisualizationControls({
         )}
       </div>
 
-      {/* Speed control */}
+      {}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <label className="text-xs font-semibold text-gray-400">Speed</label>
@@ -212,7 +199,7 @@ function VisualizationControls({
         </div>
       </div>
 
-      {/* Keyboard shortcuts hint */}
+      {}
       <div className="pt-3 border-t border-gray-700">
         <p className="text-xs text-gray-500 text-center">
           <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Space</kbd> Play/Pause •{' '}

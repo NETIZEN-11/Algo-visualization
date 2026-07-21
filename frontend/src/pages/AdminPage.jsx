@@ -6,10 +6,6 @@ import { adminService } from '../services/adminService'
 import useAuthStore from '../store/useAuthStore'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 
-/**
- * Admin page — only mounted when the current user has role === 'admin'.
- * The backend returns 403 for non-admins; we also hide the nav link.
- */
 function AdminPage() {
   const reduceMotion = useReducedMotion()
   const user = useAuthStore((s) => s.user)

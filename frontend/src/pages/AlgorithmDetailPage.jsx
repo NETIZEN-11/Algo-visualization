@@ -12,19 +12,6 @@ import ComplexityBadge from '../components/visualization/ComplexityBadge'
 import InputPanel from '../components/visualization/InputPanel'
 import api from '../services/api'
 
-/**
- * Algorithm detail page — Algomaster-style single-algorithm view.
- *
- * Layout:
- *   - Header (title, bookmark, share, back link)
- *   - Input panel (presets + custom key=value input)
- *   - Visualization area + variables/explanation panel
- *   - Code panel (multi-language, line-synced)
- *   - Complexity badge
- *
- * Steps are computed client-side from algorithmCatalog.js, no LLM
- * round-trip required. Falls back to nothing if the slug is unknown.
- */
 function AlgorithmDetailPage() {
   const { slug } = useParams()
   const algo = ALGORITHMS[slug]
@@ -36,7 +23,6 @@ function AlgorithmDetailPage() {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [bookmarkLoaded, setBookmarkLoaded] = useState(false)
 
-  // Load bookmark state on mount
   useEffect(() => {
     if (!algo) return
     let cancelled = false
@@ -45,7 +31,7 @@ function AlgorithmDetailPage() {
         const res = await api.get(`/bookmarks/${algo.id}`)
         if (!cancelled) setIsBookmarked(!!res.data?.bookmarked)
       } catch {
-        // 401 is fine — guest user
+
       } finally {
         if (!cancelled) setBookmarkLoaded(true)
       }
@@ -55,7 +41,6 @@ function AlgorithmDetailPage() {
     }
   }, [algo])
 
-  // Compute the steps from the active preset (or custom input)
   const steps = useMemo(() => {
     if (!algo) return []
     if (currentInput !== null) {
@@ -81,7 +66,7 @@ function AlgorithmDetailPage() {
         setIsBookmarked(true)
       }
     } catch {
-      // ignore — guest or no backend
+
     }
   }
 
@@ -89,9 +74,9 @@ function AlgorithmDetailPage() {
     const url = window.location.href
     try {
       await navigator.clipboard.writeText(url)
-      // simple ephemeral feedback
+
     } catch {
-      /* ignore */
+
     }
   }
 
@@ -113,7 +98,7 @@ function AlgorithmDetailPage() {
   return (
     <div className="min-h-screen bg-[#0B1120] text-white">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-5">
-        {/* Header */}
+        {}
         <div>
           <Link
             to="/visualization"
@@ -164,7 +149,7 @@ function AlgorithmDetailPage() {
           </div>
         </div>
 
-        {/* Input panel */}
+        {}
         <InputPanel
           presets={algo.presets}
           defaultPreset={activePreset}
@@ -173,7 +158,7 @@ function AlgorithmDetailPage() {
           onRun={handleRunInput}
         />
 
-        {/* Visualization + side panels */}
+        {}
         <AlgorithmView
           algo={algo}
           steps={steps}
@@ -185,15 +170,9 @@ function AlgorithmDetailPage() {
   )
 }
 
-/**
- * Visualization + variables + code panel with shared state.
- * The engine owns the step index; we lift it here so the code panel
- * can highlight the matching line.
- */
 function AlgorithmView({ algo, steps, language, onLanguageChange }) {
   const [stepIndex, setStepIndex] = useState(0)
 
-  // Reset to step 0 whenever the steps array changes (preset or custom input)
   useEffect(() => {
     setStepIndex(0)
   }, [steps])
@@ -205,7 +184,7 @@ function AlgorithmView({ algo, steps, language, onLanguageChange }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-      {/* Left: visualization + variables */}
+      {}
       <div className="lg:col-span-3 space-y-3">
         <motion.div
           key={algo.id}
@@ -231,7 +210,7 @@ function AlgorithmView({ algo, steps, language, onLanguageChange }) {
         />
       </div>
 
-      {/* Right: code panel */}
+      {}
       <div className="lg:col-span-2 space-y-3">
         <CodePanel
           code={algo.code}
@@ -247,7 +226,6 @@ function AlgorithmView({ algo, steps, language, onLanguageChange }) {
   )
 }
 
-/** Walk the source and find the 1-based line that contains the snippet. */
 function findCodeLineNumber(source, snippet) {
   if (!source || !snippet) return null
   const lines = source.split('\n')

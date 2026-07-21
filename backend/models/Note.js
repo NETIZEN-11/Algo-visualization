@@ -6,8 +6,7 @@ const noteSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      // Indexed via compound index below; do NOT add `index: true` here
-      // (Mongoose throws a duplicate-index warning).
+
     },
     problemId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -66,7 +65,6 @@ const noteSchema = new mongoose.Schema(
   }
 )
 
-// Indexes
 noteSchema.index({ userId: 1, createdAt: -1 })
 noteSchema.index({ tags: 1 })
 noteSchema.index({ category: 1 })

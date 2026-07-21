@@ -65,7 +65,7 @@ describe('Modal', () => {
         <p>x</p>
       </Modal>
     )
-    // backdrop is the first .fixed.inset-0 in the tree
+
     const backdrops = container.querySelectorAll('.fixed.inset-0')
     const backdrop = backdrops[0]
     await user.click(backdrop)

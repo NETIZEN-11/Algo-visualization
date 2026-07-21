@@ -1,15 +1,3 @@
-/**
- * Pino logger. Outputs JSON in production, pretty in development.
- *
- * Every log line carries:
- *   - level
- *   - time
- *   - requestId (when set by the request-id middleware)
- *   - service ("algovision-backend")
- *   - env
- *
- * In production, redact Authorization and Set-Cookie headers automatically.
- */
 import pino from 'pino'
 import pinoHttp from 'pino-http'
 
@@ -54,7 +42,7 @@ export const httpLogger = pinoHttp({
     return 'info'
   },
   customProps: (req) => ({ requestId: req.id, userId: req.user?._id?.toString() || null }),
-  // Don't double-log health checks; they happen frequently and add noise.
+
   autoLogging: {
     ignore: (req) => req.url === '/health/live' || req.url === '/health/ready' || req.url === '/metrics',
   },

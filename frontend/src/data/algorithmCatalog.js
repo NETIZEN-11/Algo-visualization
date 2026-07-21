@@ -1,26 +1,5 @@
-/**
- * Algorithm catalog for the visualization lab.
- *
- * Every algorithm exports:
- *   - id, name, category, difficulty, timeComplexity, spaceComplexity
- *   - description (one-line)
- *   - presets: { [name]: { input, label } } (e.g. "Standard", "Reversed")
- *   - code: { javascript, python, java, cpp, pseudocode }
- *   - steps(input) → Step[]  (frame-based, drives the animation)
- *
- * Step shape (consumed by VisualizationEngine + the visualizers):
- *   { state, highlights, variables, codeLine, explanation, complexity? }
- *
- * This file is the "Algomaster.io" replacement: hand-curated, runnable
- * without an LLM, with edge-case presets built in.
- */
-
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-/** Deep clone a primitive graph/array so generators don't mutate the input. */
 const clone = (v) => JSON.parse(JSON.stringify(v))
 
-/** Build a `Map<index, value>` style highlight set. */
 const H = (overrides = {}) => ({
   comparing: [],
   sorted: [],
@@ -30,8 +9,6 @@ const H = (overrides = {}) => ({
   pointers: {},
   ...overrides,
 })
-
-// ─── SORTING ────────────────────────────────────────────────────────────────
 
 function bubbleSort(input) {
   const arr = clone(input)
@@ -81,7 +58,7 @@ function bubbleSort(input) {
       explanation: `Pass ${i + 1} complete. ${arr[arr.length - i - 1]} is now in its final position.`,
     })
     if (!didSwap) {
-      // remaining elements are sorted
+
       for (let k = 0; k < arr.length - i - 1; k++) {
         if (!sorted.includes(k)) sorted.push(k)
       }
@@ -256,7 +233,7 @@ function mergeSort(input) {
     })
     rec(a, lo, mid, depth + 1)
     rec(a, mid + 1, hi, depth + 1)
-    // merge
+
     const left = a.slice(lo, mid + 1)
     const right = a.slice(mid + 1, hi + 1)
     let i = 0, j = 0, k = lo
@@ -488,8 +465,6 @@ function heapSort(input) {
   return steps
 }
 
-// ─── SEARCHING ──────────────────────────────────────────────────────────────
-
 function binarySearch(input, target) {
   const arr = clone(input)
   const steps = []
@@ -579,8 +554,6 @@ function linearSearch(input, target) {
   return steps
 }
 
-// ─── TWO POINTERS / SLIDING WINDOW ──────────────────────────────────────────
-
 function twoSumSorted(input, target) {
   const arr = clone(input)
   const steps = []
@@ -644,7 +617,7 @@ function twoSumSorted(input, target) {
 function slidingWindowMax(input, k) {
   const arr = clone(input)
   const steps = []
-  const deque = [] // indices, decreasing values
+  const deque = []
   const result = []
 
   steps.push({
@@ -708,8 +681,6 @@ function rangeSet(lo, hi) {
   return out
 }
 
-// ─── LINKED LIST ────────────────────────────────────────────────────────────
-
 function reverseLinkedList(input) {
   const arr = clone(input)
   const steps = []
@@ -764,7 +735,7 @@ function reverseLinkedList(input) {
 }
 
 function detectCycle(input) {
-  // For a list with no cycle, this is identical to linear traversal
+
   const arr = clone(input)
   const steps = []
   steps.push({
@@ -775,7 +746,7 @@ function detectCycle(input) {
     explanation: 'Floyd’s cycle detection: pointers meet iff a cycle exists.',
   })
   let slow = 0, fast = 0
-  // No cycle in our flat array — show the linear scan
+
   for (let i = 0; i < arr.length; i++) {
     slow = Math.min(slow + 1, arr.length - 1)
     fast = Math.min(fast + 2, arr.length - 1)
@@ -807,10 +778,8 @@ function detectCycle(input) {
   return steps
 }
 
-// ─── STACK / QUEUE ──────────────────────────────────────────────────────────
-
 function validParentheses(input) {
-  // input is a string of brackets
+
   const s = input
   const steps = []
   const stack = []
@@ -872,10 +841,8 @@ function validParentheses(input) {
   return steps
 }
 
-// ─── TREE ───────────────────────────────────────────────────────────────────
-
 function bstInsert(flatTree, value) {
-  // flatTree = level-order with nulls, but we ignore nulls and treat as a tight tree
+
   const arr = clone(flatTree).filter(v => v !== null && v !== undefined)
   const steps = []
   steps.push({
@@ -898,7 +865,7 @@ function bstInsert(flatTree, value) {
 
 function arrToBST(arr) {
   if (!arr.length) return null
-  // Build a balanced BST from sorted arr
+
   const sorted = [...arr].sort((a, b) => a - b)
   const build = (lo, hi) => {
     if (lo > hi) return null
@@ -930,10 +897,8 @@ function cloneTree(node) {
   return { val: node.val, left: cloneTree(node.left), right: cloneTree(node.right) }
 }
 
-// ─── GRAPH ──────────────────────────────────────────────────────────────────
-
 function bfsGraph(input) {
-  // input = { nodes: [{id}], edges: [[from,to]], source }
+
   const data = clone(input)
   const steps = []
   const visited = new Set()
@@ -993,7 +958,7 @@ function dijkstra(input) {
   const steps = []
   const dist = {}
   const visited = new Set()
-  const heap = [] // [[dist, node]]
+  const heap = []
   data.nodes.forEach(n => { dist[n.id] = Infinity })
   dist[data.source] = 0
   heap.push([0, data.source])
@@ -1047,8 +1012,6 @@ function dijkstra(input) {
   })
   return steps
 }
-
-// ─── DP ─────────────────────────────────────────────────────────────────────
 
 function fibDp(input) {
   const n = input
@@ -1125,10 +1088,8 @@ function coinChange(input) {
   return steps
 }
 
-// ─── CATALOG ────────────────────────────────────────────────────────────────
-
 export const ALGORITHMS = {
-  // SORTING
+
   'bubble-sort': {
     id: 'bubble-sort', name: 'Bubble Sort', category: 'sorting', difficulty: 'Easy',
     timeComplexity: 'O(n²)', spaceComplexity: 'O(1)',
@@ -1456,7 +1417,7 @@ for end = n-1 downto 1:
     },
     steps: heapSort,
   },
-  // SEARCHING
+
   'binary-search': {
     id: 'binary-search', name: 'Binary Search', category: 'searching', difficulty: 'Easy',
     timeComplexity: 'O(log n)', spaceComplexity: 'O(1)',
@@ -1547,7 +1508,7 @@ return -1`,
     },
     steps: (input, target) => linearSearch(input, target ?? 7),
   },
-  // TWO POINTERS
+
   'two-sum-sorted': {
     id: 'two-sum-sorted', name: 'Two Sum (Sorted)', category: 'two-pointers', difficulty: 'Easy',
     timeComplexity: 'O(n)', spaceComplexity: 'O(1)',
@@ -1603,7 +1564,7 @@ return []`,
     },
     steps: (input, target) => twoSumSorted(input, target ?? 9),
   },
-  // SLIDING WINDOW
+
   'sliding-window-max': {
     id: 'sliding-window-max', name: 'Sliding Window Maximum', category: 'sliding-window', difficulty: 'Hard',
     timeComplexity: 'O(n)', spaceComplexity: 'O(k)',
@@ -1643,7 +1604,7 @@ for i in 0..n-1:
     },
     steps: (input, k) => slidingWindowMax(input, k ?? 3),
   },
-  // LINKED LIST
+
   'reverse-linked-list': {
     id: 'reverse-linked-list', name: 'Reverse Linked List', category: 'linked-list', difficulty: 'Easy',
     timeComplexity: 'O(n)', spaceComplexity: 'O(1)',
@@ -1739,7 +1700,7 @@ return false`,
     },
     steps: (input) => detectCycle(input),
   },
-  // STACK
+
   'valid-parentheses': {
     id: 'valid-parentheses', name: 'Valid Parentheses', category: 'stack', difficulty: 'Easy',
     timeComplexity: 'O(n)', spaceComplexity: 'O(n)',
@@ -1790,7 +1751,7 @@ return stack.empty()`,
     },
     steps: (input) => validParentheses(input),
   },
-  // TREE
+
   'bst-insert': {
     id: 'bst-insert', name: 'BST Insert', category: 'tree', difficulty: 'Easy',
     timeComplexity: 'O(log n) avg, O(n) worst', spaceComplexity: 'O(h)',
@@ -1831,7 +1792,7 @@ return stack.empty()`,
     },
     steps: (input, value) => bstInsert(input, value ?? 1),
   },
-  // GRAPH
+
   'bfs-graph': {
     id: 'bfs-graph', name: 'BFS (Graph)', category: 'graph', difficulty: 'Easy',
     timeComplexity: 'O(V + E)', spaceComplexity: 'O(V)',
@@ -1952,7 +1913,7 @@ return dist`,
     },
     steps: (input) => dijkstra(input),
   },
-  // DP
+
   'fibonacci-dp': {
     id: 'fibonacci-dp', name: 'Fibonacci (DP)', category: 'dp', difficulty: 'Easy',
     timeComplexity: 'O(n)', spaceComplexity: 'O(n)',
@@ -2026,7 +1987,6 @@ return dp[amount] == Infinity ? -1 : dp[amount]`,
   },
 }
 
-// Categories derived from the catalog (drives the sidebar)
 export const CATEGORIES = [
   { id: 'sorting', label: 'Sorting', icon: 'FaSortAmountDown' },
   { id: 'searching', label: 'Searching', icon: 'FaSearch' },
@@ -2039,11 +1999,10 @@ export const CATEGORIES = [
   { id: 'dp', label: 'Dynamic Programming', icon: 'FaCalculator' },
 ]
 
-/** Generate a Step[] for a given algorithm + chosen preset/custom input. */
 export function generateSteps(algoId, input) {
   const algo = ALGORITHMS[algoId]
   if (!algo) return []
-  // Different step generators take different argument shapes
+
   const id = algo.id
   if (id === 'binary-search' || id === 'linear-search') {
     return algo.steps(input.array ?? input, input.target)

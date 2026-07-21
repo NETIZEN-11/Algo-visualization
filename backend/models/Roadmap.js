@@ -1,17 +1,3 @@
-/**
- * Roadmap model — per-user progress through a learning track.
- *
- * There are two views of a "roadmap":
- *   1. The *system* roadmap template (name, description, ordered topics
- *      with problems). Authors can create these.
- *   2. The *per-user* progress: which topics the user has finished, how
- *      many problems they've solved in each, free-form notes.
- *
- * Both live in this single collection. System roadmaps omit `userId`;
- * user-progress roadmaps are scoped by `userId` and have only the topic
- * progress fields, no nested problems. The controller decides which
- * shape to create.
- */
 import mongoose from 'mongoose'
 
 const topicProgressSchema = new mongoose.Schema(
@@ -83,9 +69,6 @@ const systemRoadmapSchema = new mongoose.Schema(
 )
 systemRoadmapSchema.index({ order: 1, isActive: 1 })
 
-// Two-collection hack via discriminated union? Simpler: use two models
-// on the same collection. We name the user-progress model differently
-// to keep mongoose from clashing.
 const Roadmap = mongoose.model('Roadmap', systemRoadmapSchema)
 const UserRoadmap = mongoose.model('UserRoadmap', userRoadmapSchema)
 

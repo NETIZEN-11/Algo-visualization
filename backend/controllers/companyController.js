@@ -1,19 +1,9 @@
-/**
- * Company controller — list, filter, and "problems at company" view.
- *
- * All endpoints are read-only and cacheable; the company list is small
- * (tens of rows), the problem joins are indexed on
- * (companyId, frequency).
- */
 import Company, { CompanyProblem } from '../models/Company.js'
 import Problem from '../models/Problem.js'
 import { NotFoundError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-/* ------------------------------------------------------------------ */
-/* GET /companies — list, optional ?tier=FAANG&q=goog                  */
-/* ------------------------------------------------------------------ */
 export const list = wrap(async (req, res) => {
   const { tier, q } = req.query
   const filter = {}
@@ -28,18 +18,12 @@ export const list = wrap(async (req, res) => {
   res.json({ success: true, data: companies })
 })
 
-/* ------------------------------------------------------------------ */
-/* GET /companies/:slug                                                */
-/* ------------------------------------------------------------------ */
 export const getBySlug = wrap(async (req, res) => {
   const company = await Company.findOne({ slug: req.params.slug.toLowerCase() }).lean()
   if (!company) throw new NotFoundError('Company not found')
   res.json({ success: true, data: company })
 })
 
-/* ------------------------------------------------------------------ */
-/* GET /companies/:slug/problems?difficulty=&pattern=&minFrequency=    */
-/* ------------------------------------------------------------------ */
 export const listProblems = wrap(async (req, res) => {
   const { slug } = req.params
   const { difficulty, pattern, minFrequency, limit = 100, sort = 'frequency' } = req.query
@@ -58,7 +42,6 @@ export const listProblems = wrap(async (req, res) => {
   const problemIds = cp.map((c) => c.problemId)
   const problems = await Problem.find({ _id: { $in: problemIds } }).lean()
 
-  // Join — preserve the sort from the cp query
   const byId = new Map(problems.map((p) => [String(p._id), p]))
   const joined = cp
     .map((c) => {
@@ -88,9 +71,6 @@ export const listProblems = wrap(async (req, res) => {
   res.json({ success: true, data: { company, problems: joined, total: joined.length } })
 })
 
-/* ------------------------------------------------------------------ */
-/* GET /problems/:id/companies                                          */
-/* ------------------------------------------------------------------ */
 export const companiesForProblem = wrap(async (req, res) => {
   const { id } = req.params
   const problem = await Problem.findOne({

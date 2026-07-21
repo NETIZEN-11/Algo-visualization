@@ -11,7 +11,6 @@ import { protect } from '../middleware/auth.js'
 
 const router = express.Router()
 
-// All routes require authentication
 router.use(protect)
 
 router.get('/badges', getUserBadges)

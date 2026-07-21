@@ -40,7 +40,7 @@ const dailyChallengeSchema = new mongoose.Schema(
           type: Date,
         },
         timeTaken: {
-          type: Number, // in seconds
+          type: Number,
         },
         earnedBonus: {
           type: Boolean,
@@ -66,7 +66,6 @@ const dailyChallengeSchema = new mongoose.Schema(
   }
 )
 
-// Index for finding today's challenge
 dailyChallengeSchema.index({ date: -1, isActive: 1 })
 
 const DailyChallenge = mongoose.model('DailyChallenge', dailyChallengeSchema)

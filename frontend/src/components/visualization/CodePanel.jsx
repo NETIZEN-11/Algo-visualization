@@ -3,20 +3,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { FaCode, FaCopy, FaCheck } from 'react-icons/fa'
 
-/**
- * Multi-language code panel with line-level highlight sync.
- *
- * Props:
- *   - code: { javascript, python, java, cpp, pseudocode }
- *   - currentLine: 1-indexed line number to highlight (driven by step)
- *   - language: which language to display
- *
- * The highlight is implemented by splitting the source on \n and
- * mapping each line to a span whose background changes when its
- * 1-based index matches currentLine. This is more reliable than
- * `highlight-line` props in the highlighter library and survives
- * re-renders without flicker.
- */
 function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
   const languages = useMemo(() => {
     const ls = [
@@ -33,7 +19,6 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
   const [lang, setLang] = useState(language || initial)
   const [copied, setCopied] = useState(false)
 
-  // If the parent doesn't control language, keep it in sync with available tabs
   const effectiveLang = languages.find((l) => l.id === lang) ? lang : initial
   const source = code[effectiveLang] || ''
 
@@ -43,16 +28,15 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      /* ignore */
+
     }
   }
 
-  // Map pseudocode to a generic language for the highlighter
   const highlighterLang = effectiveLang === 'pseudocode' ? 'plaintext' : effectiveLang
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
-      {/* Header tabs */}
+      {}
       <div className="flex items-center justify-between border-b border-gray-800 bg-gray-800/40">
         <div className="flex items-center px-2 py-1.5 gap-1 overflow-x-auto">
           {languages.map((l) => (
@@ -81,7 +65,7 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
         </button>
       </div>
 
-      {/* Code body — line-by-line so we can highlight the active line */}
+      {}
       <div className="relative text-sm">
         <SyntaxHighlighter
           language={highlighterLang}
@@ -110,7 +94,7 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
           {source}
         </SyntaxHighlighter>
 
-        {/* No-highlighter fallback label */}
+        {}
         {effectiveLang === 'pseudocode' && (
           <div className="absolute top-2 right-2 text-[10px] uppercase tracking-wider text-gray-500 bg-gray-800/80 px-2 py-0.5 rounded">
             <FaCode className="inline mr-1" /> pseudocode
@@ -118,7 +102,7 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
         )}
       </div>
 
-      {/* Empty state if no code for this language */}
+      {}
       {!source && (
         <div className="p-4 text-gray-500 text-sm">No source for {effectiveLang}.</div>
       )}

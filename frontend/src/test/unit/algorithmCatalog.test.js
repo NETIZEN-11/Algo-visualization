@@ -41,7 +41,7 @@ describe('step generators', () => {
       expect(s.state.array).toBeTruthy()
       expect(s.explanation).toBeTruthy()
     }
-    // Final array is sorted
+
     const last = steps[steps.length - 1]
     expect(last.state.array).toEqual([1, 2, 3])
   })
@@ -68,7 +68,7 @@ describe('step generators', () => {
     const input = [38, 27, 43, 3, 9, 82, 10]
     const steps = generateSteps('merge-sort', input)
     expect(steps[steps.length - 1].state.array).toEqual([3, 9, 10, 27, 38, 43, 82])
-    // The original input shouldn't be mutated (we deep-clone)
+
     expect(input).toEqual([38, 27, 43, 3, 9, 82, 10])
   })
 
@@ -117,7 +117,7 @@ describe('step generators', () => {
 
   it('valid-parentheses: interleaved string fails', () => {
     const steps = generateSteps('valid-parentheses', '([)]')
-    // Some step will have variables.invalid = true
+
     const failed = steps.find((s) => s.variables.invalid === true)
     expect(failed).toBeTruthy()
   })
@@ -147,10 +147,10 @@ describe('step generators', () => {
     const steps = generateSteps('dijkstra', input)
     const dist = steps[steps.length - 1].variables.dist
     expect(dist.A).toBe(0)
-    expect(dist.B).toBe(3) // A→C→B
-    expect(dist.C).toBe(2) // A→C
-    expect(dist.D).toBe(8) // A→C→B→D
-    expect(dist.E).toBe(10) // A→C→E
+    expect(dist.B).toBe(3)
+    expect(dist.C).toBe(2)
+    expect(dist.D).toBe(8)
+    expect(dist.E).toBe(10)
   })
 
   it('fibonacci-dp: produces the right value', () => {
@@ -180,7 +180,7 @@ describe('step shape', () => {
     const b = generateSteps('selection-sort', [3, 1, 2])
     const c = generateSteps('insertion-sort', [3, 1, 2])
     for (const steps of [a, b, c]) {
-      // The last step in each algorithm records the final comparison count
+
       const last = steps[steps.length - 1]
       expect(typeof last.variables.comparisons).toBe('number')
       expect(last.variables.comparisons).toBeGreaterThan(0)
@@ -188,10 +188,10 @@ describe('step shape', () => {
   })
 
   it('every step has a "codeLine" string for the code panel to highlight', () => {
-    // A representative cross-section
+
     const ids = ['bubble-sort', 'selection-sort', 'merge-sort', 'binary-search', 'dijkstra', 'fibonacci-dp', 'valid-parentheses']
     for (const id of ids) {
-      // Run a single preset
+
       const algo = ALGORITHMS[id]
       const firstPreset = Object.values(algo.presets)[0]
       let input
@@ -201,7 +201,7 @@ describe('step shape', () => {
       else input = firstPreset.input
       const steps = generateSteps(id, input)
       expect(steps.length, `${id} produced steps`).toBeGreaterThan(0)
-      // At least one step must mention a code-line that is present in the JS source
+
       const jsSource = algo.code.javascript
       const matched = steps.some((s) => s.codeLine && jsSource.includes(s.codeLine))
       expect(matched, `${id} has at least one step whose codeLine appears in JS source`).toBe(true)

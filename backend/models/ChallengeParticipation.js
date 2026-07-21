@@ -1,10 +1,3 @@
-/**
- * ChallengeParticipation — replaces the unbounded `participants` array
- * that used to live inside the DailyChallenge document.
- *
- * One row per (user, challenge). Idempotent: re-attempting the same
- * challenge just updates `completedAt`, `timeTaken`, `earnedBonus`.
- */
 import mongoose from 'mongoose'
 
 const challengeParticipationSchema = new mongoose.Schema(
@@ -20,7 +13,7 @@ const challengeParticipationSchema = new mongoose.Schema(
       required: true,
     },
     completedAt: { type: Date, default: null },
-    timeTaken: { type: Number, default: null }, // seconds
+    timeTaken: { type: Number, default: null },
     earnedBonus: { type: Boolean, default: false },
     xpAwarded: { type: Number, default: 0 },
     submissionId: {

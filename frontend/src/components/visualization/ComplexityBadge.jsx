@@ -1,12 +1,5 @@
 import { motion } from 'framer-motion'
 
-/**
- * Time/Space complexity badge.
- *
- * Renders a small pill that lists the algorithm's worst/average/space
- * bounds. Optional per-step `complexity` from a step generator can
- * override the static bound (e.g. "O(n log n) – current pass").
- */
 function ComplexityBadge({ time, space, current }) {
   return (
     <motion.div

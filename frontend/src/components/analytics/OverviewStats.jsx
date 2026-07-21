@@ -59,7 +59,7 @@ function OverviewStats({ progress, user }) {
             </div>
           </div>
 
-          {/* Progress indicator for XP */}
+          {}
           {stat.label === 'Current Level' && user && (
             <div className="mt-4">
               <div className="flex justify-between text-xs text-gray-400 mb-1">

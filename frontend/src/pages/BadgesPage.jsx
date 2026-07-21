@@ -19,7 +19,7 @@ function BadgesPage() {
   const [userBadges, setUserBadges] = useState([])
   const [allBadges, setAllBadges] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filter, setFilter] = useState('all') // all, earned, locked
+  const [filter, setFilter] = useState('all')
 
   useEffect(() => {
     loadBadges()
@@ -36,9 +36,7 @@ function BadgesPage() {
       setUserBadges(userRes.data.data || [])
       setAllBadges(allRes.data.data || [])
     } catch (error) {
-      // 401 is expected when the user is not authenticated — the
-      // route guard will redirect them to /login. Don't show a toast
-      // for that case; only toast on real server errors.
+
       const status = error?.response?.status
       if (status && status !== 401) {
         toast.error('Failed to load badges')
@@ -95,55 +93,55 @@ function BadgesPage() {
             : 'bg-gray-900/50 border-gray-800 opacity-60'
         }`}
       >
-        {/* Earned Badge */}
+        {}
         {earned && (
           <div className="absolute -top-3 -right-3 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-[#0B1120]">
             <FaCheckCircle className="text-white text-sm" />
           </div>
         )}
 
-        {/* Lock Icon for Locked Badges */}
+        {}
         {!earned && (
           <div className="absolute top-4 right-4">
             <FaLock className="text-gray-600 text-xl" />
           </div>
         )}
 
-        {/* Badge Icon */}
+        {}
         <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${tierColor} flex items-center justify-center ${!earned && 'grayscale'}`}>
           <Icon className="text-4xl text-white" />
         </div>
 
-        {/* Badge Details */}
+        {}
         <h3 className={`text-xl font-bold mb-2 text-center ${earned ? 'text-white' : 'text-gray-500'}`}>
           {badge.name}
         </h3>
-        
+
         <p className={`text-sm text-center mb-4 ${earned ? 'text-gray-400' : 'text-gray-600'}`}>
           {badge.description}
         </p>
 
-        {/* Tier Badge */}
+        {}
         <div className="flex items-center justify-center gap-2 mb-3">
           <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${tierColor}`}>
             {badge.tier?.toUpperCase() || 'BRONZE'}
           </span>
         </div>
 
-        {/* Criteria */}
+        {}
         <div className="bg-gray-800/50 rounded-lg p-3 mb-3">
           <p className="text-xs text-gray-400 text-center">
             <span className="font-semibold">Requirement:</span> {badge.criteria?.description || 'Complete special achievement'}
           </p>
         </div>
 
-        {/* XP Reward */}
+        {}
         <div className="flex items-center justify-center gap-2 text-yellow-400">
           <FaStar />
           <span className="font-bold">+{badge.xpReward || 0} XP</span>
         </div>
 
-        {/* Earned Date */}
+        {}
         {earned && getEarnedDate(badge.id) && (
           <div className="mt-3 pt-3 border-t border-gray-700">
             <p className="text-xs text-center text-gray-500">
@@ -179,7 +177,7 @@ function BadgesPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white p-8">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -196,7 +194,7 @@ function BadgesPage() {
         </p>
       </motion.div>
 
-      {/* Stats Overview */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -218,7 +216,7 @@ function BadgesPage() {
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {}
         <div className="mt-6">
           <div className="w-full bg-gray-800 rounded-full h-4 overflow-hidden">
             <motion.div
@@ -231,7 +229,7 @@ function BadgesPage() {
         </div>
       </motion.div>
 
-      {/* Filter Tabs */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -270,7 +268,7 @@ function BadgesPage() {
         </button>
       </motion.div>
 
-      {/* Badges Grid */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -297,7 +295,7 @@ function BadgesPage() {
         )}
       </motion.div>
 
-      {/* Motivation Section */}
+      {}
       {earnedCount < totalCount && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

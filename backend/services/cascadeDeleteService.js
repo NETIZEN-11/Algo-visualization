@@ -1,10 +1,3 @@
-/**
- * Cascade-delete service.
- *
- * Removing a user is a multi-collection operation. We do it in a single
- * pass to keep the delete fast and to avoid leaving orphaned records
- * (notes, submissions, refresh tokens, etc.).
- */
 import mongoose from 'mongoose'
 
 const collectionsToClear = async (userId) => {

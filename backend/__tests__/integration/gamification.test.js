@@ -1,6 +1,3 @@
-/**
- * Integration tests for `/api/gamification`.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
@@ -64,7 +61,7 @@ describe('Gamification', () => {
     expect(a.status).toBe(200)
     const b = await request(app).get('/api/gamification/leaderboard').set(auth())
     expect(b.status).toBe(200)
-    // X-Cache header indicates HIT
+
     expect(b.headers['x-cache']).toBe('HIT')
   })
 })

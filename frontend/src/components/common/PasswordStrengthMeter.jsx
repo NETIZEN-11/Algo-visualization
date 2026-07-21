@@ -1,13 +1,6 @@
 import { useMemo } from 'react'
 import { validatePasswordStrength } from '../../utils/password'
 
-/**
- * Visual strength meter for new-password fields.
- *
- * Props:
- *   password — current value
- *   userInputs — array of strings to penalise (e.g. name/email)
- */
 const STRENGTH_LABELS = ['Very weak', 'Weak', 'Fair', 'Strong', 'Excellent']
 const STRENGTH_COLOURS = [
   'bg-red-500',

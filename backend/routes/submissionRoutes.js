@@ -1,6 +1,3 @@
-/**
- * Submissions routes — `/api/submissions`
- */
 import { Router } from 'express'
 import { protect } from '../middleware/auth.js'
 import { globalRateLimiter, aiRateLimiter } from '../middleware/rateLimiter.js'

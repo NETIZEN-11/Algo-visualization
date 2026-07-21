@@ -8,16 +8,6 @@ import {
   FaBell, FaCog, FaUserShield,
 } from 'react-icons/fa'
 
-/**
- * Global command palette. Bound to (Cmd|Ctrl)+K, also opens with the
- * "/" key when the user isn't typing in an input.
- *
- * Provides fuzzy search over the app's navigation so power users can
- * jump to any page in two keystrokes. The list is generated from the
- * same menu the Sidebar shows so we don't drift out of sync — add a
- * sidebar item and the palette picks it up automatically.
- */
-
 const NAV_ITEMS = [
   { path: '/', label: 'Dashboard', icon: FaHome, keywords: 'home overview' },
   { path: '/problem-solver', label: 'Problem Solver', icon: FaCode, keywords: 'solve code editor' },
@@ -37,7 +27,6 @@ const NAV_ITEMS = [
   { path: '/admin', label: 'Admin Console', icon: FaUserShield, keywords: 'admin console manage', admin: true },
 ]
 
-// Tiny case-insensitive substring scorer. -1 means no match.
 function score(item, q) {
   if (!q) return 1
   const needle = q.toLowerCase()
@@ -56,7 +45,6 @@ function CommandPalette() {
   const inputRef = useRef(null)
   const listRef = useRef(null)
 
-  // Filter & rank
   const results = useMemo(() => {
     const scored = NAV_ITEMS
       .map((item) => ({ item, s: score(item, query) }))
@@ -65,7 +53,6 @@ function CommandPalette() {
     return scored.map((r) => r.item)
   }, [query])
 
-  // Open / close
   useEffect(() => {
     const onKey = (e) => {
       const isMod = e.metaKey || e.ctrlKey
@@ -74,7 +61,7 @@ function CommandPalette() {
         setOpen((o) => !o)
         return
       }
-      // "/" opens when not in an input
+
       if (e.key === '/' && !open) {
         const tag = (e.target?.tagName || '').toLowerCase()
         const editable = e.target?.isContentEditable
@@ -91,23 +78,20 @@ function CommandPalette() {
     return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
-  // Focus input when opening, reset state
   useEffect(() => {
     if (open) {
       setQuery('')
       setActive(0)
-      // Wait one frame for the modal to mount
+
       const t = setTimeout(() => inputRef.current?.focus(), 0)
       return () => clearTimeout(t)
     }
   }, [open])
 
-  // Keep active index within bounds
   useEffect(() => {
     if (active >= results.length) setActive(0)
   }, [results.length, active])
 
-  // Scroll active item into view
   useEffect(() => {
     const list = listRef.current
     if (!list) return

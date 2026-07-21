@@ -1,15 +1,6 @@
-/**
- * AlgoVision AI – backend smoke test (modernized).
- *
- * The original smoke test was written against the v1 API which had
- * `/health` and returned a `token` field on register. The current API
- * uses `/health/live` and httpOnly cookies. This file replaces the
- * original test with assertions that match the live surface.
- */
 import request from 'supertest'
 import mongoose from 'mongoose'
 
-// Test mode — disable CSRF and rate-limit so the suite can run fast.
 process.env.DISABLE_CSRF = 'true'
 process.env.DISABLE_RATE_LIMIT = 'true'
 process.env.RUN_SERVER = 'false'
@@ -66,7 +57,7 @@ describe('AlgoVision AI – smoke tests', () => {
     expect([200, 201]).toContain(res.status)
     expect(res.body.success).toBe(true)
     expect(res.body.user.email).toBe(TEST_USER.email)
-    // token is delivered via httpOnly cookie + the access token may be in JSON
+
     const cookies = res.headers['set-cookie'] || []
     expect(cookies.length).toBeGreaterThan(0)
     token = res.body.token || (cookies.join(';').match(/access=([^;]+)/) || [])[1]
@@ -86,7 +77,7 @@ describe('AlgoVision AI – smoke tests', () => {
   })
 
   test('GET /api/auth/profile returns 200 with valid token', async () => {
-    if (!token) return // skip if prior test didn't set token
+    if (!token) return
     const res = await request(app)
       .get('/api/auth/profile')
       .set('Authorization', `Bearer ${token}`)

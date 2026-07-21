@@ -1,9 +1,3 @@
-/**
- * Notes routes — `/api/notes`
- *
- * Auth: every note is scoped to its owner; admin can read any via
- * the admin route.
- */
 import { Router } from 'express'
 import { protect } from '../middleware/auth.js'
 import { aiRateLimiter, globalRateLimiter } from '../middleware/rateLimiter.js'

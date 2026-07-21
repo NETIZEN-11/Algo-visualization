@@ -27,21 +27,20 @@ function HomePage() {
   const [recommendations, setRecommendations] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Refetch when the user changes (login / logout / rehydrate).
   useEffect(() => {
     if (!user) {
-      // Anonymous viewer — skip the auth-gated fetches.
+
       setIsLoading(false)
       return
     }
     loadDashboardData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [user?._id])
 
   const loadDashboardData = async () => {
     setIsLoading(true)
     try {
-      // Get analytics - only if authenticated
+
       if (user) {
         try {
           await getAnalytics()
@@ -49,7 +48,6 @@ function HomePage() {
           console.log('Analytics not available:', error.message)
         }
 
-        // Get daily challenge
         try {
           const challengeRes = await api.get('/gamification/daily-challenge')
           setDailyChallenge(challengeRes.data.data)
@@ -58,14 +56,12 @@ function HomePage() {
         }
       }
 
-      // Get recent activity (mock for now)
       setRecentActivity([
         { type: 'solved', problem: 'Two Sum', time: '2 hours ago' },
         { type: 'badge', badge: 'Array Master', time: '1 day ago' },
         { type: 'streak', days: 7, time: '2 days ago' },
       ])
 
-      // Get recommendations
       setRecommendations([
         { title: 'Master Sliding Window', reason: 'Weak topic', difficulty: 'Medium' },
         { title: 'Practice DP Problems', reason: 'Improve accuracy', difficulty: 'Hard' },
@@ -124,7 +120,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white p-8">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -175,7 +171,7 @@ function HomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content - Left 2 columns */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Daily Challenge */}
+          {}
           {dailyChallenge && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -230,7 +226,7 @@ function HomePage() {
             </motion.div>
           )}
 
-          {/* Quick Actions */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -269,7 +265,7 @@ function HomePage() {
             </div>
           </motion.div>
 
-          {/* Recent Activity */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -320,9 +316,9 @@ function HomePage() {
           </motion.div>
         </div>
 
-        {/* Sidebar - Right 1 column */}
+        {}
         <div className="space-y-8">
-          {/* Progress Overview */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -330,7 +326,7 @@ function HomePage() {
             className="bg-gray-900 rounded-2xl p-6 border border-gray-800"
           >
             <h2 className="text-xl font-bold mb-4">Progress Overview</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
@@ -382,7 +378,7 @@ function HomePage() {
             </motion.button>
           </motion.div>
 
-          {/* Recommendations */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

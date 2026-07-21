@@ -1,12 +1,9 @@
-/**
- * Unit tests for `services/metricsService.js` — Prometheus text output.
- */
 import { metricsService } from '../../services/metricsService.js'
 
 describe('metricsService', () => {
   beforeEach(() => {
-    // Reset counters/gauges/histograms between tests
-    metricsService.render() // calls don't reset; we just check the format
+
+    metricsService.render()
   })
 
   test('renders Prometheus text format', () => {

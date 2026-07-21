@@ -17,10 +17,8 @@ function InterviewResults({ sessionData, onRestart }) {
     questions = [],
   } = sessionData || {}
 
-  // `score` is 0-100 average across answered questions
   const averageScore = Math.round(score)
 
-  // Derive strengths/improvements from question feedback when available
   const strengths = questions
     .filter(q => q.feedback?.rating >= 7)
     .map(q => `Strong answer on: "${q.question?.slice(0, 60)}..."`)

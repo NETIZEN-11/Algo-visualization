@@ -77,7 +77,6 @@ const submissionSchema = new mongoose.Schema(
   }
 )
 
-// Indexes for better query performance
 submissionSchema.index({ userId: 1, problemId: 1, createdAt: -1 })
 submissionSchema.index({ status: 1 })
 submissionSchema.index({ language: 1 })

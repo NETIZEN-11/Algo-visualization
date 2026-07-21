@@ -108,7 +108,7 @@ function NotesPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Composer */}
+        {}
         <form onSubmit={handleAdd} className="bg-gray-900 rounded-2xl border border-gray-800 p-5 h-fit">
           <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
             <FaPlus className="text-green-400" aria-hidden="true" /> New Note
@@ -165,7 +165,7 @@ function NotesPage() {
           </button>
         </form>
 
-        {/* List */}
+        {}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative flex-1 min-w-[200px]">

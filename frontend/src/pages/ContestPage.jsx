@@ -14,14 +14,13 @@ import {
 import toast from 'react-hot-toast'
 
 function ContestPage() {
-  const [activeTab, setActiveTab] = useState('upcoming') // upcoming, ongoing, past
+  const [activeTab, setActiveTab] = useState('upcoming')
   const [selectedContest, setSelectedContest] = useState(null)
   const [isContestActive, setIsContestActive] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [, setCurrentProblemIndex] = useState(0)
   const [userSubmissions, setUserSubmissions] = useState({})
 
-  // Mock contest data
   const contests = {
     upcoming: [
       {
@@ -29,7 +28,7 @@ function ContestPage() {
         title: 'Weekly Contest 123',
         description: 'Test your skills in this exciting weekly contest',
         startTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        duration: 90, // minutes
+        duration: 90,
         problems: 4,
         participants: 0,
         difficulty: 'Mixed',
@@ -158,7 +157,7 @@ function ContestPage() {
       whileHover={{ y: -4 }}
       className="bg-gray-900 rounded-2xl p-6 border border-gray-800 hover:border-orange-500/50 transition-all duration-300"
     >
-      {/* Header */}
+      {}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <h3 className="text-xl font-bold mb-2">{contest.title}</h3>
@@ -174,7 +173,7 @@ function ContestPage() {
         </div>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div className="flex items-center gap-2 text-sm">
           <FaClock className="text-blue-400" />
@@ -194,7 +193,7 @@ function ContestPage() {
         </div>
       </div>
 
-      {/* Time/Status */}
+      {}
       {type === 'upcoming' && (
         <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
           <div className="flex items-center justify-between">
@@ -234,7 +233,7 @@ function ContestPage() {
         </div>
       )}
 
-      {/* Action Button */}
+      {}
       {type === 'upcoming' && (
         <button
           className="w-full py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-semibold transition-all"
@@ -270,7 +269,7 @@ function ContestPage() {
   if (isContestActive && selectedContest) {
     return (
       <div className="min-h-screen bg-[#0B1120] text-white p-8">
-        {/* Contest Header */}
+        {}
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
@@ -286,7 +285,7 @@ function ContestPage() {
           </div>
         </div>
 
-        {/* Problems Grid */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {selectedContest.problems?.map((problem, index) => {
             const isSubmitted = userSubmissions[index]?.submitted
@@ -303,7 +302,7 @@ function ContestPage() {
                     : 'border-gray-800 hover:border-orange-500/50'
                 } transition-all`}
               >
-                {/* Problem Header */}
+                {}
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-bold mb-2">
@@ -325,7 +324,7 @@ function ContestPage() {
                   </div>
                 </div>
 
-                {/* Status */}
+                {}
                 {isSubmitted ? (
                   <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-4 flex items-center gap-3">
                     <FaCheckCircle className="text-2xl text-green-400" />
@@ -343,7 +342,7 @@ function ContestPage() {
                   </div>
                 )}
 
-                {/* Action */}
+                {}
                 {!isSubmitted ? (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -366,7 +365,7 @@ function ContestPage() {
           })}
         </div>
 
-        {/* End Contest Button */}
+        {}
         <div className="mt-8 text-center">
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -387,7 +386,7 @@ function ContestPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white p-8">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -403,7 +402,7 @@ function ContestPage() {
         </p>
       </motion.div>
 
-      {/* Stats Cards */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -450,7 +449,7 @@ function ContestPage() {
         </div>
       </motion.div>
 
-      {/* Tabs */}
+      {}
       <div className="flex gap-2 mb-6 border-b border-gray-800">
         {['upcoming', 'ongoing', 'past'].map((tab) => (
           <button
@@ -467,7 +466,7 @@ function ContestPage() {
         ))}
       </div>
 
-      {/* Contest Cards */}
+      {}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}

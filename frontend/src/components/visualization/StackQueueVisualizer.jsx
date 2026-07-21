@@ -37,12 +37,11 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
     return null
   }
 
-  // Stack renders bottom to top
   const renderStack = () => (
     <div className="flex flex-col-reverse items-center justify-end gap-2 h-full py-8">
       <AnimatePresence>
         {data.map((value, index) => {
-          const actualIndex = data.length - 1 - index // Reverse for bottom-up
+          const actualIndex = data.length - 1 - index
           const label = getItemLabel(actualIndex)
 
           return (
@@ -54,14 +53,14 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
               transition={{ duration: 0.3 }}
               className="relative w-64"
             >
-              {/* Label */}
+              {}
               {label && (
                 <div className="absolute -left-20 top-1/2 transform -translate-y-1/2 text-sm font-bold text-white bg-blue-500 px-3 py-1 rounded-full">
                   {label}
                 </div>
               )}
 
-              {/* Stack Item */}
+              {}
               <motion.div
                 className={`h-16 rounded-lg bg-gradient-to-r ${getItemColor(
                   actualIndex
@@ -88,24 +87,23 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
         })}
       </AnimatePresence>
 
-      {/* Stack Base */}
+      {}
       <div className="w-72 h-4 bg-gray-700 rounded-b-xl border-t-2 border-gray-600 flex items-center justify-center">
         <span className="text-xs text-gray-400 font-semibold">STACK BASE</span>
       </div>
     </div>
   )
 
-  // Queue renders left to right
   const renderQueue = () => (
     <div className="flex items-center justify-center gap-4 overflow-x-auto py-8 px-8">
-      {/* FRONT Label */}
+      {}
       <div className="flex flex-col items-center gap-2">
         <div className="text-sm font-bold text-green-400 bg-green-500/20 px-4 py-2 rounded-lg border border-green-500/30">
           FRONT →
         </div>
       </div>
 
-      {/* Queue Items */}
+      {}
       <div className="flex items-center gap-3">
         <AnimatePresence>
           {data.map((value, index) => {
@@ -120,14 +118,14 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
                 transition={{ duration: 0.3 }}
                 className="relative"
               >
-                {/* Label */}
+                {}
                 {label && (
                   <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 text-sm font-bold text-white bg-blue-500 px-3 py-1 rounded-full whitespace-nowrap">
                     {label}
                   </div>
                 )}
 
-                {/* Queue Item */}
+                {}
                 <motion.div
                   className={`w-24 h-24 rounded-xl bg-gradient-to-br ${getItemColor(
                     index
@@ -150,7 +148,7 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
                   <span className="text-xs text-white/70 mt-1">[{index}]</span>
                 </motion.div>
 
-                {/* Arrow between items */}
+                {}
                 {index < data.length - 1 && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -168,7 +166,7 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
         </AnimatePresence>
       </div>
 
-      {/* REAR Label */}
+      {}
       <div className="flex flex-col items-center gap-2">
         <div className="text-sm font-bold text-purple-400 bg-purple-500/20 px-4 py-2 rounded-lg border border-purple-500/30">
           ← REAR
@@ -179,19 +177,19 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Visualization */}
+      {}
       <div className="flex-1 overflow-auto">
         {type === 'stack' ? renderStack() : renderQueue()}
       </div>
 
-      {/* Info Bar */}
+      {}
       <div className="bg-gray-800 border-t border-gray-700 p-4">
         <div className="flex items-center justify-around text-sm">
           <div className="flex flex-col items-center">
             <span className="text-gray-400">Size</span>
             <span className="text-2xl font-bold text-white">{data.length}</span>
           </div>
-          
+
           {type === 'stack' ? (
             <div className="flex flex-col items-center">
               <span className="text-gray-400">Top Element</span>
@@ -218,7 +216,7 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
         </div>
       </div>
 
-      {/* Legend */}
+      {}
       <div className="flex items-center justify-center gap-6 py-4 border-t border-gray-800 bg-gray-800/50">
         {[
           { label: type === 'stack' ? 'TOP' : 'FRONT', color: 'from-blue-500 to-blue-600' },

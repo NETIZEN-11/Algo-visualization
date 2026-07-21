@@ -1,8 +1,3 @@
-/**
- * express-validator chains. Each chain is a middleware array; `validate`
- * (below) is the terminal that turns validation errors into a single
- * `ValidationError`.
- */
 import { body, param, query, validationResult, oneOf } from 'express-validator'
 import { ValidationError } from '../utils/errors.js'
 
@@ -69,7 +64,7 @@ export const forgotPasswordValidation = [
 ]
 
 export const resetPasswordValidation = [
-  // Token arrives in the query string (email link) or the body (programmatic).
+
   oneOf(
     [
       body('token').notEmpty().withMessage('Reset token is required'),
@@ -82,7 +77,6 @@ export const resetPasswordValidation = [
     .withMessage('New password must be 8-128 characters'),
 ]
 
-// Accepts token in body (POST) or query (GET from email link)
 export const verifyEmailValidation = [
   oneOf(
     [body('token').notEmpty().withMessage('Verification token is required'),

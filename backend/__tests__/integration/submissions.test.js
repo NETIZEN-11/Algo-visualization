@@ -1,6 +1,3 @@
-/**
- * Integration tests for `/api/submissions`.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
@@ -45,7 +42,7 @@ describe('Submissions', () => {
   })
 
   test('POST /api/submissions creates a record', async () => {
-    // First create a problem to attach the submission to.
+
     const Problem = (await import('../../models/Problem.js')).default
     const problem = await Problem.create({
       problemId: `prob_test_${++counter}_${Date.now()}`,

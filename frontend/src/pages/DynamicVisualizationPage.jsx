@@ -6,23 +6,13 @@ import toast from 'react-hot-toast'
 import visualizeService from '../services/visualizeService'
 import VisualizationEngine from '../components/visualization/VisualizationEngine'
 
-/* ------------------------------------------------------------------ */
-/* Adapters                                                            */
-/* ------------------------------------------------------------------ */
-
-/**
- * Convert the engine's step format (`{id, title, explanation, state, highlights}`)
- * into what `VisualizationEngine` already knows how to render
- * (`{step_number, state, explanation, highlights}`).
- */
 function engineStepsToVisualization(steps, pattern, problemTitle) {
   return {
     type: pattern,
     title: problemTitle,
     steps: steps.map((s) => {
       const state = { ...(s.state || {}) }
-      // Surface pointer hints in the legacy keys the ArrayVisualizer
-      // already understands.
+
       if (s.highlights?.indices?.length) state.highlight = s.highlights.indices
       if (s.highlights?.range) {
         const [l, r] = s.highlights.range
@@ -67,8 +57,7 @@ function DynamicVisualizationPage() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
-  // Bump this to force the engine to remount (so its history resets
-  // when the user generates a new viz).
+
   const [runId, setRunId] = useState(0)
 
   const visualization = useMemo(() => {
@@ -162,7 +151,7 @@ function DynamicVisualizationPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left: input */}
+        {}
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
             <h2 className="text-lg font-semibold mb-2">Paste a problem</h2>
@@ -227,7 +216,7 @@ function DynamicVisualizationPage() {
           </div>
         </div>
 
-        {/* Right: visualizer (engine owns its own state) */}
+        {}
         <div className="lg:col-span-3 space-y-4">
           {result && visualization ? (
             <>

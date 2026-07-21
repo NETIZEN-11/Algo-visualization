@@ -1,7 +1,3 @@
-/**
- * Unit tests for `utils/leveling.js` — single source of truth for
- * XP/level math. Pure functions, no I/O.
- */
 import {
   calculateLevel, xpToNextLevel, calculateStreak, addXP,
 } from '../../utils/leveling.js'
@@ -12,8 +8,7 @@ describe('leveling utils', () => {
       expect(calculateLevel(0)).toBe(1)
     })
     test('level increases at thresholds', () => {
-      // The exact thresholds are an internal contract; assert monotonicity
-      // up to the cap. Past the cap the function returns the max level.
+
       const a = calculateLevel(0)
       const b = calculateLevel(500)
       expect(b).toBeGreaterThan(a)
@@ -34,7 +29,7 @@ describe('leveling utils', () => {
     test('XP below the top level always has a remaining > 0', () => {
       for (const xp of [0, 100, 1000, 10_000, 100_000]) {
         const toGo = xpToNextLevel(xp)
-        // At the very top level the function may return 0 — that is allowed.
+
         expect(toGo).toBeGreaterThanOrEqual(0)
       }
     })
@@ -63,8 +58,7 @@ describe('leveling utils', () => {
 
   describe('addXP', () => {
     test('addXP without DB raises (pure function not available)', () => {
-      // addXP requires mongoose; calling it here would throw because
-      // mongoose is not connected. This test asserts the boundary.
+
       expect(typeof addXP).toBe('function')
     })
   })

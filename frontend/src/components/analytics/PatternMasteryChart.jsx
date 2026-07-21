@@ -14,7 +14,6 @@ function PatternMasteryChart({ patternData }) {
     )
   }
 
-  // Take top 8 patterns for better visualization
   const topPatterns = patternData
     .slice(0, 8)
     .map(p => ({
@@ -64,7 +63,7 @@ function PatternMasteryChart({ patternData }) {
     <div className="bg-[#111827] border border-gray-800 rounded-2xl p-6">
       <h3 className="text-lg font-bold text-white mb-4">Pattern Mastery</h3>
 
-      {/* Radar Chart */}
+      {}
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={topPatterns}>
@@ -87,7 +86,7 @@ function PatternMasteryChart({ patternData }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Pattern List */}
+      {}
       <div className="mt-6 space-y-2">
         {topPatterns.map((pattern, index) => (
           <motion.div

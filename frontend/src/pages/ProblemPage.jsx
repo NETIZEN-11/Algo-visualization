@@ -25,8 +25,7 @@ function ProblemPage() {
       const data = await problemService.getProblem(id)
       const p = data.problem || data
       setProblem(p)
-      // Server now returns `userSolved`; fall back to the user's local
-      // solvedProblems list if not.
+
       const solvedFromServer = p.userSolved
       const solvedFromUser = user?.solvedProblems?.some(
         (pid) => String(pid) === String(p._id)
@@ -47,7 +46,7 @@ function ProblemPage() {
     if (!problem || busy) return
     setBusy(true)
     const wasSaved = isSaved
-    // Optimistic update
+
     setIsSaved(!wasSaved)
     try {
       if (wasSaved) {
@@ -58,7 +57,7 @@ function ProblemPage() {
         toast.success('Problem saved!')
       }
     } catch {
-      // Roll back on failure
+
       setIsSaved(wasSaved)
       toast.error('Failed to update saved problems')
     } finally {
@@ -103,7 +102,7 @@ function ProblemPage() {
 
   return (
     <div className="h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Header */}
+      {}
       <div className="bg-dark-900 border-b border-dark-800 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -140,14 +139,14 @@ function ProblemPage() {
         </div>
       </div>
 
-      {/* 4-Column Layout */}
+      {}
       <div className="grid grid-cols-12 gap-4 h-[calc(100%-5rem)] p-4 overflow-hidden">
-        {/* Problem Panel - 25% */}
+        {}
         <div className="col-span-3 overflow-y-auto scrollbar-thin">
           <ProblemPanel problem={problem} />
         </div>
 
-        {/* Visualization Panel - 33% */}
+        {}
         <div className="col-span-4 overflow-y-auto scrollbar-thin">
           <VisualizationPanel
             problem={problem}
@@ -156,7 +155,7 @@ function ProblemPage() {
           />
         </div>
 
-        {/* AI Tutor Panel - 42% (combines explanation and code) */}
+        {}
         <div className="col-span-5 overflow-y-auto scrollbar-thin">
           <AITutorPanel problem={problem} />
         </div>

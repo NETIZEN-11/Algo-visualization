@@ -1,13 +1,6 @@
-/**
- * Integration tests for `/api/auth`.
- *
- * Uses mongodb-memory-server. Each test gets a fresh DB.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
-// The test disables CSRF via env; the server reads DISABLE_CSRF at
-// boot. We import the app lazily so env is set first.
 process.env.DISABLE_CSRF = 'true'
 process.env.DISABLE_RATE_LIMIT = 'true'
 process.env.RUN_SERVER = 'false'
@@ -58,7 +51,7 @@ describe('POST /api/auth/register', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.user).toBeTruthy()
     expect(res.body.user.email).toBe(u.email)
-    // Cookie should be set
+
     const setCookie = res.headers['set-cookie'] || []
     expect(setCookie.length).toBeGreaterThan(0)
   })

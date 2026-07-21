@@ -10,8 +10,7 @@ const connectDB = async () => {
   }
   try {
     const conn = await mongoose.connect(uri, {
-      // Pool tuning — 50 is the sweet spot for 100K-concurrent workloads on
-      // a single backend replica. Raise for larger boxes; lower for less RAM.
+
       maxPoolSize: Number(process.env.MONGO_POOL_SIZE || 50),
       minPoolSize: 5,
       serverSelectionTimeoutMS: 10_000,

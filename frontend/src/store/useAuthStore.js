@@ -3,19 +3,6 @@ import { persist } from 'zustand/middleware'
 import { setAccessToken, clearAccessToken, registerAuthHandlers } from '../services/api'
 import { authService } from '../services/authService'
 
-/**
- * Auth store — *no tokens in localStorage*.
- *
- *  - User object is persisted to localStorage for fast rehydration
- *    (display name, theme, etc.) but the access token lives only in
- *    memory in `api.js`.
- *  - On page refresh, we re-validate by calling `/auth/profile` once.
- *    The refresh token rides along as an httpOnly cookie so the call
- *    succeeds if the user is still "logged in" (the API will refresh
- *    the access token and rehydrate us).
- *  - `api.js` calls back into us on 401-refresh-fail to clear state.
- */
-
 const useAuthStore = create(
   persist(
     (set, get) => ({
@@ -25,19 +12,15 @@ const useAuthStore = create(
       error: null,
       rehydrated: false,
 
-      /* ----- session bootstrap ----- */
       rehydrate: async () => {
         if (get().rehydrated) return
         set({ isLoading: true, rehydrated: true })
         try {
-          // /auth/profile will trigger a 401 → /auth/refresh → 200 cycle
-          // via the api interceptor. If refresh also fails, the store
-          // is cleared by the unauthorised handler.
+
           const data = await authService.getProfile()
           set({ user: data.user, isAuthenticated: true, isLoading: false })
         } catch {
-          // Failed to rehydrate — clear tokens and state. Keep
-          // `rehydrated: true` so we don't loop on every render.
+
           clearAccessToken()
           set({
             user: null,
@@ -48,7 +31,6 @@ const useAuthStore = create(
         }
       },
 
-      /* ----- auth flows ----- */
       login: async (email, password) => {
         set({ isLoading: true, error: null })
         try {
@@ -81,18 +63,13 @@ const useAuthStore = create(
         }
       },
 
-      /**
-       * Populate the store from a token we got out-of-band (OAuth
-       * callback). We don't talk to the server here — the caller is
-       * expected to have already fetched `user` and pass it in.
-       */
       loginWithOAuth: (user) => {
         set({ user, isAuthenticated: true, error: null, isLoading: false })
       },
 
       logout: async () => {
         if (get().isAuthenticated) {
-          try { await authService.logout() } catch { /* ignore */ }
+          try { await authService.logout() } catch {  }
         }
         clearAccessToken()
         set({ user: null, isAuthenticated: false, error: null })
@@ -100,7 +77,7 @@ const useAuthStore = create(
 
       logoutAll: async () => {
         if (get().isAuthenticated) {
-          try { await authService.logoutAll() } catch { /* ignore */ }
+          try { await authService.logoutAll() } catch {  }
         }
         clearAccessToken()
         set({ user: null, isAuthenticated: false, error: null })
@@ -108,7 +85,7 @@ const useAuthStore = create(
 
       deleteAccount: async (password) => {
         if (get().isAuthenticated) {
-          try { await authService.deleteAccount({ password }) } catch { /* swallow */ }
+          try { await authService.deleteAccount({ password }) } catch {  }
         }
         clearAccessToken()
         set({ user: null, isAuthenticated: false, error: null })
@@ -121,18 +98,15 @@ const useAuthStore = create(
     }),
     {
       name: 'auth-storage',
-      // Persist only the *user*, never the token.
+
       partialize: (state) => ({ user: state.user }),
     }
   )
 )
 
-// Wire the api refresh callbacks to the store so a 401-fail resets
-// authentication state cleanly. This is module-scope so it runs once
-// at import time.
 registerAuthHandlers({
   onLogout: () => {
-    try { useAuthStore.getState().logout() } catch { /* ignore */ }
+    try { useAuthStore.getState().logout() } catch {  }
   },
   onLogin: (user, token) => {
     if (user) useAuthStore.setState({ user, isAuthenticated: true })

@@ -8,7 +8,7 @@ function NotesTab({ problemData }) {
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
-    // Load saved notes from localStorage
+
     if (problemData?.title) {
       const savedNotes = localStorage.getItem(`notes_${problemData.title}`)
       if (savedNotes) {
@@ -22,7 +22,7 @@ function NotesTab({ problemData }) {
 
     setIsSaving(true)
     localStorage.setItem(`notes_${problemData.title}`, notes)
-    
+
     setTimeout(() => {
       setIsSaving(false)
       toast.success('Notes saved!')
@@ -41,7 +41,7 @@ function NotesTab({ problemData }) {
 
   return (
     <div className="space-y-4">
-      {/* Info */}
+      {}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
         <h4 className="text-sm font-bold text-blue-400 mb-2 flex items-center gap-2">
           <FaEdit />
@@ -52,7 +52,7 @@ function NotesTab({ problemData }) {
         </p>
       </div>
 
-      {/* Notes Editor */}
+      {}
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
         <div className="px-4 py-3 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
           <span className="text-sm font-semibold text-gray-300">Your Notes</span>
@@ -87,7 +87,7 @@ function NotesTab({ problemData }) {
         />
       </div>
 
-      {/* Quick Templates */}
+      {}
       <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
         <h4 className="text-sm font-bold text-purple-400 mb-3">📝 Quick Templates</h4>
         <div className="space-y-2">
@@ -95,50 +95,50 @@ function NotesTab({ problemData }) {
             {
               label: 'Problem Breakdown',
               template: `# Problem Breakdown
-- Input: 
-- Output: 
-- Constraints: 
-- Pattern: 
-- Key Observation: 
+- Input:
+- Output:
+- Constraints:
+- Pattern:
+- Key Observation:
 
 # Approach
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 # Complexity
 - Time: O()
 - Space: O()
 
 # Edge Cases
-- 
+-
 `,
             },
             {
               label: 'Interview Notes',
               template: `# Interview Notes
-- Initial thought: 
-- Clarifying questions: 
-- Approach explained: 
-- Optimization discussed: 
-- Follow-up questions: 
+- Initial thought:
+- Clarifying questions:
+- Approach explained:
+- Optimization discussed:
+- Follow-up questions:
 
 # What went well:
-- 
+-
 
 # What to improve:
-- 
+-
 `,
             },
             {
               label: 'Revision Notes',
               template: `# Revision Notes
-- Pattern: 
-- Key Trick: 
-- Time Complexity: 
-- Space Complexity: 
-- Similar Problems: 
-- Mistakes to Avoid: 
+- Pattern:
+- Key Trick:
+- Time Complexity:
+- Space Complexity:
+- Similar Problems:
+- Mistakes to Avoid:
 `,
             },
           ].map((template, index) => (

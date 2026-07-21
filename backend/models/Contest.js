@@ -88,7 +88,6 @@ const contestSchema = new mongoose.Schema(
   }
 )
 
-// Indexes
 contestSchema.index({ startTime: 1 })
 contestSchema.index({ status: 1 })
 contestSchema.index({ isPublic: 1 })

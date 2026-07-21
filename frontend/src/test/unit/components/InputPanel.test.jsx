@@ -23,7 +23,7 @@ describe('InputPanel', () => {
     fireEvent.click(runBtn)
     expect(onRun).toHaveBeenCalled()
     const arg = onRun.mock.calls[0][0]
-    // `arg` may be the array directly or wrapped in {array, ...}
+
     const arr = Array.isArray(arg) ? arg : arg.array
     expect(arr).toEqual([7, 1, 5, 3])
   })

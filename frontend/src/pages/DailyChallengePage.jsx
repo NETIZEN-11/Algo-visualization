@@ -42,16 +42,16 @@ function DailyChallengePage() {
   const loadDailyChallenge = async () => {
     setIsLoading(true)
     try {
-      // Try to get daily challenge from backend
+
       const response = await dailyChallengeService.today()
       setChallenge(response.data || response)
       setHasCompleted(response.data?.userCompleted || response.userCompleted || false)
-      // Best-effort: refresh streak from server
+
       dailyChallengeService.streak()
         .then((d) => setStreak(d.data?.streak || d.streak || 0))
         .catch(() => {})
     } catch (error) {
-      // Use mock data if API fails
+
       setChallenge({
         _id: 'daily-1',
         title: 'Two Sum',
@@ -86,7 +86,7 @@ function DailyChallengePage() {
   }
 
   const loadChallengeHistory = () => {
-    // Mock challenge history
+
     setChallengeHistory([
       { date: 'Dec 30', completed: true, problem: 'Valid Parentheses', time: '12:34' },
       { date: 'Dec 29', completed: true, problem: 'Merge Two Sorted Lists', time: '18:22' },
@@ -116,15 +116,15 @@ function DailyChallengePage() {
     }
 
     const finalTimeTaken = Math.floor((Date.now() - startTime) / 1000)
-    const earnedBonus = finalTimeTaken < 1800 // 30 minutes
+    const earnedBonus = finalTimeTaken < 1800
 
     try {
-      // Submit to backend
+
       await dailyChallengeService.complete({
         challengeId: challenge._id,
         timeTaken: finalTimeTaken,
       })
-      // Refresh streak from server (real value, not a mock)
+
       const sr = await dailyChallengeService.streak().catch(() => null)
       if (sr) setStreak(sr.data?.streak || sr.streak || 0)
 
@@ -136,7 +136,7 @@ function DailyChallengePage() {
         { duration: 5000 }
       )
     } catch (error) {
-      // Mock completion for demo
+
       setHasCompleted(true)
       const xpEarned = challenge.xpReward + (earnedBonus ? challenge.bonusXp : 0)
 
@@ -160,7 +160,7 @@ function DailyChallengePage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white p-8">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -178,7 +178,7 @@ function DailyChallengePage() {
             </p>
           </div>
 
-          {/* Streak Display */}
+          {}
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl p-6 text-center min-w-[150px]"
@@ -191,15 +191,15 @@ function DailyChallengePage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
+        {}
         <div className="lg:col-span-2 space-y-6">
-          {/* Challenge Card */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-gray-900 rounded-2xl p-8 border border-gray-800"
           >
-            {/* Challenge Header */}
+            {}
             <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
@@ -255,7 +255,7 @@ function DailyChallengePage() {
               )}
             </div>
 
-            {/* Timer */}
+            {}
             {startTime && !hasCompleted && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -272,14 +272,14 @@ function DailyChallengePage() {
               </motion.div>
             )}
 
-            {/* Problem Description */}
+            {}
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Description</h3>
                 <p className="text-gray-300 leading-relaxed">{challenge.description}</p>
               </div>
 
-              {/* Examples */}
+              {}
               <div>
                 <h3 className="text-lg font-semibold mb-2">Examples</h3>
                 {challenge.examples?.map((example, index) => (
@@ -302,7 +302,7 @@ function DailyChallengePage() {
                 ))}
               </div>
 
-              {/* Constraints */}
+              {}
               <div>
                 <h3 className="text-lg font-semibold mb-2">Constraints</h3>
                 <ul className="space-y-1">
@@ -315,7 +315,7 @@ function DailyChallengePage() {
               </div>
             </div>
 
-            {/* Code Editor (Mock) */}
+            {}
             {!hasCompleted && startTime && (
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
@@ -331,7 +331,7 @@ function DailyChallengePage() {
               </div>
             )}
 
-            {/* Action Buttons */}
+            {}
             <div className="mt-6 flex gap-4">
               {!startTime && !hasCompleted && (
                 <motion.button
@@ -382,9 +382,9 @@ function DailyChallengePage() {
           </motion.div>
         </div>
 
-        {/* Sidebar */}
+        {}
         <div className="space-y-6">
-          {/* Stats Card */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -427,7 +427,7 @@ function DailyChallengePage() {
             </div>
           </motion.div>
 
-          {/* Challenge History */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -468,7 +468,7 @@ function DailyChallengePage() {
             </div>
           </motion.div>
 
-          {/* Motivation Card */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

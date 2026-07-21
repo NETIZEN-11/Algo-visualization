@@ -1,14 +1,3 @@
-/**
- * Migration runner — applies migrations in `migrations/` in order.
- *
- * Each migration is `{ up: async (db) => {...}, down: async (db) => {...} }`.
- * The runner records applied versions in a `migrations` collection so it
- * is idempotent. Run with: `node scripts/migrate.js up`.
- *
- * For our schema work, all index additions and field migrations live
- * in the model files (Mongoose builds indexes on connect), so this
- * runner is for ad-hoc data migrations only.
- */
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -76,7 +65,7 @@ const main = async () => {
       logger.info({ version: m.version }, 'applied')
     }
   } else if (cmd === 'down') {
-    // down() reverses the most recent applied migration
+
     for (const m of [...all].reverse()) {
       if (!applied.has(m.version)) continue
       const mod = await importMigration(m.file)
@@ -94,7 +83,7 @@ const main = async () => {
 }
 
 main().catch((err) => {
-  // eslint-disable-next-line no-console
+
   console.error('migrate failed:', err)
   process.exit(1)
 })

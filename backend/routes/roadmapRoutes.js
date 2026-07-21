@@ -1,6 +1,3 @@
-/**
- * Roadmap routes — `/api/roadmap`
- */
 import { Router } from 'express'
 import { protect } from '../middleware/auth.js'
 import { globalRateLimiter } from '../middleware/rateLimiter.js'

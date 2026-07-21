@@ -1,12 +1,7 @@
 import { create } from 'zustand'
 import api from '../services/api'
 
-/**
- * Progress store. Caches per-user analytics so re-mounting the
- * ProgressPage doesn't re-hit the API 3 times. We key the cache by
- * user id; when the user changes (logout + new login) we reset.
- */
-const CACHE_TTL_MS = 60_000 // 1 minute
+const CACHE_TTL_MS = 60_000
 
 let cache = {
   userId: null,
@@ -86,7 +81,6 @@ const useProgressStore = create((set) => ({
     }
   },
 
-  /** Wipe the cache — call on logout. */
   reset: () => {
     cache = { userId: null, fetchedAt: 0, analytics: null, readiness: null, topics: null }
     set({ analytics: null, readinessScore: null, topicAnalysis: null, error: null })

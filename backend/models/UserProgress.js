@@ -7,12 +7,12 @@ const userProgressSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
       unique: true,
-      // `unique:true` already builds an index — no `index:true` needed.
+
     },
     overallStats: {
       totalProblemsSolved: { type: Number, default: 0 },
-      totalTimeSpent: { type: Number, default: 0 }, // in minutes
-      averageAccuracy: { type: Number, default: 0 }, // percentage
+      totalTimeSpent: { type: Number, default: 0 },
+      averageAccuracy: { type: Number, default: 0 },
       currentStreak: { type: Number, default: 0 },
       longestStreak: { type: Number, default: 0 },
       lastActiveDate: { type: Date, default: Date.now },
@@ -40,7 +40,7 @@ const userProgressSchema = new mongoose.Schema(
         problemsSolved: { type: Number, default: 0 },
         problemsAttempted: { type: Number, default: 0 },
         accuracy: { type: Number, default: 0 },
-        averageTime: { type: Number, default: 0 }, // in minutes
+        averageTime: { type: Number, default: 0 },
         masteryLevel: {
           type: String,
           enum: ['beginner', 'intermediate', 'advanced', 'expert'],
@@ -111,7 +111,6 @@ const userProgressSchema = new mongoose.Schema(
   }
 )
 
-// Indexes for performance
 userProgressSchema.index({ 'overallStats.lastActiveDate': -1 })
 
 const UserProgress = mongoose.model('UserProgress', userProgressSchema)

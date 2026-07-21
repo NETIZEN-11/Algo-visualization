@@ -8,7 +8,7 @@ import InterviewSession from '../components/interview/InterviewSession'
 import InterviewResults from '../components/interview/InterviewResults'
 
 function InterviewPage() {
-  const [sessionState, setSessionState] = useState('setup') // setup, active, results
+  const [sessionState, setSessionState] = useState('setup')
   const [sessionId, setSessionId] = useState(null)
   const [currentQuestion, setCurrentQuestion] = useState(null)
   const [sessionData, setSessionData] = useState(null)
@@ -69,7 +69,7 @@ function InterviewPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -110,7 +110,7 @@ function InterviewPage() {
         </div>
       </motion.div>
 
-      {/* Content */}
+      {}
       <div className="p-6">
         <AnimatePresence mode="wait">
           {sessionState === 'setup' && (

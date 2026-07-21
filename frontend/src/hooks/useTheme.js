@@ -1,15 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
 
-/**
- * App-wide theme toggle (dark / light).
- *
- *   - Defaults to the OS preference (`prefers-color-scheme`).
- *   - Persists the user's explicit choice in localStorage under
- *     `algovision-theme` so it survives reloads.
- *   - Applies the theme by setting `data-theme="dark"|"light"` on the
- *     <html> element, plus the legacy `dark` class Tailwind uses.
- *   - Stays in sync across tabs via the `storage` event.
- */
 const STORAGE_KEY = 'algovision-theme'
 
 function systemPref() {
@@ -36,14 +26,12 @@ export function useTheme() {
   useEffect(() => {
     apply(theme)
     if (localStorage.getItem(STORAGE_KEY) == null) {
-      // First run — don't persist the auto-detected value; let it track
-      // OS preference until the user explicitly toggles.
+
       return
     }
     localStorage.setItem(STORAGE_KEY, theme)
   }, [theme])
 
-  // Cross-tab sync
   useEffect(() => {
     const onStorage = (e) => {
       if (e.key === STORAGE_KEY && (e.newValue === 'light' || e.newValue === 'dark')) {

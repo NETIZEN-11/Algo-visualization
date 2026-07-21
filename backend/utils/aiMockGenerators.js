@@ -1,19 +1,5 @@
-/**
- * Mock content generators — problem-aware.
- *
- * When `MOCK_AI=true` (or no OpenAI key is present), the AI service
- * returns templated-but-problem-specific responses built from the
- * problem's title + description + detected pattern.
- *
- * Uses the same `patternDetector` as the dynamic visualisation engine
- * so mock content stays in lockstep with what the user actually sees.
- */
 import { detectPattern, PATTERNS } from '../engine/patternDetector.js'
 import { patternLabel } from '../engine/stepGenerator.js'
-
-/* ------------------------------------------------------------------ */
-/* Per-pattern guidance (used to generate hints, code, edge cases)     */
-/* ------------------------------------------------------------------ */
 
 const PATTERN_GUIDE = {
   array: {
@@ -154,10 +140,6 @@ const DEFAULT_GUIDE = PATTERN_GUIDE.array
 
 const guideFor = (pattern) => PATTERN_GUIDE[pattern] || DEFAULT_GUIDE
 
-/* ------------------------------------------------------------------ */
-/* Generic helpers                                                      */
-/* ------------------------------------------------------------------ */
-
 const TIPS = [
   'Trace the algorithm on a small example before writing code.',
   'Identify the bottleneck — time or space — and optimise from there.',
@@ -187,7 +169,6 @@ const EDGE_CASES = [
   'Off-by-one indices',
 ]
 
-/** Pick N distinct items from a pool, deterministic on the seed. */
 function pickN(arr, n, seed = 0) {
   const out = []
   let s = seed || 1
@@ -211,10 +192,6 @@ const seedFrom = (s) => {
 
 const patternOf = (spec) => detectPattern(spec).pattern
 
-/* ------------------------------------------------------------------ */
-/* Per-language code skeletons (problem-aware via PATTERN_GUIDE)        */
-/* ------------------------------------------------------------------ */
-
 function codeSolutionsFor(title, pattern) {
   const py = guideFor(pattern).code(title)
   const jsLogic = py
@@ -222,7 +199,7 @@ function codeSolutionsFor(title, pattern) {
     .map((l) => l.replace(/^    /, '  ').replace(/^def\s+(\w+)\(([^)]*)\):/, 'function $1($2) {'))
     .join('\n')
     .replace(/"""[^"]*"""/g, '// ' + title)
-  // Naive but stable: reformat python → JS, C++/Java are similar enough.
+
   const javaLogic = py
     .replace(/def\s+(\w+)\(([^)]*)\):/, 'public Object $1($2) {')
     .replace(/^    /gm, '    ')
@@ -238,10 +215,6 @@ function codeSolutionsFor(title, pattern) {
     cpp: cppLogic,
   }
 }
-
-/* ------------------------------------------------------------------ */
-/* Public API — one function per feature                                */
-/* ------------------------------------------------------------------ */
 
 export const mockAnalysis = (problemData) => {
   const { title = 'Untitled', description = '', examples = [], constraints = [] } = problemData || {}
@@ -345,10 +318,6 @@ export const mockAnalysis = (problemData) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Hint                                                                 */
-/* ------------------------------------------------------------------ */
-
 const HINTS = {
   1: [
     (title) => `Restate the problem in your own words: what is the input, what is the output of "${title}"?`,
@@ -376,9 +345,6 @@ export const mockHint = (problemData, level = 1) => {
   return { hint: tpl(problemData?.title || 'the problem', label), level: lv, mocked: true }
 }
 
-/* ------------------------------------------------------------------ */
-/* Code review                                                          */
-/* ------------------------------------------------------------------ */
 export const mockCodeReview = (code, language) => {
   const lines = String(code || '').split('\n').length
   const issues = []
@@ -395,9 +361,6 @@ export const mockCodeReview = (code, language) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Test cases                                                           */
-/* ------------------------------------------------------------------ */
 export const mockTestCases = (problemData) => {
   const base = problemData?.examples?.[0]?.input
   const baseOut = problemData?.examples?.[0]?.output
@@ -416,9 +379,6 @@ export const mockTestCases = (problemData) => {
   return { cases, mocked: true }
 }
 
-/* ------------------------------------------------------------------ */
-/* Dry run                                                              */
-/* ------------------------------------------------------------------ */
 export const mockDryRun = (code, customInput) => {
   const lines = (code || '').split('\n').filter((l) => l.trim() && !l.trim().startsWith('#'))
   return {
@@ -437,9 +397,6 @@ export const mockDryRun = (code, customInput) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Interview feedback                                                   */
-/* ------------------------------------------------------------------ */
 export const mockInterviewFeedback = (question, answer) => {
   const length = (answer || '').length
   let rating = 5
@@ -464,9 +421,6 @@ export const mockInterviewFeedback = (question, answer) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Interview question                                                   */
-/* ------------------------------------------------------------------ */
 const QUESTION_TEMPLATES = [
   (d) => `Given a binary tree, find the maximum depth. Difficulty: ${d}.`,
   (d) => `Given an array of integers, find the longest subarray with sum equal to k. Difficulty: ${d}.`,
@@ -489,9 +443,6 @@ export const mockInterviewQuestion = (difficulty = 'Medium', action = 'start', l
   return { question: tpl(difficulty), category: 'DSA', difficulty }
 }
 
-/* ------------------------------------------------------------------ */
-/* Interview readiness                                                  */
-/* ------------------------------------------------------------------ */
 export const mockReadiness = (userStats, _solvedProblems) => {
   const weighted =
     (userStats?.easy || 0) * 1 +
@@ -512,9 +463,6 @@ export const mockReadiness = (userStats, _solvedProblems) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Flashcards                                                           */
-/* ------------------------------------------------------------------ */
 export const mockFlashcards = (problemData, analysis) => {
   const title = problemData?.title || 'Problem'
   const label = patternLabel(patternOf(problemData || {}))
@@ -530,14 +478,10 @@ export const mockFlashcards = (problemData, analysis) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Visualisation (now delegates to the real engine)                     */
-/* ------------------------------------------------------------------ */
 import { buildSteps } from '../engine/stepGenerator.js'
 
 export const mockVisualisation = (problemData) => {
-  // Build the same step array the dynamic engine would produce.
-  // Mock + non-mock share the engine — no divergence.
+
   const r = buildSteps(problemData || {})
   return {
     type: r.pattern,

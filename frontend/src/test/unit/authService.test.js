@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock the api module so the service test doesn't pull axios + the real
-// interceptor stack.
 vi.mock('../../services/api', () => {
   const mockApi = {
     post: vi.fn(),

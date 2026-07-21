@@ -1,11 +1,3 @@
-/**
- * Integration tests for `/api/bookmarks`.
- *
- * These run against the full Express app + MongoMemoryServer, so they
- * exercise the routes, the protect middleware, and the User model
- * together. The shape matches the other integration tests in this
- * directory.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
@@ -31,7 +23,7 @@ beforeEach(async () => {
   await clearTestDB()
   const u = newUser()
   const reg = await request(app).post('/api/auth/register').send(u)
-  // Token is in the httpOnly `access` cookie, not in the body
+
   token = extractAccessToken(reg.headers['set-cookie'])
 })
 

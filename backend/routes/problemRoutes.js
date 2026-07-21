@@ -26,8 +26,7 @@ const router = express.Router()
 
 router.post('/scrape', protect, strictRateLimiter, scrapeProblem)
 router.post('/analyze', protect, strictRateLimiter, problemAnalysisValidation, validate, analyzeProblem)
-// /analyze-code must be registered BEFORE /:id so Express doesn't treat
-// the literal string "analyze-code" as a problem ID.
+
 router.post('/analyze-code', protect, strictRateLimiter, analyzeCode)
 router.get('/user', protect, getUserProblems)
 router.get('/company/:company', protect, searchByCompany)

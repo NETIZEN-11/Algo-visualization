@@ -1,9 +1,3 @@
-/**
- * General utilities.
- *
- * Level math lives in `utils/leveling.js`. Date helpers here.
- */
-
 export const extractLeetCodeSlug = (url) => {
   const match = url.match(/problems\/([^/]+)/)
   return match ? match[1] : null

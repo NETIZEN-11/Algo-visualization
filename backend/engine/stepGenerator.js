@@ -1,54 +1,7 @@
-/**
- * Step generator — turns a `ProblemSpec` (and optionally user code) into
- * an animation script. The script is a list of `Step`s, each one a
- * snapshot of state the visualizer renders.
- *
- * No LLM, no network. The generator uses pattern-specific deterministic
- * tracers for the most common patterns, and falls back to a generic
- * "walk-the-input" trace when the pattern is unknown.
- *
- * Schema:
- *   Step = {
- *     id: number
- *     title: string                 // short label for the timeline
- *     explanation: string            // one-sentence "why" for the tooltip
- *     state: Record<string, unknown> // pattern-specific
- *     highlights: { indices?: number[], ids?: string[], range?: [number, number] }
- *   }
- *
- * The visualizer reads `state` and `highlights`; the rest is for the UI.
- */
-
 import { detectPattern, PATTERNS } from './patternDetector.js'
 
-/* ------------------------------------------------------------------ */
-/* Public API                                                          */
-/* ------------------------------------------------------------------ */
-
-/**
- * Build a step script for a problem.
- *
- * @param {{
- *   title: string,
- *   description?: string,
- *   tags?: string[],
- *   examples?: Array<{ input?: any, output?: any, explanation?: string }>,
- *   input?: any,                     // optional runtime input
- *   code?: string,                    // optional user code
- *   language?: string,
- * }} spec
- * @returns {{
- *   pattern: string,
- *   confidence: number,
- *   steps: Step[],
- *   meta: { source: 'tracer' | 'derived', patternLabel: string, generatedAt: string }
- * }}
- */
 export function buildSteps(spec) {
-  // Reset the per-script id counter so callers see a fresh 0..N sequence
-  // on every call. The old module-scoped counter leaked across requests
-  // in the long-lived API server and across tests, eventually
-  // overflowing and producing out-of-order step ids.
+
   newStep._id = -1
   const detection = detectPattern(spec)
   const example = pickExample(spec)
@@ -64,8 +17,7 @@ export function buildSteps(spec) {
       result = genericTracer(spec, input, example?.output)
     }
   } catch (err) {
-    // A buggy tracer should never break the page — fall back to a
-    // single-step "unable to animate" step.
+
     result = {
       steps: [
         {
@@ -92,7 +44,6 @@ export function buildSteps(spec) {
   }
 }
 
-/** Human-friendly label for a pattern. */
 export function patternLabel(pattern) {
   const labels = {
     array: 'Array',
@@ -121,16 +72,10 @@ export function patternLabel(pattern) {
   return labels[pattern] || 'Array'
 }
 
-/* ------------------------------------------------------------------ */
-/* Helpers                                                             */
-/* ------------------------------------------------------------------ */
-
 const numArr = (x) => {
   if (Array.isArray(x)) return x.map(Number).filter((n) => Number.isFinite(n))
   if (typeof x === 'string') {
-    // Bracket/parenthesis strings (e.g. "()[]{}") should be split into
-    // individual characters — they aren't numbers and we want the stack
-    // tracer to animate each push/pop.
+
     if (/^[\s\S]*[(){}[\]][\s\S]*$/.test(x)) {
       return x.replace(/[\s,"'`]/g, '').split('')
     }
@@ -155,10 +100,6 @@ const newStep = (title, explanation, state, highlights = {}) => {
   }
 }
 
-/**
- * Pick the first example that has an `input` we can serialize, falling
- * back to the raw `input` field, then to an empty array.
- */
 function pickExample(spec) {
   if (Array.isArray(spec.examples) && spec.examples.length > 0) {
     for (const e of spec.examples) {
@@ -168,10 +109,6 @@ function pickExample(spec) {
   }
   return null
 }
-
-/* ------------------------------------------------------------------ */
-/* Tracers — one per pattern                                            */
-/* ------------------------------------------------------------------ */
 
 const TRACERS = {
   [PATTERNS.ARRAY]: arrayTracer,
@@ -192,13 +129,11 @@ const TRACERS = {
   [PATTERNS.DP]: dpTracer,
   [PATTERNS.GREEDY]: greedyTracer,
   [PATTERNS.INTERVAL]: intervalTracer,
-  [PATTERNS.BACKTRACK]: genericTracer, // for now
+  [PATTERNS.BACKTRACK]: genericTracer,
   [PATTERNS.BIT]: bitTracer,
   [PATTERNS.RECURSION]: recursionTracer,
   [PATTERNS.SORTING]: sortingTracer,
 }
-
-/* ---------- array / generic ---------- */
 
 function arrayTracer(spec, input) {
   const arr = numArr(input)
@@ -219,8 +154,6 @@ function arrayTracer(spec, input) {
   steps.push(newStep('Done', `Final accumulated value: ${sum}.`, { array: [...arr], accumulator: sum }))
   return { steps, source: 'tracer' }
 }
-
-/* ---------- two pointer ---------- */
 
 function twoPointerTracer(spec, input) {
   const arr = numArr(input)
@@ -274,8 +207,6 @@ function twoPointerTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- sliding window ---------- */
-
 function slidingWindowTracer(spec, input) {
   const arr = numArr(input)
   const target = parseInt(String(spec.examples?.[0]?.output || 0), 10) || 0
@@ -304,8 +235,8 @@ function slidingWindowTracer(spec, input) {
           { range: [l + 1, r] }
         )
       )
-      // Correct accounting for the explanation
-      sum += arr[l] // restore for clarity
+
+      sum += arr[l]
       sum -= arr[l]
       l++
       steps.push(
@@ -321,8 +252,6 @@ function slidingWindowTracer(spec, input) {
   steps.push(newStep('Done', `Final window sum = ${sum}.`, { array: [...arr], window: { l, r: arr.length - 1 }, sum }))
   return { steps, source: 'tracer' }
 }
-
-/* ---------- binary search ---------- */
 
 function binarySearchTracer(spec, input) {
   const arr = numArr(input)
@@ -355,8 +284,6 @@ function binarySearchTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- stack ---------- */
-
 function stackTracer(spec, input) {
   const seq = Array.isArray(input) ? input : numArr(input)
   const steps = []
@@ -383,8 +310,6 @@ function stackTracer(spec, input) {
   }
   return { steps, source: 'tracer' }
 }
-
-/* ---------- queue ---------- */
 
 function queueTracer(spec, input) {
   const seq = Array.isArray(input) ? input : numArr(input)
@@ -413,16 +338,14 @@ function queueTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- linked list ---------- */
-
 function linkedListTracer(spec, input) {
   const arr = numArr(input)
   const steps = []
-  // Build forward then reverse
+
   const list = arr.map((v) => ({ value: v, next: null }))
   for (let i = 0; i < list.length - 1; i++) list[i].next = i + 1
   steps.push(newStep('Build list', 'Linked list constructed from input.', { list: list.map((n) => n.value), highlight: 'all' }))
-  // Walk
+
   let node = 0
   while (node != null && node < list.length) {
     steps.push(newStep(`Visit ${list[node].value}`, `At node ${node}.`, { list: list.map((n) => n.value), cursor: node }, { ids: [String(node)] }))
@@ -431,15 +354,13 @@ function linkedListTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- tree (BST-ish, from input array) ---------- */
-
 function treeTracer(spec, input) {
   const arr = numArr(input)
   const steps = []
   if (arr.length === 0) {
     return { steps: [newStep('Empty', 'No tree to visualise.', { tree: null })], source: 'tracer' }
   }
-  // Build a binary tree by level from the input array.
+
   const nodes = arr.map((v) => ({ value: v, left: null, right: null }))
   for (let i = 0; i < nodes.length; i++) {
     const l = 2 * i + 1
@@ -448,7 +369,7 @@ function treeTracer(spec, input) {
     if (r < nodes.length) nodes[i].right = r
   }
   steps.push(newStep('Build tree', 'Constructed from level-order input.', { tree: nodes, cursor: 0 }))
-  // DFS traversal
+
   const dfs = (i) => {
     if (i == null || i >= nodes.length) return
     steps.push(newStep(`Visit ${nodes[i].value}`, `DFS at index ${i}.`, { tree: nodes, cursor: i }, { ids: [String(i)] }))
@@ -460,7 +381,7 @@ function treeTracer(spec, input) {
 }
 
 function bstTracer(spec, input) {
-  // Same as tree but with insertion semantics
+
   const arr = numArr(input)
   const steps = []
   if (arr.length === 0) {
@@ -495,8 +416,6 @@ function bstTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- trie ---------- */
-
 function trieTracer(spec, input) {
   const words = (Array.isArray(input) ? input : [input]).map(String)
   const steps = []
@@ -527,8 +446,6 @@ function idForTrieNode(node) {
   return node.__id
 }
 
-/* ---------- heap ---------- */
-
 function heapTracer(spec, input) {
   const arr = numArr(input)
   const steps = []
@@ -552,8 +469,6 @@ function heapTracer(spec, input) {
   }
   return { steps, source: 'tracer' }
 }
-
-/* ---------- union-find ---------- */
 
 function unionFindTracer(spec, input) {
   const arr = numArr(input)
@@ -584,10 +499,8 @@ function unionFindTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- graph (BFS/DFS) ---------- */
-
 function graphTracer(spec, input) {
-  // Expect input as [node count, [edges...]] OR a flat array of edges
+
   let n = 5
   let edges = []
   if (Array.isArray(input) && input.length === 2 && typeof input[0] === 'number') {
@@ -623,8 +536,6 @@ function graphTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- DP ---------- */
-
 function dpTracer(spec, input) {
   const arr = numArr(input)
   if (arr.length === 0) {
@@ -649,10 +560,8 @@ function dpTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- greedy ---------- */
-
 function greedyTracer(spec, input) {
-  // Generic: jump-game style — track the farthest reachable index
+
   const arr = numArr(input)
   const steps = []
   let reach = 0
@@ -676,11 +585,9 @@ function greedyTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- interval ---------- */
-
 function intervalTracer(spec, input) {
   const arr = numArr(input)
-  // Treat arr as flat [a0,b0,a1,b1,...]
+
   const intervals = []
   for (let i = 0; i + 1 < arr.length; i += 2) intervals.push([arr[i], arr[i + 1]])
   intervals.sort((a, b) => a[0] - b[0])
@@ -703,8 +610,6 @@ function intervalTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- bit manipulation ---------- */
-
 function bitTracer(spec, input) {
   const n = Number(input) || 0
   const steps = []
@@ -723,8 +628,6 @@ function bitTracer(spec, input) {
 function toBits(n) {
   return Array.from({ length: 8 }, (_, i) => (n >> (7 - i)) & 1)
 }
-
-/* ---------- recursion (factorial) ---------- */
 
 function recursionTracer(spec, input) {
   const n = Math.max(1, Math.min(6, Number(input) || 4))
@@ -749,8 +652,6 @@ function recursionTracer(spec, input) {
   return { steps, source: 'tracer' }
 }
 
-/* ---------- sorting (bubble sort) ---------- */
-
 function sortingTracer(spec, input) {
   const arr = numArr(input)
   const steps = []
@@ -768,8 +669,6 @@ function sortingTracer(spec, input) {
   }
   return { steps, source: 'tracer' }
 }
-
-/* ---------- generic fallback ---------- */
 
 function genericTracer(spec, input) {
   const arr = numArr(input)

@@ -6,7 +6,6 @@ import {
 
 const router = express.Router()
 
-// All bookmark routes require authentication
 router.use(protect)
 
 router.get('/', getBookmarks)

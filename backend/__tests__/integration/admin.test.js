@@ -1,6 +1,3 @@
-/**
- * Integration tests for `/api/admin`.
- */
 import request from 'supertest'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
@@ -30,7 +27,6 @@ beforeEach(async () => {
   const reg = await request(app).post('/api/auth/register').send(u)
   userToken = reg.body.token || extractAccessToken(reg.headers['set-cookie'])
 
-  // Promote an admin directly
   const { default: User } = await import('../../models/User.js')
   await User.create({
     name: 'Admin Test',
@@ -68,7 +64,7 @@ describe('Admin RBAC', () => {
   })
 
   test('admin can award a badge', async () => {
-    // First create a badge
+
     const { default: Badge } = await import('../../models/Badge.js')
     const badge = await Badge.create({
       id: `test_badge_${++counter}`,
@@ -86,7 +82,7 @@ describe('Admin RBAC', () => {
       .post('/api/admin/badges/award')
       .set(auth(adminToken))
       .send({ userId: '64b5fa11ca11fa11ca11fa11', badgeId: badge._id.toString() })
-    // userId is fake so the controller will 404 — that's correct behavior.
+
     expect([200, 404]).toContain(res.status)
   })
 })

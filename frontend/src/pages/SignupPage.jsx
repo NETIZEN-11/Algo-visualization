@@ -10,7 +10,7 @@ import PasswordStrengthMeter from '../components/common/PasswordStrengthMeter'
 function SignupPage() {
   const navigate = useNavigate()
   const { register, isLoading } = useAuthStore()
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,42 +22,42 @@ function SignupPage() {
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!formData.name) {
       newErrors.name = 'Name is required'
     } else if (formData.name.length < 2) {
       newErrors.name = 'Name must be at least 2 characters'
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required'
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid'
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required'
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters'
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
 
     const result = await register(formData.name, formData.email, formData.password)
-    
+
     if (result.success) {
       toast.success('Account created successfully!')
       navigate('/')
@@ -79,8 +79,6 @@ function SignupPage() {
     }
   }
 
-  // OAuth buttons trigger a full-page redirect; disable them after
-  // click so users don't double-fire.
   const [oauthPending, setOauthPending] = useState(null)
   const handleOAuth = (provider) => {
     if (oauthPending) return
@@ -101,7 +99,7 @@ function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#0B1120] to-gray-900 flex">
-      {/* Left Side - Form */}
+      {}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -123,7 +121,7 @@ function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Field */}
+            {}
             <div>
               <label htmlFor="signup-name" className="block text-sm font-semibold text-gray-300 mb-2">
                 Full Name
@@ -154,7 +152,7 @@ function SignupPage() {
               )}
             </div>
 
-            {/* Email Field */}
+            {}
             <div>
               <label htmlFor="signup-email" className="block text-sm font-semibold text-gray-300 mb-2">
                 Email Address
@@ -185,7 +183,7 @@ function SignupPage() {
               )}
             </div>
 
-            {/* Password Field */}
+            {}
             <div>
               <label htmlFor="signup-password" className="block text-sm font-semibold text-gray-300 mb-2">
                 Password
@@ -220,7 +218,7 @@ function SignupPage() {
               )}
             </div>
 
-            {/* Confirm Password Field */}
+            {}
             <div>
               <label htmlFor="signup-confirm" className="block text-sm font-semibold text-gray-300 mb-2">
                 Confirm Password
@@ -251,7 +249,7 @@ function SignupPage() {
               )}
             </div>
 
-            {/* Terms */}
+            {}
             <div className="flex items-start text-sm">
               <input
                 type="checkbox"
@@ -270,7 +268,7 @@ function SignupPage() {
               </label>
             </div>
 
-            {/* Submit Button */}
+            {}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -293,7 +291,7 @@ function SignupPage() {
             </motion.button>
           </form>
 
-          {/* Divider */}
+          {}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-800"></div>
@@ -303,7 +301,7 @@ function SignupPage() {
             </div>
           </div>
 
-          {/* Social Signup */}
+          {}
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
@@ -346,7 +344,7 @@ function SignupPage() {
             </button>
           </div>
 
-          {/* Sign In Link */}
+          {}
           <p className="mt-6 text-center text-gray-400">
             Already have an account?{' '}
             <Link
@@ -359,9 +357,9 @@ function SignupPage() {
         </motion.div>
       </div>
 
-      {/* Right Side - Features */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-600 to-red-600 p-12 flex-col justify-center relative overflow-hidden">
-        {/* Animated Background */}
+        {}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white rounded-full blur-3xl"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white rounded-full blur-3xl"></div>

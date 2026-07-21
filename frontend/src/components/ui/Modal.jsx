@@ -4,16 +4,6 @@ import clsx from 'clsx'
 import { useEffect, useId, useRef, useCallback } from 'react'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
 
-/**
- * Accessible modal:
- * - role="dialog" + aria-modal="true"
- * - aria-labelledby pointing at the title (or a generated id)
- * - focus is moved into the modal on open and trapped inside it
- * - Esc closes the modal
- * - clicking the backdrop closes the modal
- * - body scroll is locked while open
- * - respects prefers-reduced-motion (no scale/slide animation)
- */
 const Modal = ({
   isOpen,
   onClose,
@@ -36,16 +26,13 @@ const Modal = ({
   const dialogRef = useRef(null)
   const previouslyFocused = useRef(null)
 
-  // Stable, single onClose that always uses the latest caller closure.
   const handleClose = useCallback(() => {
     if (typeof onClose === 'function') onClose()
   }, [onClose])
 
-  // Esc to close, body scroll lock, focus management.
   useEffect(() => {
     if (!isOpen) return undefined
 
-    // Remember what had focus so we can restore it on close.
     previouslyFocused.current = document.activeElement
     document.body.style.overflow = 'hidden'
 
@@ -55,7 +42,7 @@ const Modal = ({
         handleClose()
         return
       }
-      // Simple focus trap: keep tabbing inside the dialog.
+
       if (e.key === 'Tab' && dialogRef.current) {
         const focusables = dialogRef.current.querySelectorAll(
           'a[href], area[href], input:not([disabled]), select:not([disabled]),' +
@@ -76,7 +63,6 @@ const Modal = ({
     }
     document.addEventListener('keydown', onKey)
 
-    // Move focus into the dialog.
     const t = setTimeout(() => {
       if (dialogRef.current) {
         const focusable = dialogRef.current.querySelector(
@@ -91,10 +77,10 @@ const Modal = ({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
       clearTimeout(t)
-      // Restore focus to the element that opened the modal.
+
       const prev = previouslyFocused.current
       if (prev && typeof prev.focus === 'function') {
-        try { prev.focus() } catch { /* ignore */ }
+        try { prev.focus() } catch {  }
       }
     }
   }, [isOpen, handleClose])
@@ -103,7 +89,7 @@ const Modal = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop — labelled clickable close affordance */}
+          {}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -114,7 +100,7 @@ const Modal = ({
             aria-hidden="true"
           />
 
-          {/* Dialog wrapper */}
+          {}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
             <motion.div
               ref={dialogRef}
@@ -132,7 +118,7 @@ const Modal = ({
                 className
               )}
             >
-              {/* Header */}
+              {}
               {(title || showCloseButton) && (
                 <div className="flex items-center justify-between p-6 border-b border-gray-800">
                   {title && (
@@ -152,7 +138,7 @@ const Modal = ({
                 </div>
               )}
 
-              {/* Content */}
+              {}
               <div className="p-6">{children}</div>
             </motion.div>
           </div>

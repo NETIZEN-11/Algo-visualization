@@ -1,15 +1,3 @@
-/**
- * Unit tests for the pure-function parts of `services/oauthService.js`:
- *   - state token generation
- *   - authorization-URL building
- *   - profile normalization (Google + GitHub)
- *   - provider validation
- *
- * The HTTP-exchanging parts (`exchangeCode`, `fetchProfile`) need a
- * full integration test with a mocked provider, which lives in
- * `__tests__/integration/oauth.test.js`. This file stays purely
- * synchronous so it runs fast.
- */
 import {
   generateState,
   getAuthorizationUrl,

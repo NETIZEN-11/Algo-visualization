@@ -7,7 +7,6 @@ const useProblemStore = create((set) => ({
   isLoading: false,
   error: null,
 
-  // Scrape LeetCode problem
   scrapeProblem: async (url) => {
     set({ isLoading: true, error: null })
     try {
@@ -23,7 +22,6 @@ const useProblemStore = create((set) => ({
     }
   },
 
-  // Analyze problem with AI
   analyzeProblem: async (problemData) => {
     set({ isLoading: true, error: null })
     try {
@@ -44,7 +42,6 @@ const useProblemStore = create((set) => ({
     }
   },
 
-  // Get problem by ID
   getProblem: async (problemId) => {
     set({ isLoading: true, error: null })
     try {
@@ -63,7 +60,6 @@ const useProblemStore = create((set) => ({
     }
   },
 
-  // Get user's problems
   getUserProblems: async () => {
     set({ isLoading: true, error: null })
     try {
@@ -82,10 +78,8 @@ const useProblemStore = create((set) => ({
     }
   },
 
-  // Clear current problem
   clearCurrentProblem: () => set({ currentProblem: null }),
 
-  // Clear error
   clearError: () => set({ error: null }),
 }))
 

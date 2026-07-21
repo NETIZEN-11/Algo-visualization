@@ -1,13 +1,3 @@
-/**
- * Lightweight password strength evaluator used by the front-end
- * `PasswordStrengthMeter`. Mirrors the server-side validator so the
- * UI and the API agree on what "strong" means.
- *
- * The real implementation uses zxcvbn on the server (see
- * backend/utils/passwordValidator.js). Here we use a heuristic that
- * keeps the bundle small and gives a reasonable 0-4 score.
- */
-
 const COMMON = new Set([
   'password', '123456', '12345678', 'qwerty', 'abc123', 'letmein',
   'iloveyou', 'admin', 'welcome', 'monkey', 'dragon', 'password1',
@@ -27,7 +17,7 @@ function classify(password) {
   if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1
   if (/\d/.test(password)) score += 1
   if (/[^A-Za-z0-9]/.test(password)) score += 1
-  // Penalise personal info
+
   if (Array.isArray(userInputsFakeArg) && userInputsFakeArg.some((u) => u && password.toLowerCase().includes(String(u).toLowerCase()))) {
     score = Math.max(0, score - 2)
   }

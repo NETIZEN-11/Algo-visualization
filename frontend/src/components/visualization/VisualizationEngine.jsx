@@ -9,8 +9,6 @@ import VisualizationControls from './VisualizationControls'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaEye } from 'react-icons/fa'
 
-// Normalize the type string coming from the AI — it can be anything like
-// "sliding_window", "Sliding Window", "two_pointer", "Two Pointer", etc.
 function normalizeType(raw) {
   if (!raw) return 'array'
   const t = raw.toLowerCase().replace(/[\s/-]/g, '_')
@@ -53,8 +51,6 @@ function VisualizationEngine({
   const [speed, setSpeed] = useState(1)
   const [loop, setLoop] = useState(false)
 
-  // History stacks for undo/redo. A "command" is just a target step
-  // index. When the user navigates, we push the *previous* index.
   const [past, setPast] = useState([])
   const [future, setFuture] = useState([])
 
@@ -62,7 +58,6 @@ function VisualizationEngine({
   const steps = useMemo(() => visualizationData?.steps || [], [visualizationData])
   const totalSteps = steps.length
 
-  // Reset everything when a new visualization arrives
   const lastDataRef = useRef(visualizationData)
   useEffect(() => {
     if (lastDataRef.current !== visualizationData) {
@@ -74,7 +69,6 @@ function VisualizationEngine({
     }
   }, [visualizationData, steps.length, initialStep, autoPlay])
 
-  // Push the previous index onto the past stack before navigating.
   const navigate = useCallback((next) => {
     setPast((p) => {
       const trimmed = p.length >= MAX_HISTORY ? p.slice(p.length - MAX_HISTORY + 1) : p
@@ -104,16 +98,14 @@ function VisualizationEngine({
     })
   }, [currentStepIndex])
 
-  // Lift the current step up so siblings can sync their highlight
   useEffect(() => {
     onStepChange?.(currentStepIndex, steps[currentStepIndex])
   }, [currentStepIndex, steps, onStepChange])
 
-  // Auto-play
   useEffect(() => {
     if (!isPlaying || currentStepIndex >= totalSteps - 1) {
       if (currentStepIndex >= totalSteps - 1 && loop && totalSteps > 1) {
-        // Loop: restart at the end of the array
+
         const id = setTimeout(() => {
           setCurrentStepIndex(0)
         }, 250)
@@ -134,7 +126,6 @@ function VisualizationEngine({
     return () => clearInterval(interval)
   }, [isPlaying, currentStepIndex, totalSteps, speed, loop])
 
-  // Keyboard controls (extended: Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z, L for loop)
   useEffect(() => {
     const handleKeyPress = (e) => {
       const tag = e.target?.tagName
@@ -182,9 +173,7 @@ function VisualizationEngine({
     }
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-    // navigate / handleUndo / handleRedo / currentStepIndex are stable
-    // enough at this layer; re-binding per change is cheap.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [totalSteps, handleUndo, handleRedo])
 
   const handlePlay = useCallback(() => {
@@ -296,7 +285,7 @@ function VisualizationEngine({
 
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Visualization area */}
+      {}
       <div className="flex-1 bg-gray-900 rounded-xl border border-gray-800 overflow-hidden min-h-0">
         <AnimatePresence mode="wait">
           <motion.div
@@ -312,7 +301,7 @@ function VisualizationEngine({
         </AnimatePresence>
       </div>
 
-      {/* Controls */}
+      {}
       <VisualizationControls
         isPlaying={isPlaying}
         onPlay={handlePlay}
@@ -335,7 +324,7 @@ function VisualizationEngine({
         stepTitles={steps.map((s) => s.title || s.explanation || '')}
       />
 
-      {/* Step explanation */}
+      {}
       {currentStep?.explanation && (
         <motion.div
           key={`exp-${currentStepIndex}`}

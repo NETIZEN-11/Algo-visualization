@@ -19,14 +19,13 @@ function ProgressPage() {
 
   useEffect(() => {
     loadAllData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [])
 
   const loadAllData = async () => {
     setIsLoading(true)
     try {
-      // Pass userId so the store can cache results — re-mounts (e.g.
-      // Strict Mode double-invoke) hit the cache, not the API.
+
       const uid = user?._id || user?.id
       await Promise.all([
         getAnalytics(uid),
@@ -34,9 +33,7 @@ function ProgressPage() {
         getTopicAnalysis(uid),
       ])
     } catch (error) {
-      // Logged but not surfaced — the page already shows the empty
-      // state below when `analytics` is null. A toast on every load
-      // was creating noise in the console.
+
       console.warn('Progress data unavailable:', error?.message)
     } finally {
       setIsLoading(false)
@@ -68,7 +65,7 @@ function ProgressPage() {
 
   const DifficultyBar = ({ difficulty, solved, total, color }) => {
     const percentage = total > 0 ? (solved / total) * 100 : 0
-    
+
     return (
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
@@ -140,7 +137,7 @@ function ProgressPage() {
 
   return (
     <div className="min-h-screen bg-[#0B1120] text-white p-8">
-      {/* Header */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -156,7 +153,7 @@ function ProgressPage() {
         </p>
       </motion.div>
 
-      {/* Stats Grid */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -196,9 +193,9 @@ function ProgressPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Difficulty & Interview Readiness */}
+        {}
         <div className="lg:col-span-2 space-y-8">
-          {/* Difficulty Breakdown */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -209,7 +206,7 @@ function ProgressPage() {
               <FaTrophy className="text-yellow-400" />
               Difficulty Breakdown
             </h2>
-            
+
             <DifficultyBar
               difficulty="Easy"
               solved={user?.problemStats?.easy || 0}
@@ -230,7 +227,7 @@ function ProgressPage() {
             />
           </motion.div>
 
-          {/* Interview Readiness */}
+          {}
           {readinessScore && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -312,9 +309,9 @@ function ProgressPage() {
           )}
         </div>
 
-        {/* Right Column - Pattern Mastery & Topics */}
+        {}
         <div className="space-y-8">
-          {/* Pattern Mastery */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -341,7 +338,7 @@ function ProgressPage() {
             </div>
           </motion.div>
 
-          {/* Weak Topics */}
+          {}
           {weakTopics.length > 0 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -361,7 +358,7 @@ function ProgressPage() {
             </motion.div>
           )}
 
-          {/* Strong Topics */}
+          {}
           {strongTopics.length > 0 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}

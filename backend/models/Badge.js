@@ -56,7 +56,7 @@ const badgeSchema = new mongoose.Schema(
         required: true,
       },
       context: {
-        type: String, // e.g., "array", "hard", "sliding_window"
+        type: String,
         default: null,
       },
     },
@@ -79,7 +79,6 @@ const badgeSchema = new mongoose.Schema(
   }
 )
 
-// Index for active badges
 badgeSchema.index({ isActive: 1, category: 1 })
 
 const Badge = mongoose.model('Badge', badgeSchema)

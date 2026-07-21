@@ -51,7 +51,7 @@ const leaderboardSchema = new mongoose.Schema(
           default: 0,
         },
         totalTime: {
-          type: Number, // in seconds
+          type: Number,
           default: 0,
         },
       },
@@ -70,7 +70,6 @@ const leaderboardSchema = new mongoose.Schema(
   }
 )
 
-// Compound index for efficient queries
 leaderboardSchema.index({ type: 1, 'period.endDate': -1, isActive: 1 })
 leaderboardSchema.index({ 'rankings.userId': 1 })
 

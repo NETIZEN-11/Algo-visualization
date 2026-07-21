@@ -1,7 +1,3 @@
-// Minimal ESLint config for the backend. The code is ESM ("type":"module")
-// so we point at `sourceType: "module"`. We keep the rule set conservative
-// — no semicolon enforcement or stylistic nits — and only flag things
-// that affect correctness or are likely runtime bugs.
 module.exports = {
   root: true,
   env: { node: true, es2022: true, jest: true },

@@ -17,12 +17,10 @@ function SettingsPage() {
   const [email, setEmail] = useState(user?.email || '')
   const [isSaving, setIsSaving] = useState(false)
 
-  // Change-password state
   const [currentPw, setCurrentPw] = useState('')
   const [newPw, setNewPw] = useState('')
   const [pwBusy, setPwBusy] = useState(false)
 
-  // Delete-account confirmation
   const [confirmText, setConfirmText] = useState('')
   const [deleteBusy, setDeleteBusy] = useState(false)
 
@@ -120,7 +118,7 @@ function SettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Profile */}
+          {}
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <FaUser className="text-blue-400" /> Profile
@@ -167,7 +165,7 @@ function SettingsPage() {
             </form>
           </div>
 
-          {/* Change password */}
+          {}
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <FaLock className="text-emerald-400" /> Change Password
@@ -206,7 +204,7 @@ function SettingsPage() {
             </form>
           </div>
 
-          {/* Preferences */}
+          {}
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <FaPalette className="text-purple-400" /> Preferences
@@ -252,7 +250,7 @@ function SettingsPage() {
           </div>
         </div>
 
-        {/* Sidebar */}
+        {}
         <div className="space-y-6">
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6">
             <h2 className="text-lg font-semibold mb-4">Account</h2>

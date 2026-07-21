@@ -1,16 +1,6 @@
 import { useState } from 'react'
 import { FaPlay, FaRandom } from 'react-icons/fa'
 
-/**
- * Algomaster-style input panel:
- *   - Preset tabs (Standard, Reversed, Sorted, …) one-click select
- *   - Custom input text field with `key=value` syntax
- *   - "Run" button that parses the input and re-computes the steps
- *
- * The parent receives a normalized `input` object whose shape
- * matches what `generateSteps(algoId, input)` expects (different
- * per algorithm — see algorithmCatalog.js for the dispatch table).
- */
 function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, targetKey = 'arr' }) {
   const presetNames = Object.keys(presets || {})
   const [activePreset, setActivePreset] = useState(defaultPreset || presetNames[0])
@@ -47,7 +37,7 @@ function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, t
     try {
       onRun?.(normalize(arr))
     } catch {
-      /* ignore */
+
     }
   }
 
@@ -66,7 +56,7 @@ function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, t
         </button>
       </div>
 
-      {/* Preset tabs */}
+      {}
       {presetNames.length > 0 && (
         <div className="flex items-center gap-1.5 flex-wrap">
           {presetNames.map((name) => (
@@ -85,7 +75,7 @@ function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, t
         </div>
       )}
 
-      {/* Custom input */}
+      {}
       <div className="space-y-1.5">
         <label className="text-xs text-gray-500 block">
           Custom input {customHint && <span className="text-gray-600">— {customHint}</span>}
@@ -112,7 +102,6 @@ function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, t
   )
 }
 
-/** Turn the structured input into a key=value string for the textbox. */
 function stringifyInput(input, _target, _k, _value) {
   if (Array.isArray(input)) return `arr=[${input.join(', ')}]`
   if (typeof input === 'string') return `s="${input}"`
@@ -132,9 +121,8 @@ function stringifyInput(input, _target, _k, _value) {
   return ''
 }
 
-/** Parse `arr=[1, 2, 3]`, `target=7`, `k=3`, `s="abc"`, `n=10`, etc. */
 function parseInput(text, targetKey = 'arr') {
-  const tokens = text.split(/,(?![^[]*\])/) // split on commas not inside brackets
+  const tokens = text.split(/,(?![^[]*\])/)
   const out = {}
   for (const raw of tokens) {
     const t = raw.trim()

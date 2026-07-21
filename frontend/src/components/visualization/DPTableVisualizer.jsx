@@ -38,7 +38,7 @@ function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
 
   return (
     <div className="w-full h-full flex flex-col bg-gray-900 rounded-lg p-4 overflow-auto">
-      {/* DP Table */}
+      {}
       <div className="flex-1 flex items-center justify-center overflow-auto">
         <div className="inline-block">
           <table className="border-collapse">
@@ -74,7 +74,7 @@ function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
             </tbody>
           </table>
 
-          {/* Row/Column indices */}
+          {}
           <div className="flex mt-4 ml-12 gap-0">
             {Array.from({ length: cols }).map((_, j) => (
               <div
@@ -89,7 +89,7 @@ function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
         </div>
       </div>
 
-      {/* Legend */}
+      {}
       <div className="flex items-center justify-center gap-4 py-4 border-t border-gray-800 mt-4">
         {Object.entries({
           Current: 'bg-blue-500',
@@ -105,7 +105,7 @@ function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
         ))}
       </div>
 
-      {/* Current step explanation */}
+      {}
       {currentStep && (
         <div className="mt-4 p-3 bg-gray-800 rounded-lg">
           <p className="text-sm text-gray-300 font-semibold">{currentStep.explanation}</p>
@@ -122,7 +122,7 @@ function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
         </div>
       )}
 
-      {/* Table dimensions */}
+      {}
       <div className="mt-2 text-center text-xs text-gray-500">
         Dimensions: {rows} × {cols}
       </div>

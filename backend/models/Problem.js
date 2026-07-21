@@ -1,12 +1,3 @@
-/**
- * Problem model.
- *
- * Source of truth for "solved" is `User.solvedProblems`. The fields
- * `isSolved`, `solvedAt`, `attempts`, `userNotes` on the Problem doc
- * were convenient but have always been out of sync (the bug that
- * `markSolved` never set them). They are removed in the v2 schema —
- * controllers read from `User` and `Submission` instead.
- */
 import mongoose from 'mongoose'
 
 const problemSchema = new mongoose.Schema(
@@ -20,7 +11,7 @@ const problemSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       default: null,
-      // null is allowed for system-generated entries (e.g. daily challenge).
+
     },
     source: {
       type: String,
@@ -60,11 +51,11 @@ const problemSchema = new mongoose.Schema(
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     acceptanceRate: { type: Number, default: 0 },
-    // `analysis` is the same rich AI-analysis shape used by the AI service.
+
     analysis: { type: mongoose.Schema.Types.Mixed, default: null },
     isSaved: { type: Boolean, default: false },
     views: { type: Number, default: 0 },
-    avgTimeSpent: { type: Number, default: 0 }, // ms, rolling average
+    avgTimeSpent: { type: Number, default: 0 },
     lastViewedAt: { type: Date, default: null },
   },
   { timestamps: true }

@@ -4,7 +4,7 @@ import { useCsrf } from '../../hooks/useCsrf'
 
 describe('useCsrf', () => {
   beforeEach(() => {
-    // Wipe any leftover cookie.
+
     document.cookie = 'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
   })
 
@@ -25,8 +25,7 @@ describe('useCsrf', () => {
     act(() => {
       document.cookie = 'XSRF-TOKEN=newtoken; path=/'
     })
-    // The hook polls on an interval, so we just check the API exists
-    // and the function returned a primitive/null.
+
     expect([null, 'newtoken']).toContain(result.current)
   })
 })

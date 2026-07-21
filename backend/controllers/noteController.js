@@ -1,6 +1,3 @@
-/**
- * Notes controller — full CRUD + pin + search + filter.
- */
 import { Note } from '../models/index.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
 

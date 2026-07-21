@@ -54,8 +54,7 @@ function Sidebar() {
   }
 
   const getLevelProgress = () => {
-    // Mirrors backend USER_LEVELS (utils/constants.js). Each level has a minXP
-    // threshold; we compute progress as (xp - currentMinXP) / (nextMinXP - currentMinXP).
+
     const USER_LEVELS = [
       { level: 1, minXP: 0 },
       { level: 2, minXP: 100 },
@@ -69,14 +68,14 @@ function Sidebar() {
     const current = USER_LEVELS.find((l) => l.level === userStats.level) || USER_LEVELS[0]
     const next = USER_LEVELS.find((l) => l.level === userStats.level + 1)
 
-    if (!next) return 100 // already at max level
+    if (!next) return 100
     const progress = (userStats.xp - current.minXP) / (next.minXP - current.minXP)
     return Math.max(0, Math.min(100, progress * 100))
   }
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-gray-950 border-r border-gray-800 overflow-y-auto scrollbar-thin">
-      {/* Logo Section */}
+      {}
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
@@ -91,7 +90,7 @@ function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation Menu */}
+      {}
       <nav className="p-3 space-y-1" aria-label="Main">
         {menuItems.map((item, index) => (
           <motion.div
@@ -131,7 +130,7 @@ function Sidebar() {
           </motion.div>
         ))}
 
-        {/* Admin link — only when the user has role === 'admin' */}
+        {}
         {user?.role === 'admin' ? (
           <motion.div
             key={adminItem.path}
@@ -160,9 +159,9 @@ function Sidebar() {
         ) : null}
       </nav>
 
-      {/* Quick Stats Card */}
+      {}
       <div className="p-4 mt-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -192,7 +191,7 @@ function Sidebar() {
         </motion.div>
       </div>
 
-      {/* User Profile Section */}
+      {}
       <div className="p-4 mt-auto border-t border-gray-800">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -200,7 +199,7 @@ function Sidebar() {
           transition={{ delay: 0.5 }}
           className="flex items-center space-x-3"
         >
-          {/* Avatar */}
+          {}
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
@@ -208,7 +207,7 @@ function Sidebar() {
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-gray-950 rounded-full"></div>
           </div>
 
-          {/* User Info */}
+          {}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-200 truncate">{user?.name || 'User'}</p>
             <div className="flex items-center space-x-1 text-xs">
@@ -219,7 +218,7 @@ function Sidebar() {
           </div>
         </motion.div>
 
-        {/* XP Progress Bar */}
+        {}
         <div className="mt-3">
           <div className="flex justify-between text-xs text-gray-400 mb-1">
             <span>Level {userStats.level}</span>

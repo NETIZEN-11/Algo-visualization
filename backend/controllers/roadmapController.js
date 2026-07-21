@@ -1,9 +1,3 @@
-/**
- * Roadmap controller — per-user progress through the curriculum.
- *
- * If the user has no roadmap yet, we lazily create one with the
- * default 12-topic starter set. Idempotent.
- */
 import { UserRoadmap } from '../models/Roadmap.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
 

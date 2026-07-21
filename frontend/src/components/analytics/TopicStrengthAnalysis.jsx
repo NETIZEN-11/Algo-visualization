@@ -6,7 +6,7 @@ function TopicStrengthAnalysis({ weakTopics, strongTopics }) {
     <div className="bg-[#111827] border border-gray-800 rounded-2xl p-6">
       <h3 className="text-lg font-bold text-white mb-4">Topic Strength</h3>
 
-      {/* Strong Topics */}
+      {}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
           <FaArrowUp className="text-green-400" />
@@ -47,7 +47,7 @@ function TopicStrengthAnalysis({ weakTopics, strongTopics }) {
         )}
       </div>
 
-      {/* Weak Topics */}
+      {}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <FaArrowDown className="text-red-400" />

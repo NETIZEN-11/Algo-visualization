@@ -1,9 +1,3 @@
-/**
- * Admin routes — `/api/admin`
- *
- * Every endpoint requires `protect` (any logged-in user) AND
- * `authorize('admin')` (only admins). Non-admins get 403.
- */
 import { Router } from 'express'
 import { protect, authorize } from '../middleware/auth.js'
 import { globalRateLimiter } from '../middleware/rateLimiter.js'

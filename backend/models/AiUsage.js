@@ -1,11 +1,3 @@
-/**
- * AI usage log — per-call, per-user, per-feature token accounting.
- *
- * Used to:
- *   - enforce the `DAILY_AI_TOKEN_LIMIT` per user
- *   - expose a Prometheus counter for total tokens used
- *   - power the billing page (Phase 15)
- */
 import mongoose from 'mongoose'
 
 const aiUsageSchema = new mongoose.Schema(

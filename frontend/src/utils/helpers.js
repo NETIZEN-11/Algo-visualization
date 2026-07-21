@@ -71,7 +71,7 @@ export const downloadAsFile = (content, filename, contentType = 'text/plain') =>
 }
 
 export const parseComplexity = (complexity) => {
-  // Parse time/space complexity string and return formatted version
+
   return complexity.replace(/O\((.*?)\)/, '<span class="font-mono">O($1)</span>')
 }
 

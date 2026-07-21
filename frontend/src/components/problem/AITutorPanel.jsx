@@ -65,11 +65,11 @@ function AITutorPanel({ analysis, problemData, isAnalyzing }) {
 
   return (
     <div className="bg-[#111827] border border-gray-800 rounded-2xl shadow-lg overflow-hidden h-[calc(100vh-140px)] flex flex-col">
-      {/* Header with Tabs */}
+      {}
       <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4">
         <h2 className="text-lg font-bold text-white mb-3">AI Tutor</h2>
 
-        {/* Tab Navigation */}
+        {}
         <div className="flex gap-2 overflow-x-auto scrollbar-thin">
           {tabs.map((tab) => (
             <motion.button
@@ -90,7 +90,7 @@ function AITutorPanel({ analysis, problemData, isAnalyzing }) {
         </div>
       </div>
 
-      {/* Tab Content */}
+      {}
       <div className="flex-1 overflow-y-auto p-4">
         <AnimatePresence mode="wait">
           <motion.div

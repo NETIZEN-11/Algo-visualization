@@ -1,7 +1,3 @@
-/**
- * Token service tests (refresh-token rotation + revocation). Uses the
- * in-memory Mongo, no HTTP layer.
- */
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
 process.env.JWT_REFRESH_EXPIRE = '7d'
@@ -33,7 +29,7 @@ describe('tokenService', () => {
   test('issueRefreshToken creates a record and returns a family', async () => {
     const r = await issueRefreshToken({ userId: user._id, userAgent: 'jest' })
     expect(r.jti).toBeTruthy()
-    // family may be null when caller didn't pass one — the row in DB still has one
+
     expect(r.expiresAt instanceof Date).toBe(true)
     const r2 = await issueRefreshToken({ userId: user._id, family: 'fam-x' })
     expect(r2.family).toBe('fam-x')
@@ -62,7 +58,7 @@ describe('tokenService', () => {
     const a = await issueRefreshToken({ userId: user._id })
     await revokeRefreshToken(a.jti)
     await expect(rotateRefreshToken({ oldJti: a.jti, userId: user._id }))
-      .rejects.toThrow() // either reuse or not-recognised depending on impl
+      .rejects.toThrow()
   })
 
   test('revokeAllForUser revokes every token for a user', async () => {
@@ -77,7 +73,7 @@ describe('tokenService', () => {
     const a = await issueRefreshToken({ userId: user._id })
     const c = await issueRefreshToken({ userId: user._id })
     await revokeFamily(a.family, 'test')
-    // c should still be usable (c has its own family).
+
     const rotated = await rotateRefreshToken({ oldJti: c.jti, userId: user._id })
     expect(rotated.jti).not.toBe(c.jti)
   })

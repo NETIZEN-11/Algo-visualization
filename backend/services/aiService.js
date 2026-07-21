@@ -1,13 +1,3 @@
-/**
- * AI service — single client, one helper, retry with backoff, token
- * accounting, and parameterised mock fallbacks.
- *
- * Set `MOCK_AI=true` (dev) to skip OpenAI entirely; the mock layer
- * produces *problem-specific* responses (see `aiMockGenerators.js`).
- *
- * The server refuses to boot in production with `MOCK_AI=true` or a
- * placeholder `OPENAI_API_KEY`.
- */
 import OpenAI from 'openai'
 import AiUsage from '../models/AiUsage.js'
 import { logger } from '../utils/logger.js'
@@ -26,9 +16,6 @@ import {
   mockVisualisation,
 } from '../utils/aiMockGenerators.js'
 
-/* ------------------------------------------------------------------ */
-/* Configuration                                                        */
-/* ------------------------------------------------------------------ */
 export const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini'
 const AI_MAX_TOKENS = Number(process.env.AI_MAX_TOKENS) || 2048
 const AI_TEMPERATURE = Number(process.env.AI_TEMPERATURE) || 0.4
@@ -52,12 +39,9 @@ if (!useMockAi && hasRealKey) {
 
 export const isMocked = () => useMockAi || !openai
 
-/* ------------------------------------------------------------------ */
-/* Token accounting (per-user, per-day)                                */
-/* ------------------------------------------------------------------ */
 const dayKey = (d = new Date()) => d.toISOString().slice(0, 10)
 
-const usageCache = new Map() // userId -> { day, total }
+const usageCache = new Map()
 
 const getUsageToday = async (userId) => {
   if (!userId) return 0
@@ -65,10 +49,7 @@ const getUsageToday = async (userId) => {
   const cached = usageCache.get(key)
   const today = dayKey()
   if (cached && cached.day === today) return cached.total
-  // Sum usage from DB to be authoritative (across replicas).
-  // Use a string-keyed object so editors don't mis-tokenise the
-  // MongoDB $-prefixed operators (which are valid as unquoted keys
-  // but trip up some highlighters and TS-language-services).
+
   const start = new Date(today + 'T00:00:00Z')
   const matchStage = { $match: { userId: userId, createdAt: { $gte: start } } }
   const groupStage = { $group: { _id: null, total: { $sum: '$totalTokens' } } }
@@ -93,7 +74,7 @@ const recordUsage = async ({ userId, feature, promptTokens, completionTokens, du
       durationMs: durationMs || 0,
       error: error || null,
     })
-    // Update cache
+
     const key = String(userId)
     const cached = usageCache.get(key) || { day: dayKey(), total: 0 }
     if (cached.day === dayKey()) cached.total += total
@@ -105,9 +86,6 @@ const recordUsage = async ({ userId, feature, promptTokens, completionTokens, du
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Retry with exponential backoff                                      */
-/* ------------------------------------------------------------------ */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const withRetry = async (fn, { attempts = 3, baseMs = 500 } = {}) => {
   let lastErr
@@ -130,9 +108,6 @@ const withRetry = async (fn, { attempts = 3, baseMs = 500 } = {}) => {
   throw lastErr
 }
 
-/* ------------------------------------------------------------------ */
-/* Core call helper                                                     */
-/* ------------------------------------------------------------------ */
 const callOpenAI = async ({
   system,
   user,
@@ -171,9 +146,6 @@ const callOpenAI = async ({
   })
 }
 
-/* ------------------------------------------------------------------ */
-/* Token-budget guard                                                   */
-/* ------------------------------------------------------------------ */
 const ensureBudget = async (userId) => {
   if (!userId) return
   const used = await getUsageToday(userId)
@@ -185,12 +157,8 @@ const ensureBudget = async (userId) => {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Public API — one function per feature                                */
-/* ------------------------------------------------------------------ */
 const start = Date.now()
 
-/** Build a consistent problem context string with the detected pattern. */
 const buildProblemContext = (problemData) => {
   const { title = '', description = '', examples = [], constraints = [], tags = [] } = problemData || {}
   const det = detectPattern({ title, description, tags })
@@ -256,14 +224,14 @@ export const analyzeCodeWithAI = async (code, language, problemContext = '', { u
     return r
   }
   await ensureBudget(userId)
-  // Try to detect the pattern from the surrounding context for better advice
+
   let ctxPattern = ''
   if (problemContext) {
     try {
       const p = typeof problemContext === 'string' ? JSON.parse(problemContext) : problemContext
       const det = detectPattern(p || {})
       ctxPattern = ` (The problem is detected as "${patternLabel(det.pattern)}")`
-    } catch { /* not JSON, ignore */ }
+    } catch {  }
   }
   const system = `You are a senior code reviewer${ctxPattern}. Return strict JSON: { analysis, hasErrors, suggestions[] } — suggestions should be specific, not generic.`
   const user = `Language: ${language}\nContext: ${problemContext || '(none)'}\nCode:\n\`\`\`\n${code}\n\`\`\``
@@ -343,7 +311,6 @@ export const conductInterviewWithAI = async (params, { userId } = {}) => {
     }
   }
 
-  // Question generation — pick a difficulty-appropriate category
   const system = `You are a technical interviewer at a top-tier company. Generate ONE DSA question appropriate for the requested difficulty and the candidate's pattern history. Return strict JSON: { question, category, difficulty, pattern }`
   const user = JSON.stringify(params)
   try {
@@ -406,8 +373,7 @@ export const generateVisualizationWithAI = async (problemData, { userId } = {}) 
   }
   await ensureBudget(userId)
   const { block, label } = buildProblemContext(problemData)
-  // Even with a real LLM we still ship the deterministic engine's
-  // output as a fallback — the LLM is asked only to enrich it.
+
   const system = `You build algorithm visualisations for "${label}" problems. Return strict JSON matching the VisualizationEngine schema: { type, steps: [{step_number, state, highlight, explanation}] }`
   const user = block
   try {
@@ -420,7 +386,6 @@ export const generateVisualizationWithAI = async (problemData, { userId } = {}) 
   }
 }
 
-/* Legacy aliases — keep old call sites compiling. */
 export const generateInterviewFeedbackWithAI = conductInterviewWithAI
 
 export const aiServiceInfo = () => ({

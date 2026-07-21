@@ -1,22 +1,11 @@
-/**
- * Flashcards controller.
- *
- * - All handlers use `next(error)` / `throw`.
- * - `reviewFlashcard` accepts a 0-5 `quality` (SM-2 style) — `correct: true`
- *   is treated as `quality = 4`, `correct: false` as `quality = 2`.
- * - New endpoints: `updateFlashcard`, `bulkCreate`, `getDueToday`.
- */
 import { Flashcard } from '../models/index.js'
 import { generateFlashcardsWithAI } from '../services/aiService.js'
 import { AppError, NotFoundError, ValidationError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-const SPACED_INTERVALS = [1, 3, 7, 14, 30] // days
+const SPACED_INTERVALS = [1, 3, 7, 14, 30]
 
-/* ------------------------------------------------------------------ */
-/* Read                                                                 */
-/* ------------------------------------------------------------------ */
 export const getFlashcards = wrap(async (req, res) => {
   const filter = { userId: req.user._id }
   if (req.query.category) filter.category = req.query.category
@@ -39,9 +28,6 @@ export const getDueToday = wrap(async (req, res) => {
   res.json({ success: true, count: cards.length, data: cards })
 })
 
-/* ------------------------------------------------------------------ */
-/* Generate                                                             */
-/* ------------------------------------------------------------------ */
 export const generateFlashcards = wrap(async (req, res) => {
   const { problemId, problemData, analysis } = req.body
   if (!problemData) throw new ValidationError('problemData is required')
@@ -63,9 +49,6 @@ export const generateFlashcards = wrap(async (req, res) => {
   res.json({ success: true, message: 'Flashcards generated', data: cards })
 })
 
-/* ------------------------------------------------------------------ */
-/* Create / bulk / update / delete                                       */
-/* ------------------------------------------------------------------ */
 export const createFlashcard = wrap(async (req, res) => {
   const { problemId, front, back, category, difficulty, tags } = req.body
   const card = await Flashcard.create({
@@ -125,12 +108,9 @@ export const deleteFlashcard = wrap(async (req, res) => {
   res.json({ success: true, message: 'Flashcard deleted' })
 })
 
-/* ------------------------------------------------------------------ */
-/* Review — SM-2 quality score                                          */
-/* ------------------------------------------------------------------ */
 export const reviewFlashcard = wrap(async (req, res) => {
   const { id } = req.params
-  // Accept either a SM-2 quality (0-5) or a boolean `correct`.
+
   let quality = req.body.quality
   if (quality === undefined && typeof req.body.correct === 'boolean') {
     quality = req.body.correct ? 4 : 2

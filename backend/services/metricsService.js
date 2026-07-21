@@ -1,21 +1,6 @@
-/**
- * Lightweight in-process metrics registry.
- *
- * No external Prometheus client required — we emit Prometheus text
- * format directly. Three metric types are supported:
- *
- *   - Counter:   monotonically increasing, e.g. `http_requests_total`
- *   - Histogram: observations bucketed by latency/bytes
- *   - Gauge:     current value, e.g. `nodejs_eventloop_lag_seconds`
- *
- * For multi-replica deployments, a real Prometheus sidecar will scrape
- * /metrics from each pod and aggregate. This registry is single-process
- * by design — that is fine for horizontal-scale pods.
- */
-
-const counters = new Map()    // name -> { help, labels, value }
-const gauges = new Map()      // name -> { help, value }
-const histograms = new Map()  // name -> { help, buckets, observations, sum, count }
+const counters = new Map()
+const gauges = new Map()
+const histograms = new Map()
 
 const inc = (name, labels = {}, value = 1) => {
   const key = labelsKey(labels)
@@ -50,9 +35,6 @@ const register = (name, help, type, labels = []) => {
   return entry
 }
 
-/* ------------------------------------------------------------------ */
-/* Pre-registered metrics                                              */
-/* ------------------------------------------------------------------ */
 register('http_requests_total', 'Total HTTP requests', 'counter', ['method', 'route', 'status'])
 register('http_request_duration_seconds', 'HTTP request duration in seconds', 'histogram', ['method', 'route', 'status'])
 register('ai_tokens_total', 'OpenAI tokens consumed', 'counter', ['feature', 'model'])
@@ -82,12 +64,9 @@ const recordAuth = (event) => {
   inc('auth_events_total', { event })
 }
 
-/* ------------------------------------------------------------------ */
-/* /metrics text-format output                                         */
-/* ------------------------------------------------------------------ */
 const render = () => {
   const lines = []
-  // Counters
+
   for (const [name, c] of counters) {
     lines.push(`# HELP ${name} ${c.help}`)
     lines.push(`# TYPE ${name} counter`)
@@ -96,13 +75,13 @@ const render = () => {
       lines.push(`${name}${labelStr} ${v}`)
     }
   }
-  // Gauges
+
   for (const [name, g] of gauges) {
     lines.push(`# HELP ${name} ${g.help || ''}`)
     lines.push(`# TYPE ${name} gauge`)
     lines.push(`${name} ${g.value}`)
   }
-  // Histograms (Prometheus cumulative format)
+
   for (const [name, h] of histograms) {
     lines.push(`# HELP ${name} ${h.help || ''}`)
     lines.push(`# TYPE ${name} histogram`)

@@ -1,8 +1,5 @@
 import api from './api'
 
-/**
- * Per-user roadmap service.
- */
 export const roadmapService = {
   get: async () => {
     const { data } = await api.get('/roadmap')

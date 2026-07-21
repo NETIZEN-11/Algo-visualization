@@ -1,17 +1,3 @@
-/**
- * Rate-limit policies.
- *
- * Three policies, three concerns:
- *   - globalRateLimiter:    apply to all routes; 100 req / 15 min / IP
- *   - strictRateLimiter:    apply to write-heavy / scrape endpoints
- *   - authRateLimiter:      register / login / refresh (5/15 min / IP)
- *   - passwordResetLimiter: forgot / reset password (3/hour / IP)
- *   - aiRateLimiter:        per-user AI calls (30/min)
- *
- * In production we use Redis as the shared store so limits are honoured
- * across replicas; the package falls back to in-memory if Redis is
- * unreachable, so the dev experience is unchanged.
- */
 import rateLimit from 'express-rate-limit'
 import RedisStore from 'rate-limit-redis'
 import IORedis from 'ioredis'
@@ -25,10 +11,10 @@ if (process.env.REDIS_URL) {
       lazyConnect: false,
     })
     redis.on('error', () => {
-      // If Redis dies, rate-limit-redis falls back to in-memory. Log once.
+
       if (!redis._errored) {
         redis._errored = true
-        // eslint-disable-next-line no-console
+
         console.warn('⚠️  Redis rate-limit store unavailable, falling back to in-memory')
       }
     })
@@ -74,11 +60,11 @@ export const authRateLimiter = process.env.DISABLE_RATE_LIMIT === 'true'
   ? (req, _res, next) => next()
   : rateLimit({
       windowMs: 15 * 60 * 1000,
-      max: 5, // 5 failed attempts / 15 min
+      max: 5,
       standardHeaders: true,
       legacyHeaders: false,
       store: store('rl:auth:'),
-      skipSuccessfulRequests: true, // only count failures
+      skipSuccessfulRequests: true,
       message: msg('Too many authentication attempts. Please try again in 15 minutes.'),
     })
 
@@ -93,7 +79,6 @@ export const passwordResetLimiter = process.env.DISABLE_RATE_LIMIT === 'true'
       message: msg('Too many password-reset attempts. Please try again in an hour.'),
     })
 
-/** Per-user AI limiter — keyed off `req.user.id` once auth middleware has run. */
 export const aiRateLimiter = process.env.DISABLE_RATE_LIMIT === 'true'
   ? (req, _res, next) => next()
   : rateLimit({
@@ -106,7 +91,6 @@ export const aiRateLimiter = process.env.DISABLE_RATE_LIMIT === 'true'
       message: msg('AI rate limit reached. Please wait a minute and try again.'),
     })
 
-// Back-compat default export for existing call sites.
 export default process.env.DISABLE_RATE_LIMIT === 'true'
   ? (req, _res, next) => next()
   : globalRateLimiter

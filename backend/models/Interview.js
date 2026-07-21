@@ -6,7 +6,7 @@ const interviewSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      // Index built via the compound (userId, startedAt) below.
+
     },
     sessionId: {
       type: String,
@@ -27,7 +27,7 @@ const interviewSchema = new mongoose.Schema(
       {
         questionNumber: {
           type: Number,
-          // Auto-assigned in controller; not required on push
+
         },
         question: {
           type: String,
@@ -69,7 +69,7 @@ const interviewSchema = new mongoose.Schema(
           type: Number,
           min: 0,
           max: 100,
-          default: null, // null unless this was a system-design question
+          default: null,
         },
         timeSpent: {
           type: Number,
@@ -96,7 +96,7 @@ const interviewSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       max: 100,
-      default: 0, // populated when at least one system-design answer exists
+      default: 0,
     },
     startedAt: {
       type: Date,
@@ -134,25 +134,21 @@ const interviewSchema = new mongoose.Schema(
   }
 )
 
-// Indexes for better query performance
 interviewSchema.index({ userId: 1, startedAt: -1 })
 interviewSchema.index({ status: 1 })
 interviewSchema.index({ difficulty: 1 })
 
-// Calculate duration before saving
 interviewSchema.pre('save', function (next) {
   if (this.endedAt && this.startedAt) {
-    this.duration = Math.floor((this.endedAt - this.startedAt) / 1000 / 60) // in minutes
+    this.duration = Math.floor((this.endedAt - this.startedAt) / 1000 / 60)
   }
   next()
 })
 
-// Virtual for total questions
 interviewSchema.virtual('totalQuestions').get(function () {
   return this.questions.length
 })
 
-// Virtual for answered questions
 interviewSchema.virtual('answeredQuestions').get(function () {
   return this.questions.filter(q => q.answer).length
 })

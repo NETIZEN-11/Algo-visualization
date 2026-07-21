@@ -1,13 +1,3 @@
-/**
- * Daily-challenge worker.
- *
- * Runs as a separate process: `node workers/dailyChallengeWorker.js`.
- * Uses a Mongo lease to ensure only one replica seeds the daily
- * challenge, even when multiple workers are running in parallel.
- *
- * Cron schedule: every minute, attempt to ensure today's challenge.
- * The actual write is idempotent so this is safe to run frequently.
- */
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -21,7 +11,7 @@ import crypto from 'node:crypto'
 const WORKER_ID = `worker-${process.pid}-${crypto.randomBytes(4).toString('hex')}`
 const LEASE_NAME = 'daily-challenge'
 const LEASE_TTL_MS = 60 * 1000
-const TICK_MS = 60 * 1000 // every minute
+const TICK_MS = 60 * 1000
 
 const tick = async () => {
   try {
@@ -45,7 +35,7 @@ const shutdown = async (signal) => {
 const start = async () => {
   await connectDB()
   logger.info({ workerId: WORKER_ID, tickMs: TICK_MS }, 'daily-challenge worker started')
-  // Initial tick on boot, then interval.
+
   await tick()
   setInterval(tick, TICK_MS)
   process.on('SIGTERM', () => shutdown('SIGTERM'))
@@ -53,7 +43,7 @@ const start = async () => {
 }
 
 start().catch((err) => {
-  // eslint-disable-next-line no-console
+
   console.error('worker start failed:', err)
   process.exit(1)
 })

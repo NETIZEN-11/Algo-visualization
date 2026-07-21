@@ -5,12 +5,6 @@ import toast from 'react-hot-toast'
 import { useReducedMotion } from '../hooks/useReducedMotion'
 import notificationService from '../services/notificationService'
 
-/**
- * Lightweight in-app notifications. Backed by localStorage via
- * notificationService (the backend has no `/notifications` resource yet).
- * The page is the canonical surface for managing which alerts the user
- * has seen — the navbar badge reads the same store.
- */
 function NotificationsPage() {
   const reduceMotion = useReducedMotion()
   const [items, setItems] = useState(() => notificationService.list())

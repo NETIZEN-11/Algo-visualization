@@ -1,7 +1,3 @@
-/**
- * Unit tests for `utils/passwordValidator.js` — zxcvbn scoring with a
- * common-password denylist.
- */
 import { validatePasswordStrength } from '../../utils/passwordValidator.js'
 
 describe('passwordValidator', () => {

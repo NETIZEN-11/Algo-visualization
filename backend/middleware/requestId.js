@@ -1,9 +1,3 @@
-/**
- * Generates or propagates a request id. Reads `X-Request-Id` from the request
- * if the upstream (load balancer, CDN, frontend) supplied one, otherwise
- * generates a fresh id. The id is exposed on `req.id` and echoed in the
- * `X-Request-Id` response header.
- */
 import crypto from 'node:crypto'
 
 export const requestId = (req, res, next) => {
