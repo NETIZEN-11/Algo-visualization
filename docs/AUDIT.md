@@ -178,18 +178,90 @@ The following items from the original brief were **not** completed in this
 session. Each is documented here so a future sprint can plan them.
 
 1. **50+ company database with 200+ problems each.** This is a data job, not
-   an engineering job. The data model + a small real seed (top 10 companies,
-   ~5 problems each) is now in place; growing it is content work.
+   an engineering job. The data model + a real seed (20 companies with
+   curated frequency/round/lists metadata) is now in place; growing it
+   to 50+ is content work the admin endpoint can drive.
 2. **"Paste any LeetCode URL → visualization."** The viz engine accepts a
-   `ProblemSpec` (title, description, examples, tags). It does **not** fetch
-   from LeetCode; LeetCode blocks unauthenticated GraphQL since 2024 and
-   requires a session cookie. When the user provides a `LEETCODE_SESSION`
-   cookie, the parser can attempt the request, but the engine always
-   gracefully falls back to pasted text.
+   `ProblemSpec` (title, description, examples, tags) and **also** the
+   raw problem text. It does **not** fetch from LeetCode; LeetCode
+   blocks unauthenticated GraphQL since 2024 and requires a session
+   cookie. When the user provides a `LEETCODE_SESSION` cookie, the
+   parser can attempt the request, but the engine always gracefully
+   falls back to pasted text.
 3. **Full debug protocol in 10 languages** (breakpoints, variable
    inspector, call stack). What we have: Piston-based execution in 10
-   languages with run/console output. Variable inspection is done by parsing
+   languages (C++, Java, Python, JS, TS, Go, Rust, Kotlin, Swift, C#)
+   with run/console output. Variable inspection is done by parsing
    `print` statements; there is no real debugger.
 4. **Command palette.** Out of scope this session.
-5. **Real-time code execution timeline with stack frames.** Would require a
-   debug adapter per language. Documented as future work.
+5. **Real-time code execution timeline with stack frames.** Would
+   require a debug adapter per language. Documented as future work.
+
+---
+
+## 7. Work completed in this session (2026-07-21)
+
+This audit was written, then a full implementation pass was performed.
+The work below is the result of that pass — every "**Fixed**" row
+above was changed in source, and the items below are net-new features.
+
+### 7.1 Dynamic visualisation engine (`/api/visualize/*`)
+
+A new pipeline that turns free-form problem text into a step-by-step
+animation, with no LLM and no network calls.
+
+- `backend/engine/patternDetector.js` — 22-pattern classifier with
+  tag-based + keyword scoring, confidence score, signals.
+- `backend/engine/problemParser.js` — extracts `ProblemSpec` from
+  pasted text (title, description, examples, constraints, LeetCode URL
+  detection).
+- `backend/engine/stepGenerator.js` — deterministic tracers for all
+  22 patterns: array, two-pointer, sliding-window, binary-search,
+  stack, queue, linked-list, tree, BST, trie, heap, union-find,
+  graph, BFS, DFS, DP, greedy, interval, backtrack, bit-manipulation,
+  recursion, sorting.
+- `backend/controllers/visualizeController.js` + `routes/visualizeRoutes.js`:
+  `POST /api/visualize/from-text`, `POST /api/visualize/from-problem/:id`,
+  `POST /api/visualize/pattern`.
+- `frontend/src/pages/DynamicVisualizationPage.jsx` — paste-problem UI
+  with play/pause/step/reset/speed controls, accessible at
+  `/visualization/dynamic`.
+- `frontend/src/services/visualizeService.js` — typed client.
+- `VisualizationEngine` extended with `initialStep` + `autoPlay` props
+  and 11 more pattern normalisations (heap/trie/union-find/BFS/DFS/etc.
+
+### 7.2 Problem-aware AI mocks
+
+- `backend/utils/aiMockGenerators.js` — rewrote every mock to vary by
+  the detected pattern. Previously the same "Two Sum" content was
+  returned for every problem; now hints, code, and analysis vary by
+  the actual problem text. The visualisation mock now delegates to
+  the real engine (no mock/real divergence).
+
+### 7.3 Piston in 10 languages
+
+- `backend/services/pistonService.js` — language registry with
+  canonical ids, aliases (`c++`/`cpp`/`cxx`/`g++`, `py`/`python3`,
+  `node`/`js`, `ts`, `kt`, `c#`/`cs`/`dotnet`, …), pinned versions,
+  and the 10 languages: C++, Java, Python, JS, TS, Go, Rust, Kotlin,
+  Swift, C#.
+- `backend/controllers/playgroundController.js` — validates language
+  against the registry, accepts `source` or `code`, and surfaces
+  the language metadata in the response.
+
+### 7.4 Company-wise DSA data
+
+- `backend/models/Company.js` — `Company` + `CompanyProblem` (frequency,
+  round, lists, note per link).
+- `backend/controllers/companyController.js` + `routes/companyRoutes.js`:
+  list, get-by-slug, list-problems (filter by difficulty / pattern /
+  min frequency), companies-for-problem.
+- `backend/seeds/companySeed.js` — 20 companies (Google, Amazon, Meta,
+  Apple, Netflix, Microsoft, Uber, Airbnb, LinkedIn, Twitter,
+  Salesforce, Oracle, Adobe, Bloomberg, Atlassian, Spotify, Stripe,
+  Snap, Dropbox, Pinterest) with curated frequency + round + Blind
+  75 / NeetCode 150 tags. Idempotent.
+- Admin endpoint: `POST /api/admin/seed/companies`.
+- `frontend/src/pages/CompaniesPage.jsx` — tier filter, search,
+  frequency stars, list badges (Blind 75 / NeetCode 150), round
+  metadata.
