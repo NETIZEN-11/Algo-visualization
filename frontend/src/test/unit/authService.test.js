@@ -26,7 +26,7 @@ describe('authService', () => {
   })
 
   it('login() posts to /auth/login and stores the token', async () => {
-    api.post.mockResolvedValueOnce({ data: { user: { id: 'u1' }, token: 'tok-1' } })
+    api.post.mockResolvedValueOnce({ data: { user: { id: 'u1' }, accessToken: 'tok-1' } })
     const data = await authService.login({ email: 'a@b.com', password: 'pw' })
     expect(api.post).toHaveBeenCalledWith('/auth/login', { email: 'a@b.com', password: 'pw' })
     expect(setAccessToken).toHaveBeenCalledWith('tok-1')
@@ -34,7 +34,7 @@ describe('authService', () => {
   })
 
   it('register() posts to /auth/register and stores the token', async () => {
-    api.post.mockResolvedValueOnce({ data: { user: { id: 'u2' }, token: 'tok-2' } })
+    api.post.mockResolvedValueOnce({ data: { user: { id: 'u2' }, accessToken: 'tok-2' } })
     const data = await authService.register({ name: 'A', email: 'b', password: 'pw' })
     expect(api.post).toHaveBeenCalledWith('/auth/register', { name: 'A', email: 'b', password: 'pw' })
     expect(setAccessToken).toHaveBeenCalledWith('tok-2')
