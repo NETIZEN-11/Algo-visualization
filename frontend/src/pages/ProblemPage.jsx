@@ -35,7 +35,6 @@ function ProblemPage() {
       setIsSaved(Boolean(p.isSaved))
     } catch (error) {
       toast.error('Failed to load problem')
-      // eslint-disable-next-line no-console
       console.error(error)
     } finally {
       setLoading(false)
