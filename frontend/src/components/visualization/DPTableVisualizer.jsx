@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { memo } from 'react'
 
 function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
   if (!tableData || !Array.isArray(tableData) || tableData.length === 0) {
@@ -129,4 +130,4 @@ function DPTableVisualizer({ tableData, currentStep, highlights = {} }) {
   )
 }
 
-export default DPTableVisualizer
+export default memo(DPTableVisualizer)

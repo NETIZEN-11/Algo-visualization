@@ -1,7 +1,7 @@
 /**
  * Contest controller — list, join, submit, leaderboard.
  */
-import { Contest, Submission, Problem } from '../models/index.js'
+import { Contest, Submission } from '../models/index.js'
 import { NotFoundError, ConflictError, BadRequestError, ValidationError, ForbiddenError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)

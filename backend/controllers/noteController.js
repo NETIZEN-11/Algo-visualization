@@ -2,7 +2,7 @@
  * Notes controller — full CRUD + pin + search + filter.
  */
 import { Note } from '../models/index.js'
-import { NotFoundError, ValidationError, BadRequestError } from '../utils/errors.js'
+import { NotFoundError, ValidationError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 

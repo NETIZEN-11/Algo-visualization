@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 
 function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
   const [positions, setPositions] = useState({})
@@ -201,4 +201,4 @@ function GraphVisualizer({ graphData, currentStep, highlights = {} }) {
   )
 }
 
-export default GraphVisualizer
+export default memo(GraphVisualizer)

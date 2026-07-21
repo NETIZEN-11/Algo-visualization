@@ -7,7 +7,7 @@
  */
 import Company, { CompanyProblem } from '../models/Company.js'
 import Problem from '../models/Problem.js'
-import { NotFoundError, ValidationError } from '../utils/errors.js'
+import { NotFoundError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 

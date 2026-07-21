@@ -16,7 +16,7 @@
  */
 import { User, Badge, Leaderboard, DailyChallenge, Problem, ChallengeParticipation } from '../models/index.js'
 import { addXP as addXPService, calculateLevel, calculateStreak, xpToNextLevel } from '../utils/leveling.js'
-import { AppError, NotFoundError, ConflictError, ValidationError, BadRequestError } from '../utils/errors.js'
+import { NotFoundError, ValidationError } from '../utils/errors.js'
 import { logger } from '../utils/logger.js'
 import { cacheService } from '../services/cacheService.js'
 

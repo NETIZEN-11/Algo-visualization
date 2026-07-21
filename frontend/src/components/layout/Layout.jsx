@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
+import CommandPalette from '../common/CommandPalette'
 
 function Layout() {
   return (
@@ -12,6 +13,7 @@ function Layout() {
           <Outlet />
         </main>
       </div>
+      <CommandPalette />
     </div>
   )
 }

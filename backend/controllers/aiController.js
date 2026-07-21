@@ -14,7 +14,7 @@ import {
   aiServiceInfo,
 } from '../services/aiService.js'
 import { aiRateLimiter } from '../middleware/rateLimiter.js'
-import { AppError, NotFoundError, ValidationError } from '../utils/errors.js'
+import { ValidationError } from '../utils/errors.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 

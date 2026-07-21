@@ -22,7 +22,7 @@ import { errorHandler, notFound, asyncHandler } from './middleware/errorHandler.
 import { globalRateLimiter } from './middleware/rateLimiter.js'
 import { requestId } from './middleware/requestId.js'
 import { securityHeaders, permissionsPolicy } from './middleware/securityHeaders.js'
-import { issueCsrfCookie, csrfProtect, sendCsrfToken, CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from './middleware/csrf.js'
+import { issueCsrfCookie, csrfProtect, CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from './middleware/csrf.js'
 import { httpLogger } from './utils/logger.js'
 import { AppError } from './utils/errors.js'
 import mongoose from 'mongoose'
@@ -32,6 +32,7 @@ import { installSlowQueryLogger } from './utils/slowQueryLogger.js'
 
 // Routes
 import authRoutes from './routes/authRoutes.js'
+import oauthRoutes from './routes/oauthRoutes.js'
 import problemRoutes from './routes/problemRoutes.js'
 import interviewRoutes from './routes/interviewRoutes.js'
 import progressRoutes from './routes/progressRoutes.js'
@@ -192,6 +193,7 @@ app.get(
 /* API                                                                 */
 /* ------------------------------------------------------------------ */
 app.use('/api/auth', authRoutes)
+app.use('/api/auth/oauth', oauthRoutes)
 app.use('/api/problems', problemRoutes)
 app.use('/api/interview', interviewRoutes)
 app.use('/api/progress', progressRoutes)

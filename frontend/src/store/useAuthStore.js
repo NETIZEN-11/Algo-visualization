@@ -81,6 +81,15 @@ const useAuthStore = create(
         }
       },
 
+      /**
+       * Populate the store from a token we got out-of-band (OAuth
+       * callback). We don't talk to the server here — the caller is
+       * expected to have already fetched `user` and pass it in.
+       */
+      loginWithOAuth: (user) => {
+        set({ user, isAuthenticated: true, error: null, isLoading: false })
+      },
+
       logout: async () => {
         if (get().isAuthenticated) {
           try { await authService.logout() } catch { /* ignore */ }

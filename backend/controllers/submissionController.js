@@ -1,7 +1,7 @@
 /**
  * Submission controller — record and list.
  */
-import { Submission, User, UserProgress, Problem } from '../models/index.js'
+import { Submission, User, Problem } from '../models/index.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
 import { awardXP } from '../utils/leveling.js'
 import { calculateLevel } from '../utils/leveling.js'

@@ -18,8 +18,12 @@ const userSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
     },
     password: {
+      // Optional — OAuth-only users have no password. We never compare
+      // against it for those users, but the field still has to exist on
+      // the document for historical password-based users.
       type: String,
-      required: [true, 'Password is required'],
+      required: false,
+      default: null,
       minlength: [8, 'Password must be at least 8 characters'],
       select: false,
     },
@@ -27,6 +31,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // OAuth providers linked to this account. The compound unique index
+    // at the bottom of the file prevents two accounts from claiming the
+    // same `(provider, providerId)` pair.
+    oauthProviders: [
+      {
+        provider: { type: String, enum: ['google', 'github'], required: true },
+        providerId: { type: String, required: true },
+        email: { type: String, default: null },
+        linkedAt: { type: Date, default: Date.now },
+      },
+    ],
     role: {
       type: String,
       enum: ['user', 'admin'],
@@ -181,6 +196,12 @@ const userSchema = new mongoose.Schema(
 // do not redeclare it).
 userSchema.index({ xp: -1 })
 userSchema.index({ level: -1 })
+// One (provider, providerId) pair can only exist on a single account.
+// Sparse because not every user has any oauthProviders entries.
+userSchema.index(
+  { 'oauthProviders.provider': 1, 'oauthProviders.providerId': 1 },
+  { unique: true, sparse: true }
+)
 
 // Virtual for total problems solved
 userSchema.virtual('totalProblemsSolved').get(function () {

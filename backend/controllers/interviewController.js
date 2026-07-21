@@ -13,7 +13,7 @@
  *  - `abandonInterview` is added for cleanly leaving a session.
  */
 import Interview from '../models/Interview.js'
-import { AppError, NotFoundError, ValidationError, BadRequestError } from '../utils/errors.js'
+import { NotFoundError, ValidationError, BadRequestError } from '../utils/errors.js'
 import { assertOwner } from '../utils/ownership.js'
 import { conductInterviewWithAI } from '../services/aiService.js'
 import { addXP } from './gamificationController.js'
@@ -32,7 +32,8 @@ const loadOwnedInterview = async (sessionId, userId) => {
 /* Start                                                                */
 /* ------------------------------------------------------------------ */
 export const startInterview = wrap(async (req, res) => {
-  let { difficulty, type, interviewType, targetCompany } = req.body
+  let { difficulty } = req.body
+  const { type, interviewType, targetCompany } = req.body
   if (typeof difficulty === 'string') {
     difficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase()
   }

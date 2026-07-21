@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { memo } from 'react'
 
 function LinkedListVisualizer({ data, highlights = {} }) {
   if (!data || data.length === 0) {
@@ -180,4 +181,4 @@ function LinkedListVisualizer({ data, highlights = {} }) {
   )
 }
 
-export default LinkedListVisualizer
+export default memo(LinkedListVisualizer)

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 
@@ -126,4 +127,4 @@ function ArrayVisualizer({ data, highlights = {} }) {
   )
 }
 
-export default ArrayVisualizer
+export default memo(ArrayVisualizer)

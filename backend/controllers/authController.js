@@ -32,7 +32,6 @@ import {
   buildPasswordResetEmail,
 } from '../services/emailService.js'
 import {
-  AppError,
   BadRequestError,
   ConflictError,
   UnauthorizedError,
@@ -216,9 +215,8 @@ export const refresh = async (req, res, next) => {
     const newRefresh = generateRefreshToken(decoded.id)
 
     // Rotate — reuse detection happens inside
-    let rotated
     try {
-      rotated = await RefreshTokenModel.rotateRefreshToken({
+      await RefreshTokenModel.rotateRefreshToken({
         oldJti: decoded.jti,
         userId: decoded.id,
         newJti: newRefresh.jti,

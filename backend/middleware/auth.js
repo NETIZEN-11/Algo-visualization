@@ -54,3 +54,24 @@ export const authorize = (...roles) =>
     }
     next()
   })
+
+/**
+ * `optionalAuth` — like `protect`, but does NOT 401 when no token is
+ * present. Used by endpoints that work for both guests and signed-in
+ * users (e.g. the dynamic visualisation engine, which is free for
+ * everyone but personalises results for signed-in users). A bad or
+ * expired token is treated the same as no token.
+ */
+export const optionalAuth = asyncHandler(async (req, _res, next) => {
+  const token = readTokenFromRequest(req)
+  if (!token) return next()
+  let decoded
+  try {
+    decoded = verifyAccessToken(token)
+  } catch {
+    return next()
+  }
+  const user = await User.findById(decoded.id).select('-password')
+  if (user && !user.isDisabled) req.user = user
+  next()
+})

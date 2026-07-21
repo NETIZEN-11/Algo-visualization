@@ -32,7 +32,7 @@ beforeEach(async () => {
 
   // Promote an admin directly
   const { default: User } = await import('../../models/User.js')
-  const adminUser = await User.create({
+  await User.create({
     name: 'Admin Test',
     email: `admin_${counter}_${Date.now()}@example.com`,
     password: 'hashed-pw-by-middleware',

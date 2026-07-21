@@ -3,49 +3,39 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FaBell, FaCheck, FaTrash, FaSync } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 import { useReducedMotion } from '../hooks/useReducedMotion'
+import notificationService from '../services/notificationService'
 
 /**
- * Lightweight in-app notifications. Today this is backed by localStorage
- * (the backend has no `/notifications` resource yet). The page is the
- * canonical surface for toasts / alerts and is the only place users
- * manage which alerts they've seen.
- *
- * To swap to a real backend later, replace the localStorage helpers
- * with `notificationService.list/markRead/clear` calls.
+ * Lightweight in-app notifications. Backed by localStorage via
+ * notificationService (the backend has no `/notifications` resource yet).
+ * The page is the canonical surface for managing which alerts the user
+ * has seen — the navbar badge reads the same store.
  */
-const STORAGE_KEY = 'algovision-notifications'
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') } catch { return [] }
-}
-function save(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
-}
-
 function NotificationsPage() {
   const reduceMotion = useReducedMotion()
-  const [items, setItems] = useState(load)
+  const [items, setItems] = useState(() => notificationService.list())
 
-  const refresh = useCallback(() => setItems(load()), [])
+  const refresh = useCallback(() => setItems(notificationService.list()), [])
 
-  useEffect(() => { refresh() }, [refresh])
+  useEffect(() => {
+    refresh()
+    return notificationService.subscribe(refresh)
+  }, [refresh])
 
   const markRead = (id) => {
-    const next = items.map((n) => n.id === id ? { ...n, read: true } : n)
-    setItems(next); save(next)
+    notificationService.markRead(id)
+    refresh()
   }
   const markAllRead = () => {
-    const next = items.map((n) => ({ ...n, read: true }))
-    setItems(next); save(next)
+    notificationService.markAllRead()
     toast.success('All notifications marked as read')
   }
   const clear = () => {
-    setItems([]); save([])
+    notificationService.clear()
     toast.success('Notifications cleared')
   }
   const remove = (id) => {
-    const next = items.filter((n) => n.id !== id)
-    setItems(next); save(next)
+    notificationService.remove(id)
   }
 
   const unread = items.filter((n) => !n.read).length

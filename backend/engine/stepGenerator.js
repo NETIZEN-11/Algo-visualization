@@ -45,6 +45,11 @@ import { detectPattern, PATTERNS } from './patternDetector.js'
  * }}
  */
 export function buildSteps(spec) {
+  // Reset the per-script id counter so callers see a fresh 0..N sequence
+  // on every call. The old module-scoped counter leaked across requests
+  // in the long-lived API server and across tests, eventually
+  // overflowing and producing out-of-order step ids.
+  newStep._id = -1
   const detection = detectPattern(spec)
   const example = pickExample(spec)
   const input = example?.input ?? spec.input ?? []
@@ -123,8 +128,14 @@ export function patternLabel(pattern) {
 const numArr = (x) => {
   if (Array.isArray(x)) return x.map(Number).filter((n) => Number.isFinite(n))
   if (typeof x === 'string') {
+    // Bracket/parenthesis strings (e.g. "()[]{}") should be split into
+    // individual characters — they aren't numbers and we want the stack
+    // tracer to animate each push/pop.
+    if (/^[\s\S]*[(){}[\]][\s\S]*$/.test(x)) {
+      return x.replace(/[\s,"'`]/g, '').split('')
+    }
     return x
-      .replace(/[\[\]"'`]/g, '')
+      .replace(/[\]"'`[]/g, '')
       .split(/[,\s]+/)
       .filter(Boolean)
       .map(Number)
@@ -133,18 +144,16 @@ const numArr = (x) => {
   return []
 }
 
-const stepCounter = (() => {
-  let id = 0
-  return () => ++id
-})()
-
-const newStep = (title, explanation, state, highlights = {}) => ({
-  id: stepCounter(),
-  title,
-  explanation,
-  state,
-  highlights,
-})
+const newStep = (title, explanation, state, highlights = {}) => {
+  newStep._id = (newStep._id || 0) + 1
+  return {
+    id: newStep._id,
+    title,
+    explanation,
+    state,
+    highlights,
+  }
+}
 
 /**
  * Pick the first example that has an `input` we can serialize, falling

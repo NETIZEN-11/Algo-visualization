@@ -24,11 +24,9 @@ const newUser = () => ({
 })
 
 let token = null
-let userId = null
 let problemDoc = null
 
 const Problem = (await import('../../models/Problem.js')).default
-const User = (await import('../../models/User.js')).default
 
 beforeAll(async () => { await setupTestDB() })
 afterAll(async () => { await teardownTestDB() })
@@ -37,7 +35,6 @@ beforeEach(async () => {
   const u = newUser()
   const reg = await request(app).post('/api/auth/register').send(u)
   token = reg.body.token || extractAccessToken(reg.headers['set-cookie'])
-  userId = reg.body.user.id
   // Create a problem with a real analysis
   problemDoc = await Problem.create({
     problemId: `prob_test_${++counter}_${Date.now()}`,

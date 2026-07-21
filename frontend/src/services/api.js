@@ -23,6 +23,11 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
+// Re-exported so call sites that need to *browse* to an API URL
+// (e.g. the OAuth `start` endpoint, which 302s to the provider) can
+// share the same base.
+export { API_BASE_URL }
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true, // send httpOnly cookies
@@ -169,8 +174,14 @@ api.interceptors.response.use(
       
       try {
         if (!refreshInFlight) {
-          refreshInFlight = axios
-            .post(`${API_BASE_URL}/auth/refresh`, null, { withCredentials: true })
+          // Use the shared `api` instance so the request picks up:
+          //   - withCredentials: true (sends the httpOnly refresh cookie)
+          //   - the CSRF X-XSRF-TOKEN header (POST /auth/refresh otherwise
+          //     returns 403 from csrfProtect)
+          // The response interceptor ignores 401 on /auth/refresh (it's in
+          // `isAuthEndpoint`), so this can't recurse.
+          refreshInFlight = api
+            .post('/auth/refresh', null)
             .then((r) => r.data)
             .finally(() => {
               refreshInFlight = null

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 
 function TreeNode({ node, x, y, level, highlights = {}, onNodeClick }) {
   if (!node) return null
@@ -165,4 +165,4 @@ function TreeVisualizer({ treeData, currentStep, highlights = {} }) {
   )
 }
 
-export default TreeVisualizer
+export default memo(TreeVisualizer)

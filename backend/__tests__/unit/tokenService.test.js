@@ -2,7 +2,6 @@
  * Token service tests (refresh-token rotation + revocation). Uses the
  * in-memory Mongo, no HTTP layer.
  */
-import mongoose from 'mongoose'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
 process.env.JWT_REFRESH_EXPIRE = '7d'

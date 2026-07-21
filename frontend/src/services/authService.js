@@ -9,27 +9,33 @@
  *   - `api.js` keeps the access token in memory and handles 401 refresh.
  *   - This service is the only thing the UI talks to about auth.
  */
-import api, { setAccessToken, clearAccessToken } from './api'
+import api, { setAccessToken, clearAccessToken, API_BASE_URL } from './api'
 
 export const authService = {
   /** Register a new user. */
   register: async (userData) => {
     const { data } = await api.post('/auth/register', userData)
-    if (data?.token) setAccessToken(data.token)
+    if (data?.accessToken) setAccessToken(data.accessToken)
     return data
   },
 
   /** Log in. */
   login: async ({ email, password }) => {
     const { data } = await api.post('/auth/login', { email, password })
-    if (data?.token) setAccessToken(data.token)
+    if (data?.accessToken) setAccessToken(data.accessToken)
     return data
   },
 
-  /** Force-refresh the access token using the httpOnly refresh cookie. */
+  /**
+   * Force-refresh the access token using the httpOnly refresh cookie.
+   *
+   * Goes through the shared `api` instance (not raw axios) so the
+   * request picks up the CSRF header for this POST — without it the
+   * server returns 403 even though the refresh cookie is valid.
+   */
   refresh: async () => {
     const { data } = await api.post('/auth/refresh', null)
-    if (data?.token) setAccessToken(data.token)
+    if (data?.accessToken) setAccessToken(data.accessToken)
     return data
   },
 
@@ -103,6 +109,18 @@ export const authService = {
     const { data } = await api.delete('/auth/account', { data: { password } })
     clearAccessToken()
     return data
+  },
+
+  /**
+   * Build the URL that starts an OAuth flow for `provider`
+   * (`'google'` or `'github'`). The caller does a full
+   * `window.location.href = ...` redirect so the page navigates with
+   * the browser (we can't go through `api` because the response is a
+   * 302, not a JSON body).
+   */
+  oauthStart: (provider) => {
+    const base = API_BASE_URL.replace(/\/$/, '')
+    return `${base}/auth/oauth/${provider}/start`
   },
 }
 

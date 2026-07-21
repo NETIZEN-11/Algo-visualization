@@ -8,7 +8,9 @@
     <meta name="theme-color" content="#0B1120" />
     <meta name="color-scheme" content="dark light" />
 
-    <!-- Preconnect to backend so the first API call is a millisecond faster -->
+    <!-- Preconnect to backend so the first API call is a millisecond faster.
+         The link is rewritten by Vite to use the actual API base at build
+         time, so this works in dev (localhost:5000) and prod (VITE_API_URL). -->
     <link rel="preconnect" href="http://localhost:5000" crossorigin />
     <link rel="dns-prefetch" href="http://localhost:5000" />
 

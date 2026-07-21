@@ -12,8 +12,7 @@
  */
 import Problem from '../models/Problem.js'
 import User from '../models/User.js'
-import UserProgress from '../models/UserProgress.js'
-import { AppError, NotFoundError, ValidationError } from '../utils/errors.js'
+import { NotFoundError, ValidationError } from '../utils/errors.js'
 import { assertOwner } from '../utils/ownership.js'
 import {
   analyzeProblemWithAI,

@@ -11,8 +11,7 @@
  */
 import User from '../models/User.js'
 import Problem from '../models/Problem.js'
-import { AppError, NotFoundError, ValidationError } from '../utils/errors.js'
-import { calculateLevel, calculateStreak as streakFromDates } from '../utils/leveling.js'
+import { ValidationError, AppError } from '../utils/errors.js'
 import { addXP as addXPService } from './gamificationController.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { fromText, fromProblem, classify } from '../controllers/visualizeController.js'
-import { protect, optionalAuth } from '../middleware/auth.js'
+import { optionalAuth } from '../middleware/auth.js'
 
 const router = Router()
 

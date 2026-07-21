@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { protect, optionalAuth } from '../middleware/auth.js'
-import { list, getBySlug, listProblems, companiesForProblem } from '../controllers/companyController.js'
+import { optionalAuth } from '../middleware/auth.js'
+import { list, getBySlug, listProblems } from '../controllers/companyController.js'
 
 const router = Router()
 

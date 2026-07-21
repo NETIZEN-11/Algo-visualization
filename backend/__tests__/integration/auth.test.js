@@ -4,7 +4,6 @@
  * Uses mongodb-memory-server. Each test gets a fresh DB.
  */
 import request from 'supertest'
-import mongoose from 'mongoose'
 import { setupTestDB, teardownTestDB, clearTestDB } from '../setup.js'
 
 // The test disables CSRF via env; the server reads DISABLE_CSRF at

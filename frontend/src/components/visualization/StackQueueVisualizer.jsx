@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { memo } from 'react'
 
 function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
   if (!data || data.length === 0) {
@@ -237,4 +238,4 @@ function StackQueueVisualizer({ data, highlights = {}, type = 'stack' }) {
   )
 }
 
-export default StackQueueVisualizer
+export default memo(StackQueueVisualizer)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import ArrayVisualizer from './ArrayVisualizer'
 import TreeVisualizer from './TreeVisualizer'
 import GraphVisualizer from './GraphVisualizer'
@@ -17,10 +17,10 @@ function normalizeType(raw) {
   if (t.includes('sliding') || t.includes('window')) return 'sliding_window'
   if (t.includes('two') && t.includes('pointer')) return 'two_pointer'
   if (t.includes('linked') || t.includes('list')) return 'linkedlist'
-  if (t.includes('binary_search_tree') || t === 'bst') return 'tree' // reuse tree viz
-  if (t.includes('heap') || t.includes('priority')) return 'array'    // heap shown as array
-  if (t.includes('trie')) return 'tree'                              // trie shares tree viz
-  if (t.includes('union')) return 'graph'                            // union-find via graph
+  if (t.includes('binary_search_tree') || t === 'bst') return 'tree'
+  if (t.includes('heap') || t.includes('priority')) return 'array'
+  if (t.includes('trie')) return 'tree'
+  if (t.includes('union')) return 'graph'
   if (t.includes('bfs') || t.includes('dfs')) return 'graph'
   if (t.includes('graph')) return 'graph'
   if (t.includes('dynamic') || t === 'dp') return 'dp'
@@ -31,43 +31,99 @@ function normalizeType(raw) {
   if (t.includes('greedy') || t.includes('interval')) return 'array'
   if (t.includes('bit')) return 'array'
   if (t.includes('recursion') || t.includes('back')) return 'array'
-  if (t.includes('binary')) return 'array'                          // binary search as array
+  if (t.includes('binary')) return 'array'
   if (t.includes('array') || t.includes('string')) return 'array'
-  return 'array' // safe fallback
+  return 'array'
 }
 
-function VisualizationEngine({ visualizationData, type, onStepChange, initialStep = 0, autoPlay = false }) {
+const MAX_HISTORY = 100
+
+function VisualizationEngine({
+  visualizationData,
+  type,
+  onStepChange,
+  initialStep = 0,
+  autoPlay = false,
+  showAdvancedControls = true,
+}) {
   const [currentStepIndex, setCurrentStepIndex] = useState(
     Math.min(Math.max(0, initialStep), (visualizationData?.steps?.length || 1) - 1)
   )
   const [isPlaying, setIsPlaying] = useState(autoPlay)
   const [speed, setSpeed] = useState(1)
+  const [loop, setLoop] = useState(false)
+
+  // History stacks for undo/redo. A "command" is just a target step
+  // index. When the user navigates, we push the *previous* index.
+  const [past, setPast] = useState([])
+  const [future, setFuture] = useState([])
 
   const normalizedType = normalizeType(type)
   const steps = useMemo(() => visualizationData?.steps || [], [visualizationData])
   const totalSteps = steps.length
 
-  // Reset when new visualization data arrives
+  // Reset everything when a new visualization arrives
+  const lastDataRef = useRef(visualizationData)
   useEffect(() => {
-    setCurrentStepIndex(0)
-    setIsPlaying(false)
-  }, [visualizationData])
+    if (lastDataRef.current !== visualizationData) {
+      lastDataRef.current = visualizationData
+      setCurrentStepIndex(Math.min(Math.max(0, initialStep), (steps.length || 1) - 1))
+      setIsPlaying(autoPlay)
+      setPast([])
+      setFuture([])
+    }
+  }, [visualizationData, steps.length, initialStep, autoPlay])
 
-  // Lift the current step up so siblings (e.g. the code panel) can
-  // sync their highlight to the active line. We do this in an effect
-  // rather than in the step transitions to keep the call site cheap.
+  // Push the previous index onto the past stack before navigating.
+  const navigate = useCallback((next) => {
+    setPast((p) => {
+      const trimmed = p.length >= MAX_HISTORY ? p.slice(p.length - MAX_HISTORY + 1) : p
+      return [...trimmed, currentStepIndex]
+    })
+    setFuture([])
+    setCurrentStepIndex(next)
+  }, [currentStepIndex])
+
+  const handleUndo = useCallback(() => {
+    setPast((p) => {
+      if (p.length === 0) return p
+      const prev = p[p.length - 1]
+      setFuture((f) => [currentStepIndex, ...f])
+      setCurrentStepIndex(prev)
+      return p.slice(0, -1)
+    })
+  }, [currentStepIndex])
+
+  const handleRedo = useCallback(() => {
+    setFuture((f) => {
+      if (f.length === 0) return f
+      const next = f[0]
+      setPast((p) => [...p, currentStepIndex])
+      setCurrentStepIndex(next)
+      return f.slice(1)
+    })
+  }, [currentStepIndex])
+
+  // Lift the current step up so siblings can sync their highlight
   useEffect(() => {
     onStepChange?.(currentStepIndex, steps[currentStepIndex])
   }, [currentStepIndex, steps, onStepChange])
 
-  // Auto-play logic
+  // Auto-play
   useEffect(() => {
     if (!isPlaying || currentStepIndex >= totalSteps - 1) {
+      if (currentStepIndex >= totalSteps - 1 && loop && totalSteps > 1) {
+        // Loop: restart at the end of the array
+        const id = setTimeout(() => {
+          setCurrentStepIndex(0)
+        }, 250)
+        return () => clearTimeout(id)
+      }
       if (currentStepIndex >= totalSteps - 1) setIsPlaying(false)
       return
     }
     const interval = setInterval(() => {
-      setCurrentStepIndex(prev => {
+      setCurrentStepIndex((prev) => {
         if (prev >= totalSteps - 1) {
           setIsPlaying(false)
           return prev
@@ -76,58 +132,92 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
       })
     }, 1000 / speed)
     return () => clearInterval(interval)
-  }, [isPlaying, currentStepIndex, totalSteps, speed])
+  }, [isPlaying, currentStepIndex, totalSteps, speed, loop])
 
-  // Keyboard controls
+  // Keyboard controls (extended: Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z, L for loop)
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      const tag = e.target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return
+      const mod = e.metaKey || e.ctrlKey
       switch (e.key) {
         case ' ':
           e.preventDefault()
-          setIsPlaying(prev => !prev)
+          setIsPlaying((prev) => !prev)
           break
         case 'ArrowRight':
           e.preventDefault()
-          setCurrentStepIndex(prev => Math.min(prev + 1, totalSteps - 1))
+          if (mod) setCurrentStepIndex((p) => Math.min(p + 5, totalSteps - 1))
+          else navigate(Math.min(currentStepIndex + 1, totalSteps - 1))
           break
         case 'ArrowLeft':
           e.preventDefault()
-          setCurrentStepIndex(prev => Math.max(prev - 1, 0))
+          if (mod) setCurrentStepIndex((p) => Math.max(p - 5, 0))
+          else navigate(Math.max(currentStepIndex - 1, 0))
           break
         case 'r':
         case 'R':
           e.preventDefault()
           setIsPlaying(false)
           setCurrentStepIndex(0)
+          setPast([])
+          setFuture([])
+          break
+        case 'z':
+        case 'Z':
+          if (mod) {
+            e.preventDefault()
+            if (e.shiftKey) handleRedo()
+            else handleUndo()
+          }
+          break
+        case 'l':
+        case 'L':
+          e.preventDefault()
+          setLoop((l) => !l)
+          break
+        default:
           break
       }
     }
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [totalSteps])
+    // navigate / handleUndo / handleRedo / currentStepIndex are stable
+    // enough at this layer; re-binding per change is cheap.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalSteps, handleUndo, handleRedo])
 
   const handlePlay = useCallback(() => {
-    if (currentStepIndex >= totalSteps - 1) setCurrentStepIndex(0)
+    if (currentStepIndex >= totalSteps - 1) {
+      setCurrentStepIndex(0)
+      setPast([])
+      setFuture([])
+    }
     setIsPlaying(true)
   }, [currentStepIndex, totalSteps])
 
   const handlePause = useCallback(() => setIsPlaying(false), [])
   const handleNext = useCallback(() => {
     setIsPlaying(false)
-    setCurrentStepIndex(prev => Math.min(prev + 1, totalSteps - 1))
-  }, [totalSteps])
+    navigate(Math.min(currentStepIndex + 1, totalSteps - 1))
+  }, [navigate, currentStepIndex, totalSteps])
   const handlePrevious = useCallback(() => {
     setIsPlaying(false)
-    setCurrentStepIndex(prev => Math.max(prev - 1, 0))
-  }, [])
+    navigate(Math.max(currentStepIndex - 1, 0))
+  }, [navigate, currentStepIndex])
   const handleReset = useCallback(() => {
     setIsPlaying(false)
     setCurrentStepIndex(0)
+    setPast([])
+    setFuture([])
   }, [])
   const handleSpeedChange = useCallback((s) => setSpeed(s), [])
+  const handleJump = useCallback((step) => {
+    setIsPlaying(false)
+    navigate(Math.max(0, Math.min(totalSteps - 1, step)))
+  }, [navigate, totalSteps])
+  const handleToggleLoop = useCallback(() => setLoop((l) => !l), [])
 
-  // No steps — show a descriptive empty state, not a spinner
   if (!visualizationData || totalSteps === 0) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900 rounded-xl border border-gray-800">
@@ -135,8 +225,8 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
           <FaEye className="text-5xl mx-auto mb-4 text-purple-500/40" />
           <p className="font-semibold mb-1">No visualization steps available</p>
           <p className="text-sm text-gray-500">
-            Configure your OpenAI API key to get live step-by-step visualizations,
-            or use the mock mode to see the analysis.
+            Paste a problem in the Dynamic Viz lab, configure your OpenAI key, or use
+            mock mode to see the analysis.
           </p>
         </div>
       </div>
@@ -145,7 +235,6 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
 
   const currentStep = steps[currentStepIndex] || {}
 
-  // Pick the right visualizer component based on normalized type
   const renderVisualizer = () => {
     const commonProps = {
       currentStep,
@@ -156,19 +245,16 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
       case 'array':
       case 'sliding_window':
       case 'two_pointer': {
-        // AI can store array in state.array OR state.nums OR state directly as array
         const arr =
           currentStep?.state?.array ??
           currentStep?.state?.nums ??
           (Array.isArray(currentStep?.state) ? currentStep.state : null)
         return <ArrayVisualizer data={arr} {...commonProps} />
       }
-
       case 'tree': {
         const tree = currentStep?.state?.tree ?? currentStep?.state?.root ?? currentStep?.state
         return <TreeVisualizer treeData={tree} {...commonProps} />
       }
-
       case 'graph':
         return (
           <GraphVisualizer
@@ -180,12 +266,10 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
             {...commonProps}
           />
         )
-
       case 'dp': {
         const table = currentStep?.state?.table ?? currentStep?.state?.dp ?? currentStep?.state
         return <DPTableVisualizer tableData={table} {...commonProps} />
       }
-
       case 'linkedlist': {
         const nodes =
           currentStep?.state?.nodes ??
@@ -193,17 +277,14 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
           currentStep?.state?.array
         return <LinkedListVisualizer data={nodes} {...commonProps} />
       }
-
       case 'stack': {
         const items = currentStep?.state?.stack ?? currentStep?.state?.items ?? currentStep?.state?.array
         return <StackQueueVisualizer data={items} type="stack" {...commonProps} />
       }
-
       case 'queue': {
         const items = currentStep?.state?.queue ?? currentStep?.state?.items ?? currentStep?.state?.array
         return <StackQueueVisualizer data={items} type="queue" {...commonProps} />
       }
-
       default:
         return (
           <div className="flex items-center justify-center h-full text-gray-400 text-sm">
@@ -243,6 +324,15 @@ function VisualizationEngine({ visualizationData, type, onStepChange, initialSte
         totalSteps={totalSteps}
         speed={speed}
         onSpeedChange={handleSpeedChange}
+        loop={loop}
+        onToggleLoop={showAdvancedControls ? handleToggleLoop : undefined}
+        onJump={handleJump}
+        onUndo={showAdvancedControls ? handleUndo : undefined}
+        onRedo={showAdvancedControls ? handleRedo : undefined}
+        canUndo={past.length > 0}
+        canRedo={future.length > 0}
+        steps={steps}
+        stepTitles={steps.map((s) => s.title || s.explanation || '')}
       />
 
       {/* Step explanation */}

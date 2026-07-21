@@ -2,7 +2,7 @@
  * Contest routes — `/api/contest`
  */
 import { Router } from 'express'
-import { protect, authorize } from '../middleware/auth.js'
+import { protect } from '../middleware/auth.js'
 import { globalRateLimiter, aiRateLimiter } from '../middleware/rateLimiter.js'
 import { validate, contestSubmitValidation } from '../middleware/validation.js'
 import {

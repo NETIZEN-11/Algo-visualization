@@ -351,19 +351,19 @@ export const mockAnalysis = (problemData) => {
 
 const HINTS = {
   1: [
-    (title, label) => `Restate the problem in your own words: what is the input, what is the output of "${title}"?`,
-    (title, label) => `Look at the constraints of "${title}". Do they hint at O(n log n) or O(n)?`,
-    (title, label) => `Trace a small example by hand before writing any code.`,
+    (title) => `Restate the problem in your own words: what is the input, what is the output of "${title}"?`,
+    (title) => `Look at the constraints of "${title}". Do they hint at O(n log n) or O(n)?`,
+    () => `Trace a small example by hand before writing any code.`,
   ],
   2: [
-    (title, label) => `The ${label} pattern applies here. Ask: can you avoid an inner loop with a ${guideFor(patternOf({ title, description: '' })).dataStructure}?`,
-    (title, label) => `What's the invariant your algorithm should maintain? Write it down.`,
-    (title, label) => `Can you split the problem into a smaller instance plus a combine step?`,
+    (_title, label) => `The ${label} pattern applies here. Ask: can you avoid an inner loop with a ${guideFor(patternOf({ title: _title, description: '' })).dataStructure}?`,
+    () => `What's the invariant your algorithm should maintain? Write it down.`,
+    () => `Can you split the problem into a smaller instance plus a combine step?`,
   ],
   3: [
-    (title, label) => `You are close — re-check edge cases (empty, single element, duplicates) and the boundary indices.`,
-    (title, label) => `Trace through once more. Where could it break? Which input makes it fail?`,
-    (title, label) => `Consider the time/space trade-off one more time. Is your chosen ${label} implementation optimal?`,
+    () => `You are close — re-check edge cases (empty, single element, duplicates) and the boundary indices.`,
+    () => `Trace through once more. Where could it break? Which input makes it fail?`,
+    (_title, label) => `Consider the time/space trade-off one more time. Is your chosen ${label} implementation optimal?`,
   ],
 }
 
@@ -492,8 +492,7 @@ export const mockInterviewQuestion = (difficulty = 'Medium', action = 'start', l
 /* ------------------------------------------------------------------ */
 /* Interview readiness                                                  */
 /* ------------------------------------------------------------------ */
-export const mockReadiness = (userStats, solvedProblems) => {
-  const total = userStats?.totalProblemsSolved || 0
+export const mockReadiness = (userStats, _solvedProblems) => {
   const weighted =
     (userStats?.easy || 0) * 1 +
     (userStats?.medium || 0) * 3 +

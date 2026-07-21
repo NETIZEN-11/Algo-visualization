@@ -25,11 +25,13 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-const PistonError = (message, status) => {
+const _PistonError = (message, status) => {
   const e = new Error(message)
   e.status = status
   return e
 }
+
+// Currently unused — kept for future typed-error export.
 
 /* ------------------------------------------------------------------ */
 /* Language registry                                                    */
@@ -67,7 +69,7 @@ export function getLanguage(lang) {
   return LANGUAGE_BY_ALIAS.get(String(lang).toLowerCase().trim()) || null
 }
 
-function filenameFor(lang) {
+function _filenameFor(lang) {
   return getLanguage(lang)?.file || 'main.txt'
 }
 

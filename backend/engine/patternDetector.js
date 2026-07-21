@@ -98,13 +98,14 @@ const norm = (s) => String(s || '').toLowerCase()
 
 /**
  * Detect a problem's pattern.
- * @param {{title: string, description?: string, tags?: string[]}} spec
+ * @param {{title?: string, description?: string, tags?: string[]}} spec
  * @returns {{ pattern: string, confidence: number, signals: string[] }}
  */
 export function detectPattern(spec = {}) {
+  if (!spec || typeof spec !== 'object') spec = {}
   const title = norm(spec.title)
   const desc = norm(spec.description)
-  const tags = (spec.tags || []).map(norm)
+  const tags = Array.isArray(spec.tags) ? spec.tags.map(norm) : []
   const signals = []
   const scores = new Map()
 

@@ -34,6 +34,7 @@ const SignupPage           = lazy(() => import('./pages/SignupPage'))
 const ForgotPasswordPage   = lazy(() => import('./pages/ForgotPasswordPage'))
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPasswordPage'))
 const VerifyEmailPage      = lazy(() => import('./pages/VerifyEmailPage'))
+const OAuthCallbackPage    = lazy(() => import('./pages/OAuthCallbackPage'))
 const AdminPage            = lazy(() => import('./pages/AdminPage'))
 const NotificationsPage    = lazy(() => import('./pages/NotificationsPage'))
 
@@ -138,6 +139,9 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          {/* OAuth handshake landing — also "public": if the user is
+              already signed in, PublicRoutes forwards them to /. */}
+          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
         </Route>
 
         {/* Protected routes — must be authenticated, share the Layout shell */}

@@ -11,6 +11,8 @@
 import OpenAI from 'openai'
 import AiUsage from '../models/AiUsage.js'
 import { logger } from '../utils/logger.js'
+import { detectPattern } from '../engine/patternDetector.js'
+import { patternLabel } from '../engine/stepGenerator.js'
 import {
   mockAnalysis,
   mockHint,
@@ -188,6 +190,18 @@ const ensureBudget = async (userId) => {
 /* ------------------------------------------------------------------ */
 const start = Date.now()
 
+/** Build a consistent problem context string with the detected pattern. */
+const buildProblemContext = (problemData) => {
+  const { title = '', description = '', examples = [], constraints = [], tags = [] } = problemData || {}
+  const det = detectPattern({ title, description, tags })
+  const label = patternLabel(det.pattern)
+  return {
+    det,
+    label,
+    block: `Problem: ${title}\n\nDescription:\n${description}\n\nExamples: ${JSON.stringify(examples || [])}\nConstraints: ${JSON.stringify(constraints || [])}\nTags: ${JSON.stringify(tags || [])}\nDetected pattern: ${label} (confidence ${(det.confidence * 100).toFixed(0)}%)`,
+  }
+}
+
 export const analyzeProblemWithAI = async (problemData, { userId } = {}) => {
   const t0 = Date.now()
   if (isMocked()) {
@@ -196,10 +210,10 @@ export const analyzeProblemWithAI = async (problemData, { userId } = {}) => {
     return data
   }
   await ensureBudget(userId)
-  const system = 'You are an expert DSA tutor. Return strict JSON only — no prose around it.'
-  const user = `Problem title: ${problemData.title}\n\nDescription:\n${problemData.description}\n\nExamples: ${JSON.stringify(problemData.examples || [])}\nConstraints: ${JSON.stringify(problemData.constraints || [])}`
+  const { block, label } = buildProblemContext(problemData)
+  const system = `You are an expert DSA tutor. The problem was pre-classified as "${label}". Return strict JSON only — no prose around it. The JSON must include fields: problem_summary, pattern_identification (data_structure, pattern, why_this_pattern), bruteforce_approach (idea, steps, time_complexity, space_complexity), optimal_approach (core_intuition, why_it_works, optimization_logic, edge_cases), code_solutions (python, javascript, java, cpp — all four required), complexity_analysis (time_complexity, space_complexity, reason), interview_insights (common_mistakes, edge_cases, follow_up_questions), revision_notes (pattern, key_idea, tc, sc).`
   try {
-    const { data, usage } = await callOpenAI({ system, user, json: true, maxTokens: 3000 })
+    const { data, usage } = await callOpenAI({ system, user: block, json: true, maxTokens: 3000 })
     await recordUsage({ userId, feature: 'problemAnalysis', ...usage, durationMs: Date.now() - t0 })
     return data
   } catch (err) {
@@ -216,8 +230,14 @@ export const generateHintsWithAI = async (problemData, level = 1, { userId } = {
     return r
   }
   await ensureBudget(userId)
-  const system = 'You are a friendly DSA tutor. Give exactly one short hint, no preamble, no follow-up.'
-  const user = `Problem: ${problemData.title}\n\nDescription: ${problemData.description}\n\nHint level: ${level} of 3 (1 = nudge, 2 = strategy, 3 = near-solution). Return JSON: { "hint": "..." }`
+  const { block, label } = buildProblemContext(problemData)
+  const levelGuide = {
+    1: 'nudge: ask the user a question that helps them think about the right approach, do not reveal the pattern',
+    2: 'strategy: name the pattern and the data structure to use, but do not give the algorithm',
+    3: 'near-solution: describe the algorithm in plain English, with the recurrence / loop, but do not write code',
+  }
+  const system = `You are a friendly DSA tutor. Hint level: ${levelGuide[level] || levelGuide[1]}. Be specific to the "${label}" pattern. Return JSON: { "hint": "..." }`
+  const user = `${block}\n\nHint level: ${level} of 3.`
   try {
     const { data, usage } = await callOpenAI({ system, user, maxTokens: 300 })
     await recordUsage({ userId, feature: 'hint', ...usage, durationMs: Date.now() - t0 })
@@ -236,7 +256,16 @@ export const analyzeCodeWithAI = async (code, language, problemContext = '', { u
     return r
   }
   await ensureBudget(userId)
-  const system = 'You are a senior code reviewer. Return strict JSON: { analysis, hasErrors, suggestions[] }'
+  // Try to detect the pattern from the surrounding context for better advice
+  let ctxPattern = ''
+  if (problemContext) {
+    try {
+      const p = typeof problemContext === 'string' ? JSON.parse(problemContext) : problemContext
+      const det = detectPattern(p || {})
+      ctxPattern = ` (The problem is detected as "${patternLabel(det.pattern)}")`
+    } catch { /* not JSON, ignore */ }
+  }
+  const system = `You are a senior code reviewer${ctxPattern}. Return strict JSON: { analysis, hasErrors, suggestions[] } — suggestions should be specific, not generic.`
   const user = `Language: ${language}\nContext: ${problemContext || '(none)'}\nCode:\n\`\`\`\n${code}\n\`\`\``
   try {
     const { data, usage } = await callOpenAI({ system, user, maxTokens: 800 })
@@ -256,10 +285,10 @@ export const generateTestCasesWithAI = async (problemData, { userId } = {}) => {
     return r
   }
   await ensureBudget(userId)
-  const system = 'You are a test designer. Return strict JSON: { cases: [{ input, expected, explanation }] }'
-  const user = `Generate 5 test cases for: ${problemData.title}\nDescription: ${problemData.description}\nConstraints: ${JSON.stringify(problemData.constraints || [])}`
+  const { block, label } = buildProblemContext(problemData)
+  const system = `You are a test designer. The problem is "${label}". Generate 5 test cases that probe the corners of THIS pattern: empty input, single element, boundary values, and a worst case for the "${label}" approach. Return strict JSON: { cases: [{ input, expected, explanation }] }`
   try {
-    const { data, usage } = await callOpenAI({ system, user, maxTokens: 1200 })
+    const { data, usage } = await callOpenAI({ system, user: block, maxTokens: 1200 })
     await recordUsage({ userId, feature: 'testCase', ...usage, durationMs: Date.now() - t0 })
     return data
   } catch (err) {
@@ -276,8 +305,9 @@ export const generateDryRunWithAI = async (problemData, code, customInput, langu
     return r
   }
   await ensureBudget(userId)
-  const system = 'You trace algorithms step-by-step. Return strict JSON: { steps: [{step, description, state}], finalOutput }'
-  const user = `Problem: ${problemData.title}\nLanguage: ${language}\nInput: ${customInput}\nCode:\n\`\`\`\n${code}\n\`\`\``
+  const { block, label } = buildProblemContext(problemData)
+  const system = `You trace algorithms step-by-step. The problem is "${label}". Return strict JSON: { steps: [{step, description, state: {variables, highlights}}], finalOutput } — include real variable values, not "process element".`
+  const user = `${block}\nLanguage: ${language}\nInput: ${customInput}\nCode:\n\`\`\`\n${code}\n\`\`\``
   try {
     const { data, usage } = await callOpenAI({ system, user, maxTokens: 1500 })
     await recordUsage({ userId, feature: 'dryRun', ...usage, durationMs: Date.now() - t0 })
@@ -299,7 +329,9 @@ export const conductInterviewWithAI = async (params, { userId } = {}) => {
   await ensureBudget(userId)
 
   if (params?.action === 'evaluate') {
-    const system = 'You are a fair technical interviewer. Return strict JSON: { score (0-100), correctness, timeComplexity, spaceComplexity, codeQuality, communicationSkills, suggestions[], strengths[], weaknesses[] }'
+    const det = detectPattern({ title: params.question, description: params.question })
+    const label = patternLabel(det.pattern)
+    const system = `You are a fair technical interviewer. The question is a "${label}" problem. Return strict JSON: { score (0-100), correctness, timeComplexity, spaceComplexity, codeQuality, communicationSkills, suggestions[], strengths[], weaknesses[] } — be specific to the "${label}" pattern.`
     const user = `Question: ${params.question}\nAnswer: ${params.answer}\nDifficulty: ${params.difficulty}`
     try {
       const { data, usage } = await callOpenAI({ system, user, maxTokens: 1200 })
@@ -311,7 +343,8 @@ export const conductInterviewWithAI = async (params, { userId } = {}) => {
     }
   }
 
-  const system = 'You are a technical interviewer. Return strict JSON: { question, category, difficulty }'
+  // Question generation — pick a difficulty-appropriate category
+  const system = `You are a technical interviewer at a top-tier company. Generate ONE DSA question appropriate for the requested difficulty and the candidate's pattern history. Return strict JSON: { question, category, difficulty, pattern }`
   const user = JSON.stringify(params)
   try {
     const { data, usage } = await callOpenAI({ system, user, maxTokens: 600 })
@@ -351,8 +384,9 @@ export const generateFlashcardsWithAI = async (problemData, analysis, { userId }
     return r
   }
   await ensureBudget(userId)
-  const system = 'You generate spaced-repetition flashcards. Return strict JSON: { flashcards: [{ front, back, category }] }'
-  const user = `Problem: ${problemData.title}\nAnalysis: ${JSON.stringify(analysis)}`
+  const { block, label } = buildProblemContext(problemData)
+  const system = `You generate spaced-repetition flashcards. The problem is "${label}". Return strict JSON: { flashcards: [{ front, back, category }] } — at least 5 cards covering pattern, complexity, data structure, edge case, and one mistake to avoid.`
+  const user = `${block}\nAnalysis: ${JSON.stringify(analysis)}`
   try {
     const { data, usage } = await callOpenAI({ system, user, maxTokens: 1200 })
     await recordUsage({ userId, feature: 'flashcards', ...usage, durationMs: Date.now() - t0 })
@@ -371,8 +405,11 @@ export const generateVisualizationWithAI = async (problemData, { userId } = {}) 
     return r
   }
   await ensureBudget(userId)
-  const system = 'You build algorithm visualisations. Return strict JSON matching the VisualizationEngine schema.'
-  const user = `Problem: ${problemData.title}\nDescription: ${problemData.description}`
+  const { block, label } = buildProblemContext(problemData)
+  // Even with a real LLM we still ship the deterministic engine's
+  // output as a fallback — the LLM is asked only to enrich it.
+  const system = `You build algorithm visualisations for "${label}" problems. Return strict JSON matching the VisualizationEngine schema: { type, steps: [{step_number, state, highlight, explanation}] }`
+  const user = block
   try {
     const { data, usage } = await callOpenAI({ system, user, maxTokens: 1500 })
     await recordUsage({ userId, feature: 'visualization', ...usage, durationMs: Date.now() - t0 })
