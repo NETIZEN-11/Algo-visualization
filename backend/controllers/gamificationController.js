@@ -199,7 +199,10 @@ export const getLeaderboard = wrap(async (req, res) => {
   const skip = (page - 1) * limit
 
   if (type === 'global') {
-    const cacheKey = `lb:global:${page}:${limit}:${req.user._id}`
+    // Cache key intentionally omits the user — the rankings payload is
+    // identical for every viewer; only `currentUserRank` differs and is
+    // computed per request from the cached list.
+    const cacheKey = `lb:global:${page}:${limit}`
     const { value, fromCache } = await cacheService.getOrSet(cacheKey, 60, async () => {
       const [topUsers, total] = await Promise.all([
         User.find().select('name email avatar xp level streak problemStats').sort({ xp: -1 }).skip(skip).limit(limit),

@@ -19,18 +19,24 @@ import api from '../services/api'
 
 function HomePage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const user = useAuthStore((s) => s.user)
   const { getAnalytics } = useProgressStore()
-  
+
   const [dailyChallenge, setDailyChallenge] = useState(null)
   const [recentActivity, setRecentActivity] = useState([])
   const [recommendations, setRecommendations] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Refetch when the user changes (login / logout / rehydrate).
   useEffect(() => {
+    if (!user) {
+      // Anonymous viewer — skip the auth-gated fetches.
+      setIsLoading(false)
+      return
+    }
     loadDashboardData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user?._id])
 
   const loadDashboardData = async () => {
     setIsLoading(true)

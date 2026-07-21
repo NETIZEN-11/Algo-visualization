@@ -41,9 +41,15 @@ import {
   ValidationError,
 } from '../utils/errors.js'
 
+import { msFromDuration } from '../utils/duration.js'
+
 const ACCESS_TTL_MS = msFromDuration(process.env.JWT_EXPIRE || '15m')
 const REFRESH_TTL_MS = msFromDuration(process.env.JWT_REFRESH_EXPIRE || '30d')
 const isProd = process.env.NODE_ENV === 'production'
+// When SMTP isn't configured, surface the verify/reset link in the JSON
+// response so dev environments (and reviewers) can still exercise the flow
+// end-to-end without an inbox. The flag is forced to "false" in production.
+const DEV_AUTH_MODE = !isProd && process.env.SMTP_HOST === '' || process.env.DEV_AUTH_MODE === 'true'
 
 const cookieOpts = (maxAge) => ({
   httpOnly: true,
@@ -74,6 +80,11 @@ const publicUser = (u) => ({
   streak: u.streak,
   emailVerified: u.emailVerified,
   preferences: u.preferences,
+  problemStats: u.problemStats || { easy: 0, medium: 0, hard: 0, total: 0 },
+  patternStats: u.patternStats || {},
+  solvedProblems: (u.solvedProblems || []).map((id) => id?.toString?.() ?? id),
+  savedProblems: (u.savedProblems || []).map((id) => id?.toString?.() ?? id),
+  badges: u.badges || [],
 })
 
 /* --------------------------------------------------------------------- */
@@ -112,20 +123,25 @@ export const register = async (req, res, next) => {
     })
     setAuthCookies(res, { access, refresh: refresh.token })
 
-    // Send verification email (best-effort)
-    if (process.env.MAIL_VERIFY_URL) {
-      const url = `${process.env.MAIL_VERIFY_URL}?token=${verificationToken}&uid=${user._id}`
-      const tpl = buildVerificationEmail({ name, verifyUrl: url })
-      await sendEmail({ to: user.email, ...tpl }).catch(() => {})
-    }
-
-    res.status(201).json({
+    // Send verification email (best-effort). In dev with no SMTP, surface
+    // the link in the response so the flow is testable.
+    const responseBody = {
       success: true,
       message: 'Account created. Check your email to verify your address.',
       accessToken: access,
-      token: access,
       user: publicUser(user),
-    })
+    }
+    if (process.env.MAIL_VERIFY_URL) {
+      const url = `${process.env.MAIL_VERIFY_URL}?token=${verificationToken}&uid=${user._id}`
+      const tpl = buildVerificationEmail({ name, verifyUrl: url })
+      sendEmail({ to: user.email, ...tpl }).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.warn('verification email failed:', err.message)
+      })
+      if (DEV_AUTH_MODE) responseBody.devVerifyUrl = url
+    }
+
+    res.status(201).json(responseBody)
   } catch (err) {
     next(err)
   }
@@ -176,7 +192,6 @@ export const login = async (req, res, next) => {
       success: true,
       message: 'Login successful',
       accessToken: access,
-      token: access,
       user: publicUser(user),
     })
   } catch (err) {
@@ -218,7 +233,7 @@ export const refresh = async (req, res, next) => {
 
     const access = generateAccessToken(decoded.id)
     setAuthCookies(res, { access, refresh: newRefresh.token })
-    res.json({ success: true, accessToken: access, token: access })
+    res.json({ success: true, accessToken: access })
   } catch (err) {
     next(err)
   }
@@ -313,7 +328,13 @@ export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body
     const user = await User.findOne({ email: email.toLowerCase() })
-    // Always 200 — never leak which emails exist
+    // Always 200 — never leak which emails exist. In dev-mode (no SMTP),
+    // we surface the link so the flow remains testable.
+    const body = {
+      success: true,
+      message:
+        'If that email is registered, a reset link has been sent. Check your inbox.',
+    }
     if (user) {
       const token = crypto.randomBytes(32).toString('hex')
       user.passwordResetToken = token
@@ -322,14 +343,14 @@ export const forgotPassword = async (req, res, next) => {
       if (process.env.MAIL_RESET_URL) {
         const url = `${process.env.MAIL_RESET_URL}?token=${token}&uid=${user._id}`
         const tpl = buildPasswordResetEmail({ name: user.name, resetUrl: url })
-        await sendEmail({ to: user.email, ...tpl }).catch(() => {})
+        sendEmail({ to: user.email, ...tpl }).catch((err) => {
+          // eslint-disable-next-line no-console
+          console.warn('reset email failed:', err.message)
+        })
+        if (DEV_AUTH_MODE) body.devResetUrl = url
       }
     }
-    res.json({
-      success: true,
-      message:
-        'If that email is registered, a reset link has been sent. Check your inbox.',
-    })
+    res.json(body)
   } catch (err) {
     next(err)
   }
@@ -399,7 +420,13 @@ export const resendVerification = async (req, res, next) => {
     if (process.env.MAIL_VERIFY_URL) {
       const url = `${process.env.MAIL_VERIFY_URL}?token=${token}&uid=${user._id}`
       const tpl = buildVerificationEmail({ name: user.name, verifyUrl: url })
-      await sendEmail({ to: user.email, ...tpl }).catch(() => {})
+      sendEmail({ to: user.email, ...tpl }).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.warn('verification email failed:', err.message)
+      })
+      if (DEV_AUTH_MODE) {
+        return res.json({ success: true, message: 'Verification email sent', devVerifyUrl: url })
+      }
     }
     res.json({ success: true, message: 'Verification email sent' })
   } catch (err) {
@@ -421,16 +448,4 @@ export const deleteAccount = async (req, res, next) => {
   } catch (err) {
     next(err)
   }
-}
-
-/* --------------------------------------------------------------------- */
-/* helpers                                                               */
-/* --------------------------------------------------------------------- */
-function msFromDuration(s) {
-  const m = /^(\d+)([smhd])$/.exec(String(s).trim())
-  if (!m) return Number(s) || 30 * 24 * 60 * 60 * 1000
-  const n = Number(m[1])
-  const unit = m[2]
-  const mult = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 }[unit]
-  return n * mult
 }

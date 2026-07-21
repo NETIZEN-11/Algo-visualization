@@ -1,21 +1,34 @@
 /**
  * Submission controller — record and list.
  */
-import { Submission, User, UserProgress } from '../models/index.js'
+import { Submission, User, UserProgress, Problem } from '../models/index.js'
 import { NotFoundError, ValidationError } from '../utils/errors.js'
-import { addXP } from '../utils/leveling.js'
+import { awardXP } from '../utils/leveling.js'
+import { calculateLevel } from '../utils/leveling.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
 /* ------------------------------------------------------------------ */
 export const createSubmission = wrap(async (req, res) => {
-  const { problemId, code, language, status, runtime, memory, testCasesPassed, testCasesTotal } = req.body
+  const { problemId, code, language, status, runtime, memory, testCasesPassed, testCasesTotal, difficulty } = req.body
   if (!problemId || !code || !language) throw new ValidationError('problemId, code, language are required')
+
+  // Resolve the public problemId to an ObjectId before we do anything else.
+  // The client may send either a public id ("prob_…") or an ObjectId hex.
+  let problemDoc = null
+  if (typeof problemId === 'string' && /^[a-f\d]{24}$/i.test(problemId)) {
+    problemDoc = await Problem.findById(problemId)
+  }
+  if (!problemDoc) {
+    problemDoc = await Problem.findOne({ problemId })
+  }
+  if (!problemDoc) throw new NotFoundError('Problem not found')
 
   const isAccepted = status === 'accepted'
   const sub = await Submission.create({
     userId: req.user._id,
-    problemId,
+    problemId: problemDoc._id,
+    problemSlug: problemDoc.problemId,
     code,
     language,
     status: status || 'pending',
@@ -28,17 +41,24 @@ export const createSubmission = wrap(async (req, res) => {
 
   if (isAccepted) {
     const user = await User.findById(req.user._id)
-    const alreadySolved = (user.solvedProblems || []).some((id) => id.toString() === problemId)
+    const alreadySolved = (user.solvedProblems || []).some(
+      (id) => id.toString() === problemDoc._id.toString()
+    )
     if (!alreadySolved) {
-      user.solvedProblems.push(problemId)
-      const lang = req.body.difficulty || 'medium'
-      const key = String(lang).toLowerCase()
-      if (['easy', 'medium', 'hard'].includes(key)) {
-        user.problemStats[key] = (user.problemStats[key] || 0) + 1
+      user.solvedProblems.push(problemDoc._id)
+      const diffKey = String(difficulty || problemDoc.difficulty || 'medium').toLowerCase()
+      if (['easy', 'medium', 'hard'].includes(diffKey)) {
+        user.problemStats[diffKey] = (user.problemStats[diffKey] || 0) + 1
       }
       user.problemStats.total = (user.problemStats.total || 0) + 1
+      user.level = Math.max(user.level || 1, calculateLevel(user.xp))
+      user.activityLog.push({
+        activity: `Accepted: ${problemDoc.title}`,
+        xp: 20,
+        date: new Date(),
+      })
       await user.save()
-      await addXP(req.user._id, 20, 'Accepted submission')
+      await awardXP(req.user._id, 20, 'Accepted submission')
     }
   }
 

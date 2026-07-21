@@ -26,6 +26,12 @@ export const problemService = {
     return response.data
   },
 
+  // Remove problem from saved list
+  unsaveProblem: async (problemId) => {
+    const response = await api.delete(`/problems/${problemId}/save`)
+    return response.data
+  },
+
   // Mark problem as solved
   markSolved: async (problemId) => {
     const response = await api.post(`/problems/${problemId}/solve`)

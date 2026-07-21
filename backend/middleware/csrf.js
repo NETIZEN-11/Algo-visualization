@@ -53,9 +53,11 @@ export const csrfProtect = (req, res, next) => {
   const cookieToken = req.cookies?.[COOKIE_NAME]
   const headerToken = req.headers[HEADER_NAME.toLowerCase()]
 
-  // If we're in a non-browser context (e.g. an integration), allow
-  // authenticated requests through — JWT is the second factor.
-  if (!cookieToken && !headerToken && req.user) return next()
+  // If we're in a non-browser context (e.g. an integration test) and CSRF
+  // is explicitly disabled, allow it through. Note: this no longer falls
+  // through on `req.user` — an authenticated SPA still needs a token, so
+  // a stolen access token via XSS can't bypass the protection.
+  if (!cookieToken && !headerToken && process.env.DISABLE_CSRF === 'true') return next()
 
   if (!cookieToken || !headerToken) {
     return res.status(403).json({

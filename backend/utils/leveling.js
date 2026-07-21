@@ -88,3 +88,6 @@ export const addXP = async (userId, amount, activity) => {
     return null
   }
 }
+
+/** Alias for `addXP` — preferred name. Kept the old one for back-compat. */
+export const awardXP = addXP

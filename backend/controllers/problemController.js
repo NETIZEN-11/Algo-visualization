@@ -5,11 +5,16 @@
  * `Submission` collection — not on the Problem document. `markSolved`
  * updates the user, awards XP, and (best-effort) keeps `UserProgress`
  * in sync.
+ *
+ * Ownership: any time a single problem is addressed by `:id`, the requester
+ * must either own it or it must be a system-owned (curated) one. The
+ * `loadOwnedProblem` helper enforces this in one place.
  */
 import Problem from '../models/Problem.js'
 import User from '../models/User.js'
 import UserProgress from '../models/UserProgress.js'
 import { AppError, NotFoundError, ValidationError } from '../utils/errors.js'
+import { assertOwner } from '../utils/ownership.js'
 import {
   analyzeProblemWithAI,
   generateHintsWithAI,
@@ -21,6 +26,8 @@ import { scrapeLeetCodeProblem } from '../services/scraperService.js'
 import { generateProblemId } from '../utils/helpers.js'
 import { XP_REWARDS } from '../utils/constants.js'
 import { updateProgress } from './analyticsController.js'
+import { logger } from '../utils/logger.js'
+import { calculateLevel, calculateStreak } from '../utils/leveling.js'
 
 const DIFFICULTY_KEY = { Easy: 'easy', Medium: 'medium', Hard: 'hard' }
 
@@ -33,6 +40,15 @@ const pagination = (q, { defaultLimit = 20, maxLimit = 100 } = {}) => {
 
 /** Wrap an async route handler so thrown errors hit the global handler. */
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
+/** Load a Problem by its public id and assert the requester owns it.
+ *  System-owned problems (userId === null) are accessible to all. */
+const loadOwnedProblem = async (problemId, userId) => {
+  const problem = await Problem.findOne({ problemId })
+  if (!problem) throw new NotFoundError('Problem not found')
+  assertOwner(problem, userId)
+  return problem
+}
 
 /* ------------------------------------------------------------------ */
 /* Scrape                                                              */
@@ -85,13 +101,21 @@ export const analyzeProblem = wrap(async (req, res) => {
 /* Reads                                                                */
 /* ------------------------------------------------------------------ */
 export const getProblem = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
-  // Bump views (fire and forget — don't slow the response)
-  Problem.updateOne({ _id: problem._id }, { $inc: { views: 1 } }).catch(() => {})
+  // Bump views (fire and forget — don't slow the response, but DO log on
+  // failure so the dev knows the counter stopped incrementing).
+  Problem.updateOne({ _id: problem._id }, { $inc: { views: 1 }, $set: { lastViewedAt: new Date() } })
+    .catch((err) => logger.warn({ err: err.message, problemId: problem.problemId }, 'view bump failed'))
 
-  res.json({ success: true, problem })
+  // Whether the current user has solved it. We look it up here instead of
+  // returning a stale `isSolved` boolean on the Problem doc.
+  const solved = await User.exists({ _id: req.user._id, solvedProblems: problem._id })
+
+  res.json({
+    success: true,
+    problem: { ...problem.toObject(), userSolved: !!solved },
+  })
 })
 
 export const getUserProblems = wrap(async (req, res) => {
@@ -107,32 +131,46 @@ export const getUserProblems = wrap(async (req, res) => {
 })
 
 export const saveProblem = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
   await User.findByIdAndUpdate(req.user._id, {
     $addToSet: { savedProblems: problem._id },
   })
 
-  res.json({ success: true, message: 'Problem saved successfully' })
+  res.json({ success: true, message: 'Problem saved successfully', saved: true })
+})
+
+export const unsaveProblem = wrap(async (req, res) => {
+  // We don't need the problem doc to remove it from the user's list; we
+  // only need the user's id. But we DO want to make sure the problem
+  // exists, to avoid silent typos in the URL.
+  await loadOwnedProblem(req.params.id, req.user._id)
+
+  await User.findByIdAndUpdate(req.user._id, {
+    $pull: { savedProblems: await Problem.findOne({ problemId: req.params.id }).select('_id').then((p) => p?._id) },
+  })
+
+  res.json({ success: true, message: 'Problem removed from saved', saved: false })
 })
 
 export const getVisualization = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
   res.json({ success: true, visualization: problem.analysis?.visualization || {} })
 })
 
 export const getCodeSolutions = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
   res.json({ success: true, solutions: problem.analysis?.code_solutions || {} })
 })
 
 export const getHints = wrap(async (req, res) => {
   const { hintLevel = 1, problemData } = req.body
-  const problem = problemData ? null : await Problem.findOne({ problemId: req.params.id })
-  if (!problem && !problemData) throw new NotFoundError('Problem not found')
+  let problem = null
+  if (req.params.id) {
+    problem = await loadOwnedProblem(req.params.id, req.user._id)
+  } else if (!problemData) {
+    throw new NotFoundError('Problem not found')
+  }
 
   const dataForAI = problemData || {
     title: problem.title,
@@ -148,8 +186,8 @@ export const analyzeCode = wrap(async (req, res) => {
 
   let problemContext = ''
   if (problemId) {
-    const problem = await Problem.findOne({ problemId }).select('title description')
-    if (problem) problemContext = `${problem.title}: ${problem.description}`
+    const problem = await loadOwnedProblem(problemId, req.user._id)
+    problemContext = `${problem.title}: ${problem.description}`
   }
 
   const result = await analyzeCodeWithAI(code, language, problemContext)
@@ -164,8 +202,7 @@ export const analyzeCode = wrap(async (req, res) => {
 })
 
 export const generateTestCases = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
   const problemData = {
     title: problem.title,
@@ -181,8 +218,7 @@ export const executeDryRun = wrap(async (req, res) => {
   const { code, customInput, language = 'python' } = req.body
   if (!code || !customInput) throw new ValidationError('Code and customInput are required')
 
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
   const result = await generateDryRunWithAI(
     { title: problem.title, description: problem.description },
@@ -197,8 +233,7 @@ export const executeDryRun = wrap(async (req, res) => {
 /* Related / search                                                    */
 /* ------------------------------------------------------------------ */
 export const getRelatedProblems = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
   const pattern = problem.analysis?.pattern_identification?.pattern
   if (!pattern) {
@@ -240,8 +275,7 @@ export const getByPattern = wrap(async (req, res) => {
 /* Mark solved                                                          */
 /* ------------------------------------------------------------------ */
 export const markSolved = wrap(async (req, res) => {
-  const problem = await Problem.findOne({ problemId: req.params.id })
-  if (!problem) throw new NotFoundError('Problem not found')
+  const problem = await loadOwnedProblem(req.params.id, req.user._id)
 
   const user = await User.findById(req.user._id)
 
@@ -257,8 +291,7 @@ export const markSolved = wrap(async (req, res) => {
     user.problemStats[diffKey] = (user.problemStats[diffKey] || 0) + 1
     user.problemStats.total = (user.problemStats.total || 0) + 1
 
-    // patternStats is now a plain object (not a Mongoose Map) — set via
-    // direct key access.
+    // patternStats is a plain object — set via direct key access.
     const pattern = problem.analysis?.pattern_identification?.pattern
     if (pattern) {
       const key = pattern.toLowerCase()
@@ -267,7 +300,9 @@ export const markSolved = wrap(async (req, res) => {
 
     xpEarned = XP_REWARDS[problem.difficulty] || XP_REWARDS.Medium || 20
     user.xp = (user.xp || 0) + xpEarned
-    user.level = Math.max(user.level || 1, xpToLevel(user.xp))
+    user.level = Math.max(user.level || 1, calculateLevel(user.xp))
+    user.streak = calculateStreak(user.streak, user.lastActive, new Date())
+    user.lastActive = new Date()
     user.activityLog.push({
       activity: `Solved: ${problem.title}`,
       xp: xpEarned,
@@ -293,18 +328,4 @@ export const markSolved = wrap(async (req, res) => {
 /* ------------------------------------------------------------------ */
 function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-/** Tiny helper — full leveling lives in `utils/leveling.js` (Phase 4). */
-function xpToLevel(xp) {
-  // L1 -> 100, L2 -> 250, L3 -> 450, L4 -> 700 … quadratic.
-  let level = 1
-  let need = 100
-  let remaining = xp
-  while (remaining >= need) {
-    remaining -= need
-    level += 1
-    need += 150
-  }
-  return level
 }

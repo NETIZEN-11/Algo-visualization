@@ -17,18 +17,30 @@ function normalizeType(raw) {
   if (t.includes('sliding') || t.includes('window')) return 'sliding_window'
   if (t.includes('two') && t.includes('pointer')) return 'two_pointer'
   if (t.includes('linked') || t.includes('list')) return 'linkedlist'
+  if (t.includes('binary_search_tree') || t === 'bst') return 'tree' // reuse tree viz
+  if (t.includes('heap') || t.includes('priority')) return 'array'    // heap shown as array
+  if (t.includes('trie')) return 'tree'                              // trie shares tree viz
+  if (t.includes('union')) return 'graph'                            // union-find via graph
+  if (t.includes('bfs') || t.includes('dfs')) return 'graph'
+  if (t.includes('graph')) return 'graph'
   if (t.includes('dynamic') || t === 'dp') return 'dp'
   if (t.includes('tree')) return 'tree'
-  if (t.includes('graph')) return 'graph'
   if (t.includes('stack')) return 'stack'
   if (t.includes('queue')) return 'queue'
+  if (t.includes('sort')) return 'array'
+  if (t.includes('greedy') || t.includes('interval')) return 'array'
+  if (t.includes('bit')) return 'array'
+  if (t.includes('recursion') || t.includes('back')) return 'array'
+  if (t.includes('binary')) return 'array'                          // binary search as array
   if (t.includes('array') || t.includes('string')) return 'array'
   return 'array' // safe fallback
 }
 
-function VisualizationEngine({ visualizationData, type, onStepChange }) {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+function VisualizationEngine({ visualizationData, type, onStepChange, initialStep = 0, autoPlay = false }) {
+  const [currentStepIndex, setCurrentStepIndex] = useState(
+    Math.min(Math.max(0, initialStep), (visualizationData?.steps?.length || 1) - 1)
+  )
+  const [isPlaying, setIsPlaying] = useState(autoPlay)
   const [speed, setSpeed] = useState(1)
 
   const normalizedType = normalizeType(type)

@@ -15,6 +15,7 @@ const HomePage             = lazy(() => import('./pages/HomePage'))
 const ProblemSolverPage    = lazy(() => import('./pages/ProblemSolverPage'))
 const ProblemPage          = lazy(() => import('./pages/ProblemPage'))
 const VisualizationPage    = lazy(() => import('./pages/VisualizationPage'))
+const DynamicVisualizationPage = lazy(() => import('./pages/DynamicVisualizationPage'))
 const CatalogPage          = lazy(() => import('./pages/CatalogPage'))
 const AlgorithmDetailPage  = lazy(() => import('./pages/AlgorithmDetailPage'))
 const InterviewPage        = lazy(() => import('./pages/InterviewPage'))
@@ -146,6 +147,7 @@ function App() {
           <Route path="/problem-solver" element={<ProblemSolverPage />} />
           <Route path="/problem/:id" element={<ProblemPage />} />
           <Route path="/visualization" element={<VisualizationPage />} />
+          <Route path="/visualization/dynamic" element={<DynamicVisualizationPage />} />
           <Route path="/visualization/catalog" element={<CatalogPage />} />
           <Route path="/visualization/:slug" element={<AlgorithmDetailPage />} />
           <Route path="/interview" element={<InterviewPage />} />

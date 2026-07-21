@@ -47,6 +47,8 @@ import submissionRoutes from './routes/submissionRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import playgroundRoutes from './routes/playgroundRoutes.js'
 import bookmarkRoutes from './routes/bookmarkRoutes.js'
+import visualizeRoutes from './routes/visualizeRoutes.js'
+import companyRoutes from './routes/companyRoutes.js'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -204,6 +206,8 @@ app.use('/api/submissions', submissionRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/playground', playgroundRoutes)
 app.use('/api/bookmarks', bookmarkRoutes)
+app.use('/api/visualize', visualizeRoutes)
+app.use('/api/companies', companyRoutes)
 
 /* ------------------------------------------------------------------ */
 /* 404 + error handler                                                 */

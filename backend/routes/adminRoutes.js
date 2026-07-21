@@ -10,6 +10,7 @@ import { globalRateLimiter } from '../middleware/rateLimiter.js'
 import {
   listUsers, updateUserRole, disableUser, awardBadge, getStats,
 } from '../controllers/adminController.js'
+import { run as runCompanySeed } from '../seeds/companySeed.js'
 
 const router = Router()
 
@@ -20,5 +21,13 @@ router.put('/users/:id/role', updateUserRole)
 router.post('/users/:id/disable', disableUser)
 router.post('/badges/award', awardBadge)
 router.get('/stats', getStats)
+router.post('/seed/companies', async (_req, res) => {
+  try {
+    await runCompanySeed({ silent: false })
+    res.json({ success: true, data: { message: 'Company seed complete' } })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message })
+  }
+})
 
 export default router

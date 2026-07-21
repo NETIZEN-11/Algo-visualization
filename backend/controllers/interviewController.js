@@ -14,10 +14,19 @@
  */
 import Interview from '../models/Interview.js'
 import { AppError, NotFoundError, ValidationError, BadRequestError } from '../utils/errors.js'
+import { assertOwner } from '../utils/ownership.js'
 import { conductInterviewWithAI } from '../services/aiService.js'
 import { addXP } from './gamificationController.js'
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
+/** Load an interview and assert the requester owns it. Throws 404 otherwise. */
+const loadOwnedInterview = async (sessionId, userId) => {
+  const interview = await Interview.findById(sessionId)
+  if (!interview) throw new NotFoundError('Interview session not found')
+  assertOwner(interview, userId)
+  return interview
+}
 
 /* ------------------------------------------------------------------ */
 /* Start                                                                */
@@ -72,8 +81,7 @@ export const submitAnswer = wrap(async (req, res) => {
   const { answer, timeSpentSec, questionIndex } = req.body
   if (!answer) throw new ValidationError('Answer is required')
 
-  const interview = await Interview.findById(sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(sessionId, req.user._id)
   if (interview.status !== 'active') {
     throw new BadRequestError('Interview session is not active')
   }
@@ -132,8 +140,7 @@ export const submitAnswer = wrap(async (req, res) => {
 /* ------------------------------------------------------------------ */
 export const getNextQuestion = wrap(async (req, res) => {
   const { sessionId } = req.params
-  const interview = await Interview.findById(sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(sessionId, req.user._id)
   if (interview.status !== 'active') {
     throw new BadRequestError('Interview session is not active')
   }
@@ -167,8 +174,7 @@ export const getNextQuestion = wrap(async (req, res) => {
 
 export const getFollowUpQuestion = wrap(async (req, res) => {
   const { sessionId } = req.params
-  const interview = await Interview.findById(sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(sessionId, req.user._id)
 
   const lastQuestion = interview.questions[interview.questions.length - 1]
   if (!lastQuestion?.answer) {
@@ -198,8 +204,7 @@ export const getFollowUpQuestion = wrap(async (req, res) => {
 /* ------------------------------------------------------------------ */
 export const endInterview = wrap(async (req, res) => {
   const { sessionId } = req.params
-  const interview = await Interview.findById(sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(sessionId, req.user._id)
 
   if (interview.status === 'completed') {
     // Idempotent — return the summary without re-awarding XP.
@@ -235,8 +240,7 @@ export const endInterview = wrap(async (req, res) => {
 
 export const abandonInterview = wrap(async (req, res) => {
   const { sessionId } = req.params
-  const interview = await Interview.findById(sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(sessionId, req.user._id)
   if (interview.status !== 'active') {
     return res.json({ success: true, message: 'Interview already ended' })
   }
@@ -250,22 +254,18 @@ export const abandonInterview = wrap(async (req, res) => {
 /* Reads                                                                */
 /* ------------------------------------------------------------------ */
 export const getInterview = wrap(async (req, res) => {
-  const interview = await Interview.findById(req.params.sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(req.params.sessionId, req.user._id)
   res.json({ success: true, data: interview })
 })
 
 export const getQuestionFeedback = wrap(async (req, res) => {
   const { sessionId, questionId } = req.params
-  const interview = await Interview.findById(sessionId)
-  if (!interview) throw new NotFoundError('Interview session not found')
+  const interview = await loadOwnedInterview(sessionId, req.user._id)
 
   let question
   if (/^\d+$/.test(questionId)) {
     const idx = parseInt(questionId, 10)
-    question = interview.questions.find(
-      (q) => q.questionNumber === idx || interview.questions.indexOf(q) === idx
-    )
+    question = interview.questions.find((q) => q.questionNumber === idx)
   }
   if (!question) throw new NotFoundError('Question not found in session')
 

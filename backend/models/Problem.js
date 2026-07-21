@@ -65,6 +65,7 @@ const problemSchema = new mongoose.Schema(
     isSaved: { type: Boolean, default: false },
     views: { type: Number, default: 0 },
     avgTimeSpent: { type: Number, default: 0 }, // ms, rolling average
+    lastViewedAt: { type: Date, default: null },
   },
   { timestamps: true }
 )

@@ -53,7 +53,7 @@ const useAuthStore = create(
         set({ isLoading: true, error: null })
         try {
           const data = await authService.login({ email, password })
-          if (data?.token) setAccessToken(data.token)
+          if (data?.accessToken) setAccessToken(data.accessToken)
           set({ user: data.user, isAuthenticated: true, isLoading: false })
           return { success: true }
         } catch (err) {
@@ -69,7 +69,7 @@ const useAuthStore = create(
         set({ isLoading: true, error: null })
         try {
           const data = await authService.register({ name, email, password })
-          if (data?.token) setAccessToken(data.token)
+          if (data?.accessToken) setAccessToken(data.accessToken)
           set({ user: data.user, isAuthenticated: true, isLoading: false })
           return { success: true }
         } catch (err) {

@@ -5,6 +5,7 @@ import {
   getProblem,
   getUserProblems,
   saveProblem,
+  unsaveProblem,
   getVisualization,
   getCodeSolutions,
   getHints,
@@ -16,6 +17,7 @@ import {
   getByPattern,
   markSolved,
 } from '../controllers/problemController.js'
+import { companiesForProblem } from '../controllers/companyController.js'
 import { protect } from '../middleware/auth.js'
 import { problemAnalysisValidation, validate } from '../middleware/validation.js'
 import { strictRateLimiter } from '../middleware/rateLimiter.js'
@@ -32,6 +34,7 @@ router.get('/company/:company', protect, searchByCompany)
 router.get('/pattern/:pattern', protect, getByPattern)
 router.get('/:id', protect, getProblem)
 router.post('/:id/save', protect, saveProblem)
+router.delete('/:id/save', protect, unsaveProblem)
 router.post('/:id/solve', protect, markSolved)
 router.get('/:id/visualization', protect, getVisualization)
 router.get('/:id/solutions', protect, getCodeSolutions)
@@ -39,5 +42,6 @@ router.post('/:id/hints', protect, getHints)
 router.post('/:id/test-cases', protect, generateTestCases)
 router.post('/:id/dry-run', protect, executeDryRun)
 router.get('/:id/related', protect, getRelatedProblems)
+router.get('/:id/companies', protect, companiesForProblem)
 
 export default router

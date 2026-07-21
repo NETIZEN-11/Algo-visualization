@@ -177,12 +177,9 @@ api.interceptors.response.use(
             })
         }
         const data = await refreshInFlight
-        if (data?.token) {
-          setAccessToken(data.token)
-          onLoginFromRefresh?.(data.user || null, data.token)
-          refreshAttemptCount = 0 // Success, reset counter
-        } else if (data?.accessToken) {
+        if (data?.accessToken) {
           setAccessToken(data.accessToken)
+          onLoginFromRefresh?.(data.user || null, data.accessToken)
           refreshAttemptCount = 0 // Success, reset counter
         }
         original.headers = original.headers || {}

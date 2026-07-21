@@ -8,7 +8,7 @@ import User from '../models/User.js'
  */
 export async function getBookmarks(req, res, next) {
   try {
-    const user = await User.findById(req.user.id).select('bookmarks').lean()
+    const user = await User.findById(req.user._id).select('bookmarks').lean()
     if (!user) return res.status(404).json({ message: 'User not found' })
     return res.json({
       bookmarks: user.bookmarks || [],
@@ -26,7 +26,7 @@ export async function getBookmarks(req, res, next) {
  */
 export async function getBookmark(req, res, next) {
   try {
-    const user = await User.findById(req.user.id).select('bookmarks').lean()
+    const user = await User.findById(req.user._id).select('bookmarks').lean()
     if (!user) return res.status(404).json({ message: 'User not found' })
     const id = req.params.algorithmId
     const bookmarked = (user.bookmarks || []).some((b) => b.algorithmId === id)
@@ -47,7 +47,7 @@ export async function addBookmark(req, res, next) {
     if (!algorithmId || typeof algorithmId !== 'string') {
       return res.status(400).json({ message: 'algorithmId is required' })
     }
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.user._id)
     if (!user) return res.status(404).json({ message: 'User not found' })
     // $addToSet would also work but we want a fresh `bookmarkedAt`
     // on re-add, which the $addToSet semantics wouldn't provide.
@@ -68,7 +68,7 @@ export async function addBookmark(req, res, next) {
 export async function removeBookmark(req, res, next) {
   try {
     const id = req.params.algorithmId
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.user._id)
     if (!user) return res.status(404).json({ message: 'User not found' })
     const before = user.bookmarks.length
     user.bookmarks = user.bookmarks.filter((b) => b.algorithmId !== id)

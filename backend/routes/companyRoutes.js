@@ -1,0 +1,11 @@
+import { Router } from 'express'
+import { protect, optionalAuth } from '../middleware/auth.js'
+import { list, getBySlug, listProblems, companiesForProblem } from '../controllers/companyController.js'
+
+const router = Router()
+
+router.get('/', optionalAuth, list)
+router.get('/:slug', optionalAuth, getBySlug)
+router.get('/:slug/problems', optionalAuth, listProblems)
+
+export default router

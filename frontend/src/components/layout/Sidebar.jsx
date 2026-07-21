@@ -16,6 +16,7 @@ import {
   FaBuilding,
   FaCog,
   FaStar,
+  FaBolt,
   FaBell,
   FaUserShield,
 } from 'react-icons/fa'
@@ -25,6 +26,7 @@ const menuItems = [
   { path: '/', icon: FaHome, label: 'Dashboard', color: 'primary' },
   { path: '/problem-solver', icon: FaCode, label: 'Problem Solver', color: 'blue' },
   { path: '/visualization', icon: FaEye, label: 'Visualization Lab', color: 'purple' },
+  { path: '/visualization/dynamic', icon: FaBolt, label: 'Dynamic Viz (paste)', color: 'yellow' },
   { path: '/interview', icon: FaMicrophone, label: 'Mock Interview', color: 'orange' },
   { path: '/bug-detector', icon: FaBug, label: 'Bug Detector', color: 'red' },
   { path: '/playground', icon: FaPlay, label: 'Code Playground', color: 'green' },
