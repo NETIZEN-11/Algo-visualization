@@ -28,7 +28,7 @@ function CodePanel({ code = {}, currentLine, language, onLanguageChange }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-
+      // Clipboard API not available or permission denied
     }
   }
 

@@ -20,7 +20,7 @@ const useAuthStore = create(
           const data = await authService.getProfile()
           set({ user: data.user, isAuthenticated: true, isLoading: false })
         } catch {
-
+          // Profile fetch failed - user not authenticated
           clearAccessToken()
           set({
             user: null,
@@ -69,7 +69,7 @@ const useAuthStore = create(
 
       logout: async () => {
         if (get().isAuthenticated) {
-          try { await authService.logout() } catch {  }
+          try { await authService.logout() } catch { /* ignore logout errors */ }
         }
         clearAccessToken()
         set({ user: null, isAuthenticated: false, error: null })
@@ -77,7 +77,7 @@ const useAuthStore = create(
 
       logoutAll: async () => {
         if (get().isAuthenticated) {
-          try { await authService.logoutAll() } catch {  }
+          try { await authService.logoutAll() } catch { /* ignore logout errors */ }
         }
         clearAccessToken()
         set({ user: null, isAuthenticated: false, error: null })
@@ -85,7 +85,7 @@ const useAuthStore = create(
 
       deleteAccount: async (password) => {
         if (get().isAuthenticated) {
-          try { await authService.deleteAccount({ password }) } catch {  }
+          try { await authService.deleteAccount({ password }) } catch { /* ignore errors */ }
         }
         clearAccessToken()
         set({ user: null, isAuthenticated: false, error: null })
@@ -106,7 +106,7 @@ const useAuthStore = create(
 
 registerAuthHandlers({
   onLogout: () => {
-    try { useAuthStore.getState().logout() } catch {  }
+    try { useAuthStore.getState().logout() } catch { /* ignore */ }
   },
   onLogin: (user, token) => {
     if (user) useAuthStore.setState({ user, isAuthenticated: true })

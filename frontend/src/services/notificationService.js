@@ -13,7 +13,7 @@ function read() {
 
 function write(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
-  listeners.forEach((l) => { try { l(list) } catch {  } })
+  listeners.forEach((l) => { try { l(list) } catch { /* ignore */ } })
 }
 
 function subscribe(listener) {

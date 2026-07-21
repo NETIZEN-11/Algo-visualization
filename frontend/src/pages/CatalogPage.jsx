@@ -28,7 +28,7 @@ function CatalogPage() {
         const ids = (res.data?.bookmarks || []).map((b) => b.algorithmId)
         if (!cancelled) setBookmarks(new Set(ids))
       } catch {
-
+        // Bookmarks fetch failed - ignore
       }
     })()
     return () => {

@@ -80,7 +80,7 @@ const Modal = ({
 
       const prev = previouslyFocused.current
       if (prev && typeof prev.focus === 'function') {
-        try { prev.focus() } catch {  }
+        try { prev.focus() } catch { /* ignore focus errors */ }
       }
     }
   }, [isOpen, handleClose])

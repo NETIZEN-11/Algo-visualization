@@ -31,7 +31,7 @@ function AlgorithmDetailPage() {
         const res = await api.get(`/bookmarks/${algo.id}`)
         if (!cancelled) setIsBookmarked(!!res.data?.bookmarked)
       } catch {
-
+        // Bookmark fetch failed - ignore
       } finally {
         if (!cancelled) setBookmarkLoaded(true)
       }
@@ -66,7 +66,7 @@ function AlgorithmDetailPage() {
         setIsBookmarked(true)
       }
     } catch {
-
+      // Bookmark update failed - ignore
     }
   }
 
@@ -74,9 +74,9 @@ function AlgorithmDetailPage() {
     const url = window.location.href
     try {
       await navigator.clipboard.writeText(url)
-
+      // Successfully copied
     } catch {
-
+      // Clipboard API not available
     }
   }
 

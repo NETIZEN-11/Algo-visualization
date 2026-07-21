@@ -13,7 +13,9 @@ import './styles/index.css'
     root.setAttribute('data-theme', theme)
     if (theme === 'dark') root.classList.add('dark')
     else root.classList.remove('dark')
-  } catch {  }
+  } catch {
+    // localStorage not available
+  }
 })()
 
 function waitForSwCleanup(timeoutMs = 1500) {
@@ -46,7 +48,9 @@ async function prewarmCsrf(timeoutMs = 1000) {
     const t = setTimeout(() => ctrl.abort(), timeoutMs)
     await fetch(`${base}/csrf`, { credentials: 'include', signal: ctrl.signal })
     clearTimeout(t)
-  } catch {  }
+  } catch {
+    // CSRF fetch failed - ignore, will retry on first API call
+  }
 }
 
 waitForSwCleanup()

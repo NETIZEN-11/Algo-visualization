@@ -224,7 +224,7 @@ function ProblemInputPanel({ onProblemAnalyzed, isAnalyzing, setIsAnalyzing }) {
         <p className="text-xs font-semibold text-gray-400 mb-2">Try these examples:</p>
         <div className="space-y-1">
           {[
-            'https:
+            'https://leetcode.com/problems/two-sum/',
             'https://leetcode.com/problems/longest-substring-without-repeating-characters/',
             'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/',
           ].map((url, index) => (

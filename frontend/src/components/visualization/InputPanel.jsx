@@ -37,7 +37,7 @@ function InputPanel({ presets, defaultPreset, onRun, initialInput, customHint, t
     try {
       onRun?.(normalize(arr))
     } catch {
-
+      // Ignore parse errors from random input
     }
   }
 
